@@ -1,1 +1,16 @@
-{"name":"心禹 LED 虛擬播放器 V2","short_name":"心禹 LED V2","start_url":"./","display":"standalone","background_color":"#090a0c","theme_color":"#090a0c","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]}
+{
+  "name": "心禹 LED 虛擬播放器 V4",
+  "short_name": "心禹 LED V4",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#090a0c",
+  "theme_color": "#090a0c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
