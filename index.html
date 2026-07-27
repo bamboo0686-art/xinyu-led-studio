@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a0c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>心禹 LED 虛擬播放器</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{color-scheme:dark;--gold:#d5b15d;--panel:#17191e;--line:#343740}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:#090a0c;color:#f4f4f5}
+header{position:sticky;top:0;z-index:5;padding:14px 16px;background:#090a0cee;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+h1{font-size:21px;margin:0}header p{margin:4px 0 0;color:#aaa;font-size:12px}
+main{max-width:1120px;margin:auto;padding:14px}.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.controls{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px}.control label{display:block;color:#f7dfa0;font-size:13px;font-weight:700;margin-bottom:6px}
+input,select,button{font:inherit}input[type=file],select{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:8px;background:#101216;color:#fff}
+input[type=range]{width:100%;accent-color:var(--gold)}small{display:block;color:#999;margin-top:6px;line-height:1.4}
+.viewer{position:relative;height:min(62vh,620px);min-height:390px;overflow:hidden;padding:0;touch-action:none;background:radial-gradient(circle at 50% 20%,#444852,#15171c 55%,#07080a)}
+.floor{position:absolute;left:-20%;right:-20%;bottom:-30%;height:55%;transform:rotateX(63deg);background:repeating-linear-gradient(90deg,transparent 0 59px,#ffffff12 60px),repeating-linear-gradient(0deg,transparent 0 59px,#ffffff12 60px),linear-gradient(#ffffff08,#0009)}
+#rig{--rx:-7deg;--ry:-18deg;--s:1;--b:1;--g:18px;position:absolute;left:50%;top:49%;width:220px;height:420px;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(var(--rx)) rotateY(var(--ry)) scale(var(--s))}
+.screen{position:absolute;top:0;width:210px;height:400px;border:8px solid #111318;background:#000;overflow:hidden;box-shadow:0 0 var(--g) #ffe09a88;backface-visibility:hidden}
+.media{width:100%;height:100%;position:relative;filter:brightness(var(--b));background:linear-gradient(150deg,#262932,#050506);display:grid;place-items:center;text-align:center}
+.media:after{content:"";pointer-events:none;position:absolute;inset:0;background-image:radial-gradient(circle,#fff5 0 1px,transparent 1.4px);background-size:4px 4px;mix-blend-mode:screen;opacity:.38}.nopixel .media:after{display:none}
+.media video,.media img{width:100%;height:100%;object-fit:cover;display:block}.placeholder{padding:18px;color:#f6d98b}.placeholder span{display:block;color:#aaa;font-size:12px;margin-top:8px}
+.front{transform:translateZ(0)}.left,.right{display:none}
+.triple .left{display:block;transform-origin:right center;transform:translateX(-202px) rotateY(30deg)}.triple .right{display:block;transform-origin:left center;transform:translateX(202px) rotateY(-30deg)}
+.tower .front{transform:translateZ(105px)}.tower .left{display:block;transform:translateX(-105px) rotateY(90deg)}.tower .right{display:block;transform:translateX(105px) rotateY(-90deg)}
+.base{position:absolute;left:-18px;bottom:-28px;width:246px;height:32px;background:linear-gradient(#2c3038,#090a0c)}
+.hint{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;color:#ddd;font-size:12px}.hint span{display:inline-block;background:#0008;border-radius:999px;padding:5px 8px;margin:3px}
+.play{display:grid;grid-template-columns:auto auto auto 1fr auto;gap:9px;align-items:center}button{min-height:44px;border:0;border-radius:10px;padding:9px 14px;background:var(--gold);color:#18120a;font-weight:800}button.alt{background:#24272e;color:#fff;border:1px solid var(--line)}button:disabled{opacity:.4}
+.time{min-width:0}.times{display:flex;justify-content:space-between;color:#999;font-size:12px}.spec{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;padding:1px;background:var(--line)}.spec div{background:var(--panel);padding:12px}.spec strong,.spec span{display:block}.spec strong{color:#f6d98b;font-size:13px}.spec span{color:#aaa;font-size:12px;margin-top:4px}
+footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
+@media(max-width:800px){.controls{grid-template-columns:1fr 1fr}.file{grid-column:1/-1}.play{grid-template-columns:repeat(3,1fr)}.time{grid-column:1/-1;grid-row:1}.reset{grid-column:1/-1}.spec{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.controls{grid-template-columns:1fr}.file{grid-column:auto}.viewer{height:55vh}.play{grid-template-columns:1fr 1fr}.restart{grid-column:1/-1}.spec{grid-template-columns:1fr}#rig{width:155px;height:305px}.screen{width:148px;height:282px;border-width:6px}.triple .left{transform:translateX(-143px) rotateY(30deg)}.triple .right{transform:translateX(143px) rotateY(-30deg)}.tower .front{transform:translateZ(74px)}.tower .left{transform:translateX(-74px) rotateY(90deg)}.tower .right{transform:translateX(74px) rotateY(-90deg)}.base{left:-13px;width:174px;height:26px;bottom:-23px}}
+</style>
+</head>
+<body>
+<header><h1>心禹 LED 虛擬播放器</h1><p>Internal Preview Edition · P2.604</p></header>
+<main>
+<section class="box controls">
+<div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>影片建議使用 MP4（H.264＋AAC）；MOV 是否可播取決於裝置與編碼。</small></div>
+<div class="control"><label>顯示模型</label><select id="model"><option value="">一境光幕屏</option><option value="triple">三境光幕屏</option><option value="tower">三面 LED 精神堡壘</option></select></div>
+<div class="control"><label>LED 亮度 <span id="bv">100%</span></label><input id="bright" type="range" min="30" max="160" value="100"></div>
+<div class="control"><label>發光強度 <span id="gv">40%</span></label><input id="glow" type="range" min="0" max="100" value="40"><label style="margin-top:8px"><input id="pixel" type="checkbox" checked> LED 像素紋理</label></div>
+</section>
+<section id="viewer" class="box viewer">
+<div class="floor"></div>
+<div id="rig">
+<div class="screen front"><div class="media"><div class="placeholder"><b>請匯入影片或圖片</b><span>可使用滑鼠或觸控旋轉、縮放</span></div></div></div>
+<div class="screen left"><div class="media"></div></div>
+<div class="screen right"><div class="media"></div></div>
+<div class="base"></div>
+</div>
+<div class="hint"><span>拖曳：旋轉</span><span>雙指／滾輪：縮放</span><span>雙擊：重設</span></div>
+</section>
+<section class="box play">
+<button id="play" disabled>播放</button><button id="mute" class="alt" disabled>靜音</button><button id="restart" class="alt restart" disabled>從頭播放</button>
+<div class="time"><input id="seek" type="range" min="0" max="1000" value="0" disabled><div class="times"><span id="now">00:00</span><span id="dur">00:00</span></div></div>
+<button id="reset" class="alt reset">重設視角</button>
+</section>
+<section class="box spec"><div><strong>一境光幕屏</strong><span>100 × 200 cm</span></div><div><strong>三境光幕屏</strong><span>三面各 100 × 200 cm</span></div><div><strong>三面 LED 精神堡壘</strong><span>三面各 100 × 200 cm</span></div><div><strong>點距</strong><span>P2.604</span></div></section>
+</main><footer>心禹國際開發科技有限公司 · 內部測試版</footer>
+<script>
+const q=id=>document.getElementById(id),rig=q("rig"),viewer=q("viewer"),file=q("file"),model=q("model"),play=q("play"),mute=q("mute"),restart=q("restart"),seek=q("seek"),now=q("now"),dur=q("dur");
+let url=null,videos=[],primary=null,rx=-7,ry=-18,scale=1,drag=false,lx=0,ly=0,pinch=null;
+const fmt=s=>Number.isFinite(s)?String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0"):"00:00";
+function transform(){rig.style.setProperty("--rx",rx+"deg");rig.style.setProperty("--ry",ry+"deg");rig.style.setProperty("--s",scale)}
+function reset(){rx=-7;ry=model.value? -18:0;scale=1;transform()}
+function enabled(x){[play,mute,restart,seek].forEach(e=>e.disabled=!x)}
+model.onchange=()=>{rig.className=model.value;reset()};
+q("bright").oninput=e=>{rig.style.setProperty("--b",e.target.value/100);q("bv").textContent=e.target.value+"%"};
+q("glow").oninput=e=>{rig.style.setProperty("--g",Math.round(e.target.value*.45)+"px");q("gv").textContent=e.target.value+"%"};
+q("pixel").onchange=e=>rig.classList.toggle("nopixel",!e.target.checked);
+file.onchange=()=>{const f=file.files[0];if(!f)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);videos=[];primary=null;document.querySelectorAll(".media").forEach((m,i)=>{m.innerHTML="";if(f.type.startsWith("video/")){const v=document.createElement("video");v.src=url;v.playsInline=true;v.setAttribute("playsinline","");v.loop=true;v.muted=i>0;m.append(v);videos.push(v);if(i===0)primary=v}else{const img=document.createElement("img");img.src=url;m.append(img)}});enabled(!!primary);if(primary){primary.onloadedmetadata=()=>dur.textContent=fmt(primary.duration);primary.ontimeupdate=()=>{if(primary.duration){seek.value=primary.currentTime/primary.duration*1000;now.textContent=fmt(primary.currentTime);videos.slice(1).forEach(v=>{if(Math.abs(v.currentTime-primary.currentTime)>.18)v.currentTime=primary.currentTime})}};primary.onplay=()=>{play.textContent="暫停";videos.slice(1).forEach(v=>v.play().catch(()=>{}))};primary.onpause=()=>{play.textContent="播放";videos.slice(1).forEach(v=>v.pause())}}};
+play.onclick=async()=>{if(!primary)return;try{primary.paused?await primary.play():primary.pause()}catch(e){alert("此影片無法播放，請轉成 MP4（H.264＋AAC）後再試。")}};
+mute.onclick=()=>{primary.muted=!primary.muted;mute.textContent=primary.muted?"開啟聲音":"靜音"};
+restart.onclick=()=>{videos.forEach(v=>v.currentTime=0);primary.play().catch(()=>{})};
+seek.oninput=()=>{if(primary&&primary.duration){const t=seek.value/1000*primary.duration;videos.forEach(v=>v.currentTime=t)}};
+q("reset").onclick=reset;viewer.ondblclick=reset;
+viewer.onwheel=e=>{e.preventDefault();scale=Math.max(.55,Math.min(1.7,scale-e.deltaY*.001));transform()};
+viewer.onpointerdown=e=>{if(e.pointerType==="touch"&&!e.isPrimary)return;drag=true;lx=e.clientX;ly=e.clientY};
+viewer.onpointermove=e=>{if(!drag||e.pointerType==="touch"&&!e.isPrimary)return;ry+=(e.clientX-lx)*.35;rx-=(e.clientY-ly)*.25;rx=Math.max(-38,Math.min(26,rx));lx=e.clientX;ly=e.clientY;transform()};
+viewer.onpointerup=viewer.onpointercancel=()=>drag=false;
+viewer.addEventListener("touchmove",e=>{if(e.touches.length!==2){pinch=null;return}e.preventDefault();const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(pinch)scale=Math.max(.55,Math.min(1.7,scale*d/pinch));pinch=d;transform()},{passive:false});
+viewer.ontouchend=()=>pinch=null;
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+reset();
+</script>
+</body></html>
