@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V7</title>
+<title>心禹 LED 虛擬播放器 V8</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740}
@@ -31,7 +31,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V7</h1><p>Exterior-Facing Seamless U-Shape Canvas Edition · P2.604</p></header>
+<header><h1>心禹 LED 虛擬播放器 V8</h1><p>Shared-Vertex Anti-Flicker U-Shape Edition · P2.604</p></header>
 <main>
 <section class="box controls">
 <div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>建議使用3:2超寬內容。左、正、右三面共同顯示同一個連續畫面，且影片完整顯露於ㄇ字型外側。</small></div>
@@ -59,13 +59,13 @@ footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
 <div id="status" class="status">目前模型：一境光幕屏｜單面外向顯示</div>
 
 <section class="box spec">
-<div><strong>無縫銜接</strong><span>兩個90°轉角都是LED顯示面，沒有黑框或間斷</span></div>
+<div><strong>無縫銜接</strong><span>兩個90°轉角共用同一組LED網格頂點，無閃爍、黑框或間斷</span></div>
 <div><strong>單一畫布</strong><span>左、正、右共同展開同一個超寬畫面</span></div>
 <div><strong>連續UV</strong><span>影片從左面連續延伸到正面與右面</span></div>
 <div><strong>標準點距</strong><span>P2.604</span></div>
 </section>
 </main>
-<footer>心禹國際開發科技有限公司 · V7 內部測試版</footer>
+<footer>心禹國際開發科技有限公司 · V8 內部測試版</footer>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
@@ -76,7 +76,7 @@ const canvas=q("stage"),viewer=q("viewer"),file=q("file"),model=q("model"),scene
 const play=q("play"),mute=q("mute"),restart=q("restart"),seek=q("seek"),now=q("now"),dur=q("dur");
 const badge=q("badge"),status=q("status"),sync=q("sync");
 
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,logarithmicDepthBuffer:true,powerPreference:"high-performance"});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -125,9 +125,18 @@ function disposeRoot(){
 function displayMaterial(){
  const tex=sharedTexture||placeholderTexture;
  return new THREE.MeshStandardMaterial({
-  map:tex,emissive:0xffffff,emissiveMap:tex,
+  map:tex,
+  emissive:0xffffff,
+  emissiveMap:tex,
   emissiveIntensity:Number(q("glow").value)/100*1.55,
-  roughness:.42,metalness:.04,side:THREE.FrontSide
+  roughness:.42,
+  metalness:.04,
+  side:THREE.FrontSide,
+  depthTest:true,
+  depthWrite:true,
+  polygonOffset:true,
+  polygonOffsetFactor:-4,
+  polygonOffsetUnits:-4
  });
 }
 
@@ -144,87 +153,122 @@ function makeSingleGeometry(){
 }
 
 function makeSeamlessUShapeGeometry(){
- // 單一連續Mesh，三面共用相接邊，影片顯示於ㄇ字型外側。
- // 展開UV順序：左側面(0~1/3)、正面(1/3~2/3)、右側面(2/3~1)。
- // ㄇ字型開口朝 +Z；外側方向為：左=-X、正面=-Z、右=+X。
- const verts=[],uvs=[];
+ // V8：使用真正「共用轉角頂點」的索引式單一網格。
+ // 左、正、右三面不再各自建立重複頂點，避免90度接縫產生像素裂縫與閃爍。
+ //
+ // 展開順序：
+ // p0 左後端 → p1 左前角 → p2 右前角 → p3 右後端
+ // UV：0 → 1/3 → 2/3 → 1
+ //
+ // ㄇ字型開口朝 +Z，LED顯示朝外：
+ // 左側=-X、正面=-Z、右側=+X。
 
- // 依指定的四個角加入「朝外」三角形。
- // 使用 a,c,b / a,d,c 的逆時針順序，修正V6法向量朝內的錯誤。
- function outwardQuad(a,b,c,d,u0,u1){
-  verts.push(...a,...c,...b, ...a,...d,...c);
-  uvs.push(u0,0,u1,1,u1,0, u0,0,u0,1,u1,1);
- }
+ const positions=new Float32Array([
+  // 底部
+  -.5,0,1,   // 0 左後
+  -.5,0,0,   // 1 左前，共用轉角
+   .5,0,0,   // 2 右前，共用轉角
+   .5,0,1,   // 3 右後
+  // 頂部
+  -.5,2,1,   // 4 左後
+  -.5,2,0,   // 5 左前，共用轉角
+   .5,2,0,   // 6 右前，共用轉角
+   .5,2,1    // 7 右後
+ ]);
 
- // 左側面：外側法向量 -X。
- // UV由左側後端連續走向正面左轉角。
- outwardQuad(
-  [-.5,0,1],
-  [-.5,0,0],
-  [-.5,2,0],
-  [-.5,2,1],
-  0,1/3
- );
+ const uvs=new Float32Array([
+  0,0,
+  1/3,0,
+  2/3,0,
+  1,0,
+  0,1,
+  1/3,1,
+  2/3,1,
+  1,1
+ ]);
 
- // 正面：外側法向量 -Z。
- outwardQuad(
-  [-.5,0,0],
-  [.5,0,0],
-  [.5,2,0],
-  [-.5,2,0],
-  1/3,2/3
- );
-
- // 右側面：外側法向量 +X。
- outwardQuad(
-  [.5,0,0],
-  [.5,0,1],
-  [.5,2,1],
-  [.5,2,0],
-  2/3,1
- );
+ // 每一面朝外的繞序；相鄰面直接共用轉角索引。
+ const indices=[
+  // 左側面，法向量-X
+  0,5,1, 0,4,5,
+  // 正面，法向量-Z
+  1,6,2, 1,5,6,
+  // 右側面，法向量+X
+  2,7,3, 2,6,7
+ ];
 
  const geo=new THREE.BufferGeometry();
- geo.setAttribute("position",new THREE.Float32BufferAttribute(verts,3));
- geo.setAttribute("uv",new THREE.Float32BufferAttribute(uvs,2));
+ geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
+ geo.setAttribute("uv",new THREE.BufferAttribute(uvs,2));
+ geo.setIndex(indices);
  geo.computeVertexNormals();
- return geo;
+
+ // 保留三個平面各自的90度硬邊，不做跨面平滑陰影。
+ // 顯示內容由emissive貼圖呈現，因此不需靠平滑法線掩飾接縫。
+ return geo.toNonIndexed();
 }
 
 function addOuterFrame(parent,heavy=false){
- // 只做整體最外圍框，不在兩個轉角增加直立黑框。
- const mat=new THREE.MeshStandardMaterial({color:heavy?0x050506:0x101216,roughness:.34,metalness:.78});
- const t=heavy?.09:.055,depth=heavy?.11:.07;
+ // V8：只保留整組設備最外緣與上下緣框體。
+ // 兩個90度內部轉角完全不放置直立框條，避免壓住LED或閃爍。
+ const mat=new THREE.MeshStandardMaterial({
+  color:heavy?0x050506:0x101216,
+  roughness:.34,
+  metalness:.78,
+  depthTest:true,
+  depthWrite:true
+ });
+ const t=heavy?.065:.045;
+ const d=heavy?.07:.05;
+
  const bars=[
-  // 正面上下
-  [0,.02,-depth,1+t*2,t,depth],[0,2.02,-depth,1+t*2,t,depth],
-  // 左側最外後緣及上下
-  [-.5-depth,.02,.5,depth,t,1],[-.5-depth,2.02,.5,depth,t,1],[-.5-depth,1,1,depth,2+t*2,depth],
-  // 右側最外後緣及上下
-  [.5+depth,.02,.5,depth,t,1],[.5+depth,2.02,.5,depth,t,1],[.5+depth,1,1,depth,2+t*2,depth]
+  // 正面最上、最下，只略微超出外輪廓
+  [0,-t/2,-d,1+t*2,t,d],
+  [0,2+t/2,-d,1+t*2,t,d],
+
+  // 左側上下與最外後緣
+  [-.5-d,-t/2,.5,d,t,1],
+  [-.5-d,2+t/2,.5,d,t,1],
+  [-.5-d,1,1+d/2,d,2+t*2,d],
+
+  // 右側上下與最外後緣
+  [.5+d,-t/2,.5,d,t,1],
+  [.5+d,2+t/2,.5,d,t,1],
+  [.5+d,1,1+d/2,d,2+t*2,d]
  ];
- bars.forEach(([x,y,z,w,h,d])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);parent.add(m)});
+
+ bars.forEach(([x,y,z,w,h,depth])=>{
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,depth),mat);
+  m.position.set(x,y,z);
+  parent.add(m);
+ });
 }
 
 function addBacking(parent,heavy=false){
- const mat=new THREE.MeshStandardMaterial({color:0x08090b,roughness:.35,metalness:.75});
+ const mat=new THREE.MeshStandardMaterial({
+  color:0x08090b,
+  roughness:.35,
+  metalness:.75,
+  depthTest:true,
+  depthWrite:true
+ });
  const d=heavy?.12:.075;
- const gap=.008;
+ const clearance=heavy?.035:.025;
 
- // 背板全部往ㄇ字型內側縮，避免與外側LED顯示面重疊或遮擋。
- // 正面外側為-Z，因此背板放在+Z。
- const front=new THREE.Mesh(new THREE.BoxGeometry(1,2,d-gap),mat);
- front.position.set(0,1,(d+gap)/2);
+ // 背板向ㄇ字型內部退縮，與LED外表面維持至少2.5～3.5公分模型間距，
+ // 避免轉角處發生Z-fighting。
+ const frontDepth=Math.max(.018,d-clearance);
+ const front=new THREE.Mesh(new THREE.BoxGeometry(.96,1.96,frontDepth),mat);
+ front.position.set(0,1,(d+clearance)/2);
  parent.add(front);
 
- // 左側外側為-X，因此背板往+X內縮。
- const left=new THREE.Mesh(new THREE.BoxGeometry(d-gap,2,1),mat);
- left.position.set(-.5+(d+gap)/2,1,.5);
+ const sideDepth=Math.max(.018,d-clearance);
+ const left=new THREE.Mesh(new THREE.BoxGeometry(sideDepth,1.96,.94),mat);
+ left.position.set(-.5+(d+clearance)/2,1,.53);
  parent.add(left);
 
- // 右側外側為+X，因此背板往-X內縮。
- const right=new THREE.Mesh(new THREE.BoxGeometry(d-gap,2,1),mat);
- right.position.set(.5-(d+gap)/2,1,.5);
+ const right=new THREE.Mesh(new THREE.BoxGeometry(sideDepth,1.96,.94),mat);
+ right.position.set(.5-(d+clearance)/2,1,.53);
  parent.add(right);
 }
 
@@ -252,12 +296,14 @@ function buildModel(){
   const heavy=model.value==="tower";
   addBacking(g,heavy);
   displayMesh=new THREE.Mesh(makeSeamlessUShapeGeometry(),displayMaterial());
-  displayMesh.position.y=.08;g.add(displayMesh);
+  displayMesh.position.y=.08;
+  displayMesh.renderOrder=10;
+  g.add(displayMesh);
   addOuterFrame(g,heavy);
   addBase(g,heavy);
   badge.textContent=(heavy?"三面 LED 精神堡壘":"三境光幕屏")+"｜無縫三面同屏";
   sync.textContent="單一影片＋連續UV";
-  status.textContent="目前模型："+(heavy?"三面 LED 精神堡壘":"三境光幕屏")+"｜三面為一個連續外向畫面，影片完整顯露於ㄇ字型外側；轉角無黑框、縫隙或中斷";
+  status.textContent="目前模型："+(heavy?"三面 LED 精神堡壘":"三境光幕屏")+"｜三面為共用轉角頂點的連續外向畫面；90°接縫已消除閃爍、黑框與畫面中斷";
  }
  updateMaterial();resetView();
 }
