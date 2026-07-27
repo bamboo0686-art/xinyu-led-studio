@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V4</title>
+<title>心禹 LED 虛擬播放器 V5</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740}
@@ -18,8 +18,8 @@ input,select,button{font:inherit}input[type=file],select{width:100%;min-height:4
 input[type=range]{width:100%;accent-color:var(--gold)}small{display:block;color:#999;margin-top:6px;line-height:1.4}
 #viewer{position:relative;height:min(68vh,700px);min-height:430px;overflow:hidden;padding:0;background:#111318}
 #stage{width:100%;height:100%;display:block;touch-action:none}
-.badge{position:absolute;left:12px;top:12px;padding:7px 10px;border-radius:999px;background:#000a;color:#f7dfa0;font-size:12px;border:1px solid #ffffff22;pointer-events:none}
-.sync{position:absolute;right:12px;top:12px;padding:7px 10px;border-radius:999px;background:#000a;color:#b9f7c4;font-size:12px;border:1px solid #ffffff22;pointer-events:none}
+.badge,.sync{position:absolute;top:12px;padding:7px 10px;border-radius:999px;background:#000a;font-size:12px;border:1px solid #ffffff22;pointer-events:none}
+.badge{left:12px;color:#f7dfa0}.sync{right:12px;color:#b9f7c4}
 .hint{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;color:#ddd;font-size:12px;pointer-events:none}.hint span{display:inline-block;background:#0009;border-radius:999px;padding:5px 8px;margin:3px}
 .play{display:grid;grid-template-columns:auto auto auto 1fr auto;gap:9px;align-items:center}button{min-height:44px;border:0;border-radius:10px;padding:9px 14px;background:var(--gold);color:#18120a;font-weight:800}
 button.alt{background:#24272e;color:#fff;border:1px solid var(--line)}button:disabled{opacity:.4}.time{min-width:0}.times{display:flex;justify-content:space-between;color:#999;font-size:12px}
@@ -31,11 +31,11 @@ footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V4</h1><p>Connected U-Shape + Single VideoTexture Edition · P2.604</p></header>
+<header><h1>心禹 LED 虛擬播放器 V5</h1><p>Exterior-Facing Connected U-Shape Edition · P2.604</p></header>
 <main>
 <section class="box controls">
-<div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>三面共用同一播放器與同一畫面來源，不會各自獨立播放。</small></div>
-<div class="control"><label>顯示模型</label><select id="model"><option value="single">一境光幕屏</option><option value="triple">三境光幕屏（連體ㄇ字型）</option><option value="tower">三面 LED 精神堡壘（連體ㄇ字型）</option></select></div>
+<div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>三面共用同一影片來源，內容顯示於ㄇ字型外側。</small></div>
+<div class="control"><label>顯示模型</label><select id="model"><option value="single">一境光幕屏</option><option value="triple">三境光幕屏（外側顯示）</option><option value="tower">三面 LED 精神堡壘（外側顯示）</option></select></div>
 <div class="control"><label>場景</label><select id="scene"><option value="studio">室內展廳</option><option value="day">白天</option><option value="night">夜晚</option><option value="wedding">婚宴</option><option value="temple">宮廟／廟會</option></select></div>
 <div class="control"><label>亮度 <span id="bv">100%</span></label><input id="bright" type="range" min="30" max="160" value="100"></div>
 <div class="control"><label>發光 <span id="gv">40%</span></label><input id="glow" type="range" min="0" max="100" value="40"></div>
@@ -44,7 +44,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
 <section id="viewer" class="box">
 <canvas id="stage"></canvas>
 <div id="badge" class="badge">一境光幕屏｜單面</div>
-<div id="sync" class="sync">單一影片來源</div>
+<div id="sync" class="sync">外側顯示｜單一影片來源</div>
 <div class="hint"><span>滑鼠／單指：旋轉</span><span>滾輪／雙指：縮放</span><span>雙擊：重設視角</span></div>
 </section>
 
@@ -56,16 +56,16 @@ footer{text-align:center;color:#888;font-size:12px;padding:5px 12px 24px}
 <button id="reset" class="alt reset">重設視角</button>
 </section>
 
-<div id="status" class="status">目前模型：一境光幕屏｜單面100 × 200 cm</div>
+<div id="status" class="status">目前模型：一境光幕屏｜單面外向顯示</div>
 
 <section class="box spec">
 <div><strong>連體結構</strong><span>正面與左右兩面邊緣直接相接</span></div>
-<div><strong>ㄇ字型角度</strong><span>左右兩側與正面均為90°</span></div>
-<div><strong>同步播放</strong><span>三面共用同一個影片、同一時間軸</span></div>
+<div><strong>外側顯示</strong><span>內容顯示在ㄇ字型外部，不顯示於內部</span></div>
+<div><strong>同步播放</strong><span>三面共用同一部影片與同一時間軸</span></div>
 <div><strong>標準點距</strong><span>P2.604</span></div>
 </section>
 </main>
-<footer>心禹國際開發科技有限公司 · V4 內部測試版</footer>
+<footer>心禹國際開發科技有限公司 · V5 內部測試版</footer>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
@@ -85,36 +85,27 @@ renderer.toneMappingExposure=1.1;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(40,1,.1,100);
 const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;
-controls.dampingFactor=.06;
-controls.target.set(0,1.05,.3);
-controls.minDistance=3;
-controls.maxDistance=13;
-controls.maxPolarAngle=Math.PI*.49;
+controls.enableDamping=true;controls.dampingFactor=.06;controls.target.set(0,1.05,.15);
+controls.minDistance=3;controls.maxDistance=13;controls.maxPolarAngle=Math.PI*.49;
 
 scene.add(new THREE.HemisphereLight(0xffffff,0x242424,1.8));
-const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(4,7,5);scene.add(key);
-const rim=new THREE.PointLight(0xd6b45f,15,20);rim.position.set(-4,3,-3);scene.add(rim);
+const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(4,7,-5);scene.add(key);
+const rim=new THREE.PointLight(0xd6b45f,15,20);rim.position.set(-4,3,3);scene.add(rim);
 
 const floorMat=new THREE.MeshStandardMaterial({color:0x292c32,roughness:.78,metalness:.12});
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),floorMat);
-floor.rotation.x=-Math.PI/2;scene.add(floor);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(30,30),floorMat);floor.rotation.x=-Math.PI/2;scene.add(floor);
 const grid=new THREE.GridHelper(30,30,0x555861,0x33363d);grid.position.y=.002;scene.add(grid);
 
 const root=new THREE.Group();scene.add(root);
-let video=null;
-let sharedTexture=null;
-let objectUrl=null;
-let screenMeshes=[];
+let video=null,sharedTexture=null,objectUrl=null,screenMeshes=[];
 const placeholderTexture=makePlaceholder();
 
 function makePlaceholder(){
  const c=document.createElement("canvas");c.width=512;c.height=1024;
- const x=c.getContext("2d");
- const g=x.createLinearGradient(0,0,512,1024);g.addColorStop(0,"#2d3038");g.addColorStop(1,"#07080a");
- x.fillStyle=g;x.fillRect(0,0,512,1024);
+ const x=c.getContext("2d"),g=x.createLinearGradient(0,0,512,1024);
+ g.addColorStop(0,"#2d3038");g.addColorStop(1,"#07080a");x.fillStyle=g;x.fillRect(0,0,512,1024);
  x.fillStyle="#d6b45f";x.font="bold 42px sans-serif";x.textAlign="center";x.fillText("心禹 LED",256,470);
- x.fillStyle="#aeb0b7";x.font="26px sans-serif";x.fillText("單一同步影像來源",256,525);
+ x.fillStyle="#aeb0b7";x.font="26px sans-serif";x.fillText("外側同步顯示",256,525);
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
 
@@ -123,34 +114,28 @@ function disposeRoot(){
   const o=root.children.pop();
   o.traverse?.(n=>{
    if(n.geometry)n.geometry.dispose();
-   if(n.material){
-    (Array.isArray(n.material)?n.material:[n.material]).forEach(m=>m.dispose());
-   }
+   if(n.material)(Array.isArray(n.material)?n.material:[n.material]).forEach(m=>m.dispose());
   });
  }
  screenMeshes=[];
 }
 
-function makePanelMaterial(){
+function panelMaterial(){
  const tex=sharedTexture||placeholderTexture;
  return new THREE.MeshStandardMaterial({
-  map:tex,
-  emissive:0xffffff,
-  emissiveMap:tex,
+  map:tex,emissive:0xffffff,emissiveMap:tex,
   emissiveIntensity:Number(q("glow").value)/100*1.55,
-  roughness:.42,
-  metalness:.04,
-  side:THREE.FrontSide
+  roughness:.42,metalness:.04,side:THREE.FrontSide
  });
 }
 
-function addConnectedPanel(parent,position,rotationY,heavy=false){
+function addPanel(parent,position,rotationY,heavy=false){
  const w=1,h=2,frame=.075,depth=heavy?.12:.08;
  const frameMat=new THREE.MeshStandardMaterial({color:heavy?0x050506:0x111318,roughness:.35,metalness:.75});
- const back=new THREE.Mesh(new THREE.BoxGeometry(w+frame*2,h+frame*2,depth),frameMat);
- back.position.copy(position);back.rotation.y=rotationY;parent.add(back);
+ const frameMesh=new THREE.Mesh(new THREE.BoxGeometry(w+frame*2,h+frame*2,depth),frameMat);
+ frameMesh.position.copy(position);frameMesh.rotation.y=rotationY;parent.add(frameMesh);
 
- const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),makePanelMaterial());
+ const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),panelMaterial());
  panel.position.copy(position);panel.rotation.y=rotationY;
  const outward=new THREE.Vector3(0,0,1).applyAxisAngle(new THREE.Vector3(0,1,0),rotationY);
  panel.position.add(outward.multiplyScalar(depth/2+.003));
@@ -161,8 +146,7 @@ function addBase(parent,heavy){
  const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.82,roughness:.28});
  const base=new THREE.Mesh(new THREE.BoxGeometry(2.16,heavy?.20:.12,1.12),mat);
  base.position.set(0,heavy?.10:.06,.52);parent.add(base);
- const feet=[[-.72,.25],[.72,.25],[-.72,.88],[.72,.88]];
- feet.forEach(([x,z])=>{
+ [[-.72,.25],[.72,.25],[-.72,.88],[.72,.88]].forEach(([x,z])=>{
   const f=new THREE.Mesh(new THREE.BoxGeometry(heavy?.48:.34,heavy?.12:.08,heavy?.55:.42),mat);
   f.position.set(x,(heavy?.12:.08)/2,z);parent.add(f);
  });
@@ -171,166 +155,108 @@ function addBase(parent,heavy){
 function buildModel(){
  disposeRoot();
  const g=new THREE.Group();root.add(g);
+
  if(model.value==="single"){
-  addConnectedPanel(g,new THREE.Vector3(0,1.08,0),0,false);
+  addPanel(g,new THREE.Vector3(0,1.08,0),Math.PI,false);
   const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
   [-.33,.33].forEach(x=>{const f=new THREE.Mesh(new THREE.BoxGeometry(.34,.09,.5),mat);f.position.set(x,.045,.18);g.add(f)});
-  badge.textContent="一境光幕屏｜單面";
+  badge.textContent="一境光幕屏｜外向顯示";
   sync.textContent="單一影片來源";
-  status.textContent="目前模型：一境光幕屏｜單面100 × 200 cm";
+  status.textContent="目前模型：一境光幕屏｜內容顯示於外側";
  }else{
   const heavy=model.value==="tower";
-  // 真正連體ㄇ字型：
-  // 正面跨 x=-0.5~0.5，位於 z=0
-  // 左面固定 x=-0.5，從 z=0 延伸至 z=1
-  // 右面固定 x=0.5，從 z=0 延伸至 z=1
-  // 三片在兩個前角共用同一條垂直邊，無間隙。
-  addConnectedPanel(g,new THREE.Vector3(0,1.08,0),0,heavy);
-  addConnectedPanel(g,new THREE.Vector3(-.5,1.08,.5),Math.PI/2,heavy);
-  addConnectedPanel(g,new THREE.Vector3(.5,1.08,.5),-Math.PI/2,heavy);
+
+  // ㄇ字型開口朝 +Z。
+  // 內容必須顯示在外側，因此：
+  // 正面朝 -Z；左側朝 -X；右側朝 +X。
+  // 三面仍然直接相接，並共用同一張 VideoTexture。
+  addPanel(g,new THREE.Vector3(0,1.08,0),Math.PI,heavy);          // 正面外側：-Z
+  addPanel(g,new THREE.Vector3(-.5,1.08,.5),-Math.PI/2,heavy);   // 左面外側：-X
+  addPanel(g,new THREE.Vector3(.5,1.08,.5),Math.PI/2,heavy);     // 右面外側：+X
   addBase(g,heavy);
+
   if(heavy){
-   badge.textContent="三面 LED 精神堡壘｜連體ㄇ字型";
-   status.textContent="目前模型：三面 LED 精神堡壘｜正面與左右兩面直接相接，三面同步同一影片";
+   badge.textContent="三面 LED 精神堡壘｜外側同步";
+   status.textContent="目前模型：三面 LED 精神堡壘｜內容顯示於ㄇ字型外側，三面同步同一影片";
   }else{
-   badge.textContent="三境光幕屏｜連體ㄇ字型";
-   status.textContent="目前模型：三境光幕屏｜正面與左右兩面直接相接，三面同步同一影片";
+   badge.textContent="三境光幕屏｜外側同步";
+   status.textContent="目前模型：三境光幕屏｜內容顯示於ㄇ字型外側，三面同步同一影片";
   }
-  sync.textContent="三面共用同一 VideoTexture";
+  sync.textContent="外側顯示｜共用同一 VideoTexture";
  }
- updateScreenMaterials();
- resetView();
+ updateMaterials();resetView();
 }
 
-function updateScreenMaterials(){
+function updateMaterials(){
  const tex=sharedTexture||placeholderTexture;
- const bright=Number(q("bright").value)/100;
- const glow=Number(q("glow").value)/100*1.55;
+ const bright=Number(q("bright").value)/100,glow=Number(q("glow").value)/100*1.55;
  screenMeshes.forEach(mesh=>{
-  mesh.material.map=tex;
-  mesh.material.emissiveMap=tex;
-  mesh.material.emissiveIntensity=glow*bright;
-  mesh.material.color.setScalar(bright);
+  mesh.material.map=tex;mesh.material.emissiveMap=tex;
+  mesh.material.emissiveIntensity=glow*bright;mesh.material.color.setScalar(bright);
   mesh.material.needsUpdate=true;
  });
 }
 
-function setMediaTexture(texture){
- if(sharedTexture && sharedTexture!==placeholderTexture)sharedTexture.dispose();
- sharedTexture=texture;
- updateScreenMaterials();
+function setSharedTexture(texture){
+ if(sharedTexture&&sharedTexture!==placeholderTexture)sharedTexture.dispose();
+ sharedTexture=texture;updateMaterials();
 }
 
 function resetView(){
- camera.position.set(model.value==="single"?3.5:4.8,3.15,model.value==="single"?5.7:6.7);
- controls.target.set(0,1.05,.35);
- controls.update();
+ // 預設從ㄇ字型外側正前方觀看
+ camera.position.set(model.value==="single"?3.2:4.5,3.0,model.value==="single"?-5.4:-6.6);
+ controls.target.set(0,1.05,.3);controls.update();
 }
 
 function resize(){
- const r=viewer.getBoundingClientRect();
- renderer.setSize(r.width,r.height,false);
- camera.aspect=r.width/r.height;
- camera.updateProjectionMatrix();
+ const r=viewer.getBoundingClientRect();renderer.setSize(r.width,r.height,false);
+ camera.aspect=r.width/r.height;camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(viewer);
 
 function setScene(type){
- const cfg={
-  studio:[0x17191f,0x292c32,1.1],
-  day:[0xa7c3d8,0x777261,1.35],
-  night:[0x070912,0x161b29,.75],
-  wedding:[0x24151d,0x3a252d,1.0],
-  temple:[0x250907,0x3a1711,1.05]
- }[type];
- scene.background=new THREE.Color(cfg[0]);
- floorMat.color.setHex(cfg[1]);
- renderer.toneMappingExposure=cfg[2];
+ const cfg={studio:[0x17191f,0x292c32,1.1],day:[0xa7c3d8,0x777261,1.35],night:[0x070912,0x161b29,.75],wedding:[0x24151d,0x3a252d,1],temple:[0x250907,0x3a1711,1.05]}[type];
+ scene.background=new THREE.Color(cfg[0]);floorMat.color.setHex(cfg[1]);renderer.toneMappingExposure=cfg[2];
 }
 
-function fmt(s){
- if(!Number.isFinite(s))return"00:00";
- return String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0");
-}
-function enableVideoControls(on){[play,mute,restart,seek].forEach(e=>e.disabled=!on)}
+function fmt(s){if(!Number.isFinite(s))return"00:00";return String(Math.floor(s/60)).padStart(2,"0")+":"+String(Math.floor(s%60)).padStart(2,"0")}
+function enableVideo(on){[play,mute,restart,seek].forEach(e=>e.disabled=!on)}
 
 file.addEventListener("change",()=>{
  const f=file.files?.[0];if(!f)return;
- if(objectUrl)URL.revokeObjectURL(objectUrl);
- objectUrl=URL.createObjectURL(f);
+ if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(f);
  if(video){video.pause();video.src="";video=null}
  if(f.type.startsWith("video/")){
-  // 只建立一個 video 元素、只建立一個 VideoTexture。
-  // 所有LED面板材料共同引用此同一張 sharedTexture。
-  video=document.createElement("video");
-  video.src=objectUrl;
-  video.loop=true;
-  video.playsInline=true;
-  video.setAttribute("playsinline","");
-  video.preload="metadata";
-  const texture=new THREE.VideoTexture(video);
-  texture.colorSpace=THREE.SRGBColorSpace;
-  texture.minFilter=THREE.LinearFilter;
-  texture.magFilter=THREE.LinearFilter;
-  setMediaTexture(texture);
+  video=document.createElement("video");video.src=objectUrl;video.loop=true;video.playsInline=true;video.setAttribute("playsinline","");video.preload="metadata";
+  const texture=new THREE.VideoTexture(video);texture.colorSpace=THREE.SRGBColorSpace;
+  texture.minFilter=THREE.LinearFilter;texture.magFilter=THREE.LinearFilter;
+  setSharedTexture(texture);
   video.addEventListener("loadedmetadata",()=>dur.textContent=fmt(video.duration));
-  video.addEventListener("timeupdate",()=>{
-   if(video.duration){
-    seek.value=video.currentTime/video.duration*1000;
-    now.textContent=fmt(video.currentTime);
-   }
-  });
+  video.addEventListener("timeupdate",()=>{if(video.duration){seek.value=video.currentTime/video.duration*1000;now.textContent=fmt(video.currentTime)}});
   video.addEventListener("play",()=>play.textContent="暫停");
   video.addEventListener("pause",()=>play.textContent="播放");
-  enableVideoControls(true);
+  enableVideo(true);
  }else{
-  const loader=new THREE.TextureLoader();
-  loader.load(objectUrl,t=>{
-   t.colorSpace=THREE.SRGBColorSpace;
-   setMediaTexture(t);
-  });
-  enableVideoControls(false);
+  new THREE.TextureLoader().load(objectUrl,t=>{t.colorSpace=THREE.SRGBColorSpace;setSharedTexture(t)});
+  enableVideo(false);
  }
 });
 
-play.addEventListener("click",async()=>{
- if(!video)return;
- try{video.paused?await video.play():video.pause()}
- catch{alert("影片無法播放，請改用 MP4（H.264＋AAC）。")}
-});
-mute.addEventListener("click",()=>{
- if(!video)return;
- video.muted=!video.muted;
- mute.textContent=video.muted?"開啟聲音":"靜音";
-});
-restart.addEventListener("click",()=>{
- if(!video)return;
- video.currentTime=0;
- video.play().catch(()=>{});
-});
-seek.addEventListener("input",()=>{
- if(video&&video.duration)video.currentTime=seek.value/1000*video.duration;
-});
+play.addEventListener("click",async()=>{if(!video)return;try{video.paused?await video.play():video.pause()}catch{alert("影片無法播放，請改用 MP4（H.264＋AAC）。")}});
+mute.addEventListener("click",()=>{if(!video)return;video.muted=!video.muted;mute.textContent=video.muted?"開啟聲音":"靜音"});
+restart.addEventListener("click",()=>{if(!video)return;video.currentTime=0;video.play().catch(()=>{})});
+seek.addEventListener("input",()=>{if(video&&video.duration)video.currentTime=seek.value/1000*video.duration});
 model.addEventListener("change",buildModel);
 sceneSel.addEventListener("change",()=>setScene(sceneSel.value));
-q("bright").addEventListener("input",e=>{q("bv").textContent=e.target.value+"%";updateScreenMaterials()});
-q("glow").addEventListener("input",e=>{q("gv").textContent=e.target.value+"%";updateScreenMaterials()});
+q("bright").addEventListener("input",e=>{q("bv").textContent=e.target.value+"%";updateMaterials()});
+q("glow").addEventListener("input",e=>{q("gv").textContent=e.target.value+"%";updateMaterials()});
 q("reset").addEventListener("click",resetView);
 renderer.domElement.addEventListener("dblclick",resetView);
 
-function animate(){
- requestAnimationFrame(animate);
- controls.update();
- renderer.render(scene,camera);
-}
-setScene("studio");
-buildModel();
-resize();
-animate();
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}
+setScene("studio");buildModel();resize();animate();
 
-if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
- navigator.serviceWorker.register("./sw.js").catch(()=>{});
-}
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
 </script>
 </body>
 </html>
