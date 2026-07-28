@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V12</title>
+<title>心禹 LED 虛擬播放器 V13</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740}
@@ -48,7 +48,7 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V12</h1><p>Multi-Unit Synchronized Display Edition · P2.604</p></header>
+<header><h1>心禹 LED 虛擬播放器 V13</h1><p>Opposing Symmetrical Single-Screen Edition · P2.604</p></header>
 <main>
 <section class="box controls">
 <div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>三境光幕屏建議3:2內容；4米三面LED精神堡壘建議3:4內容。支援全螢幕播放。</small></div>
@@ -76,13 +76,13 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 <div id="status" class="status">目前模型：一境光幕屏｜單面外向顯示</div>
 
 <section class="box spec">
-<div><strong>展示數量</strong><span>一境6支／三境2組／三面精神堡壘2組</span></div>
+<div><strong>展示數量</strong><span>一境6支左右對襯／三境2組／三面精神堡壘2組</span></div>
 <div><strong>單一畫布</strong><span>左、正、右共同展開同一個超寬畫面</span></div>
 <div><strong>連續UV</strong><span>影片從左面連續延伸到正面與右面</span></div>
 <div><strong>三面LED精神堡壘</strong><span>高度4公尺，頂部無黑色外框</span></div>
 </section>
 </main>
-<footer>心禹國際開發科技有限公司 · V12 內部測試版</footer>
+<footer>心禹國際開發科技有限公司 · V13 內部測試版</footer>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
@@ -131,7 +131,7 @@ function makePlaceholder(){
  const g=x.createLinearGradient(0,0,1536,1024);g.addColorStop(0,"#301c22");g.addColorStop(.5,"#2d3038");g.addColorStop(1,"#071c27");
  x.fillStyle=g;x.fillRect(0,0,1536,1024);
  x.fillStyle="#d6b45f";x.font="bold 70px sans-serif";x.textAlign="center";x.fillText("心禹 LED 多設備同步展示",768,465);
- x.fillStyle="#d9d9dd";x.font="34px sans-serif";x.fillText("多支／多組設備同步播放",768,535);
+ x.fillStyle="#d9d9dd";x.font="34px sans-serif";x.fillText("左右對襯展示／多組同步播放",768,535);
  for(let i=0;i<3;i++){x.strokeStyle="rgba(255,255,255,.2)";x.strokeRect(i*512+2,2,508,1020)}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
@@ -200,7 +200,7 @@ function makeSeamlessUShapeGeometry(height=2){
 }
 
 function addOuterFrame(parent,heavy=false,height=2){
- // V12：
+ // V13：
  // 三境光幕屏：移除頂部黑框、左右外側黑框，只保留底部必要結構。
  // 三面LED精神堡壘：移除頂部與左右外側黑框，只保留底部必要結構。
  // 兩個90度轉角一律不設黑框，確保LED連續顯示。
@@ -263,36 +263,60 @@ function buildModel(){
 
  if(model.value==="single"){
   const height=2;
-  const positions=[
-   [-1.5,0,-.45],[0,0,-.45],[1.5,0,-.45],
-   [-1.5,0,1.25],[0,0,1.25],[1.5,0,1.25]
-  ];
 
-  positions.forEach(([x,y,z])=>{
-   const unit=new THREE.Group();
-   unit.position.set(x,y,z);
+  // V13：一境光幕屏6支改為左右對襯排列。
+  // 左側3支朝向中央(+X)，右側3支朝向中央(-X)。
+  // 中央通道加寬至約4.8個模型單位，提升觀看與展示空間。
+  const leftX=-2.4;
+  const rightX=2.4;
+  const zRows=[-1.9,0,1.9];
 
-   const mesh=new THREE.Mesh(makeSingleGeometry(height),displayMaterial());
-   mesh.rotation.y=Math.PI;
-   mesh.position.y=.08;
-   mesh.renderOrder=10;
-   unit.add(mesh);
-   window.__displayMeshes.push(mesh);
+  zRows.forEach(z=>{
+   // 左側
+   const leftUnit=new THREE.Group();
+   leftUnit.position.set(leftX,0,z);
 
-   const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
-   [-.33,.33].forEach(fx=>{
-    const f=new THREE.Mesh(new THREE.BoxGeometry(.34,.09,.5),mat);
-    f.position.set(fx,.045,.18);
-    unit.add(f);
+   const leftMesh=new THREE.Mesh(makeSingleGeometry(height),displayMaterial());
+   leftMesh.rotation.y=-Math.PI/2;
+   leftMesh.position.y=.08;
+   leftMesh.renderOrder=10;
+   leftUnit.add(leftMesh);
+   window.__displayMeshes.push(leftMesh);
+
+   const frameMatL=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
+   [-.33,.33].forEach(fz=>{
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.5,.09,.34),frameMatL);
+    f.position.set(.18,.045,fz);
+    leftUnit.add(f);
    });
 
-   sceneGroup.add(unit);
+   sceneGroup.add(leftUnit);
+
+   // 右側
+   const rightUnit=new THREE.Group();
+   rightUnit.position.set(rightX,0,z);
+
+   const rightMesh=new THREE.Mesh(makeSingleGeometry(height),displayMaterial());
+   rightMesh.rotation.y=Math.PI/2;
+   rightMesh.position.y=.08;
+   rightMesh.renderOrder=10;
+   rightUnit.add(rightMesh);
+   window.__displayMeshes.push(rightMesh);
+
+   const frameMatR=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
+   [-.33,.33].forEach(fz=>{
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.5,.09,.34),frameMatR);
+    f.position.set(-.18,.045,fz);
+    rightUnit.add(f);
+   });
+
+   sceneGroup.add(rightUnit);
   });
 
   displayMesh=window.__displayMeshes[0];
-  badge.textContent="一境光幕屏｜6支同步";
-  sync.textContent="6支共用同一影片來源";
-  status.textContent="目前模型：一境光幕屏6支｜3×2排列、同步播放同一影片";
+  badge.textContent="一境光幕屏｜左右對襯6支";
+  sync.textContent="左右各3支｜面向中央同步播放";
+  status.textContent="目前模型：一境光幕屏6支｜左右各3支對襯排列、螢幕彼此相對、中央空間加寬";
  }else{
   const heavy=model.value==="tower";
   const height=heavy?4:2;
@@ -369,10 +393,11 @@ function resetView(){
   controls.minDistance=5;
   controls.maxDistance=22;
  }else{
-  camera.position.set(7.6,5.0,-10.8);
-  controls.target.set(0,1.1,.5);
-  controls.minDistance=5;
-  controls.maxDistance=24;
+  // 從中央通道前方斜上角觀看，可同時看見左右兩排螢幕朝向中央。
+  camera.position.set(8.8,6.2,-10.8);
+  controls.target.set(0,1.05,0);
+  controls.minDistance=6;
+  controls.maxDistance=26;
  }
  controls.update();
 }
