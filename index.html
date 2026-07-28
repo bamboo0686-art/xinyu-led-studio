@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V9</title>
+<title>心禹 LED 虛擬播放器 V10</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740}
@@ -21,7 +21,7 @@ input[type=range]{width:100%;accent-color:var(--gold)}small{display:block;color:
 .badge,.sync{position:absolute;top:12px;padding:7px 10px;border-radius:999px;background:#000a;font-size:12px;border:1px solid #ffffff22;pointer-events:none}
 .badge{left:12px;color:#f7dfa0}.sync{right:12px;color:#b9f7c4}
 .hint{position:absolute;left:10px;right:10px;bottom:10px;text-align:center;color:#ddd;font-size:12px;pointer-events:none}.hint span{display:inline-block;background:#0009;border-radius:999px;padding:5px 8px;margin:3px}
-.play{display:grid;grid-template-columns:auto auto auto 1fr auto auto;gap:9px;align-items:center}button{min-height:44px;border:0;border-radius:10px;padding:9px 14px;background:var(--gold);color:#18120a;font-weight:800}
+.play{display:grid;grid-template-columns:auto auto auto 1fr auto auto auto;gap:9px;align-items:center}button{min-height:44px;border:0;border-radius:10px;padding:9px 14px;background:var(--gold);color:#18120a;font-weight:800}
 button.alt{background:#24272e;color:#fff;border:1px solid var(--line)}button:disabled{opacity:.4}.time{min-width:0}.times{display:flex;justify-content:space-between;color:#999;font-size:12px}
 .spec{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;padding:1px;background:var(--line)}.spec div{background:var(--panel);padding:12px}.spec strong,.spec span{display:block}.spec strong{color:#f6d98b;font-size:13px}.spec span{color:#aaa;font-size:12px;margin-top:4px}
 .status{padding:10px 12px;border-radius:10px;background:#101216;border:1px solid var(--line);color:#ddd;font-size:13px}
@@ -37,10 +37,14 @@ body.pseudo-fullscreen #viewer{position:fixed;inset:0;z-index:9999;width:100vw;h
 body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#viewer:-webkit-full-screen .fullscreen-tools{display:flex}
 @media(max-width:560px){.fullscreen-tools{bottom:72px;right:10px;left:10px;justify-content:flex-end}.fullscreen-tools button{min-height:40px;padding:7px 10px}}
 
+
+.record-badge{position:absolute;left:12px;top:52px;display:none;padding:7px 10px;border-radius:999px;background:#210606dd;color:#ffb4b4;font-size:12px;border:1px solid #ff6b6b66;pointer-events:none}
+.record-badge.active{display:block}
+
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V9</h1><p>4M Tower + Fullscreen Stable Seam Edition · P2.604</p></header>
+<header><h1>心禹 LED 虛擬播放器 V10</h1><p>Frameless Sides + Screen Recording Edition · P2.604</p></header>
 <main>
 <section class="box controls">
 <div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>三境光幕屏建議3:2內容；4米三面LED精神堡壘建議3:4內容。支援全螢幕播放。</small></div>
@@ -53,7 +57,7 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 <section id="viewer" class="box">
 <canvas id="stage"></canvas>
 <div id="badge" class="badge">一境光幕屏｜單面</div>
-<div id="sync" class="sync">單一連續畫布</div>
+<div id="sync" class="sync">單一連續畫布</div><div id="recordBadge" class="record-badge">● 錄影中 00:00</div>
 <div class="fullscreen-tools"><button id="fullscreenPlay" class="alt">播放／暫停</button><button id="fullscreenExit" class="alt">退出全螢幕</button></div><div class="hint"><span>滑鼠／單指：旋轉</span><span>滾輪／雙指：縮放</span><span>雙擊：重設視角</span></div>
 </section>
 
@@ -62,7 +66,7 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 <button id="mute" class="alt" disabled>靜音</button>
 <button id="restart" class="alt restart" disabled>從頭播放</button>
 <div class="time"><input id="seek" type="range" min="0" max="1000" value="0" disabled><div class="times"><span id="now">00:00</span><span id="dur">00:00</span></div></div>
-<button id="reset" class="alt reset">重設視角</button><button id="fullscreen" class="alt">全螢幕播放</button>
+<button id="reset" class="alt reset">重設視角</button><button id="fullscreen" class="alt">全螢幕播放</button><button id="record" class="alt">開始錄影</button>
 </section>
 
 <div id="status" class="status">目前模型：一境光幕屏｜單面外向顯示</div>
@@ -74,7 +78,7 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 <div><strong>三面LED精神堡壘</strong><span>高度4公尺，頂部無黑色外框</span></div>
 </section>
 </main>
-<footer>心禹國際開發科技有限公司 · V9 內部測試版</footer>
+<footer>心禹國際開發科技有限公司 · V10 內部測試版</footer>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
@@ -183,6 +187,10 @@ function makeSeamlessUShapeGeometry(height=2){
 }
 
 function addOuterFrame(parent,heavy=false,height=2){
+ // V10：
+ // 三境光幕屏：移除頂部黑框、左右外側黑框，只保留底部必要結構。
+ // 三面LED精神堡壘：移除頂部與左右外側黑框，只保留底部必要結構。
+ // 兩個90度轉角一律不設黑框，確保LED連續顯示。
  const mat=new THREE.MeshStandardMaterial({
   color:heavy?0x050506:0x101216,
   roughness:.34,
@@ -192,23 +200,14 @@ function addOuterFrame(parent,heavy=false,height=2){
  });
  const t=heavy?.065:.045;
  const d=heavy?.07:.05;
+
  const bars=[
-  // 底部框體
+  // 僅保留正面與左右底部結構
   [0,-t/2,-d,1+t*2,t,d],
   [-.5-d,-t/2,.5,d,t,1],
-  [.5+d,-t/2,.5,d,t,1],
-  // 左右最外側後緣
-  [-.5-d,height/2,1+d/2,d,height+t*2,d],
-  [.5+d,height/2,1+d/2,d,height+t*2,d]
+  [.5+d,-t/2,.5,d,t,1]
  ];
- // 三境光幕屏保留頂框；4米三面LED精神堡壘完全移除頂部黑色外框。
- if(!heavy){
-  bars.push(
-   [0,height+t/2,-d,1+t*2,t,d],
-   [-.5-d,height+t/2,.5,d,t,1],
-   [.5+d,height+t/2,.5,d,t,1]
-  );
- }
+
  bars.forEach(([x,y,z,w,h,depth])=>{
   const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,depth),mat);
   m.position.set(x,y,z);
@@ -275,10 +274,10 @@ function buildModel(){
   addBase(g,heavy);
   if(heavy){
    badge.textContent="三面 LED 精神堡壘｜4米無縫三面同屏";
-   status.textContent="目前模型：三面 LED 精神堡壘｜高度4公尺、頂部無黑色外框、三面外向無縫同屏";
+   status.textContent="目前模型：三面 LED 精神堡壘｜高度4公尺、頂部與左右無黑框、三面外向無縫同屏";
   }else{
    badge.textContent="三境光幕屏｜2米無縫三面同屏";
-   status.textContent="目前模型：三境光幕屏｜高度2公尺、三面外向無縫同屏";
+   status.textContent="目前模型：三境光幕屏｜高度2公尺、頂部與左右無黑框、三面外向無縫同屏";
   }
   sync.textContent="單一影片＋連續UV";
  }
@@ -367,6 +366,129 @@ q("glow").addEventListener("input",e=>{q("gv").textContent=e.target.value+"%";up
 q("reset").addEventListener("click",resetView);
 renderer.domElement.addEventListener("dblclick",resetView);
 
+
+
+let mediaRecorder=null;
+let recordedChunks=[];
+let recordingStart=0;
+let recordingTimer=null;
+let audioContext=null;
+let audioDestination=null;
+
+function recordingSupported(){
+ return !!(canvas.captureStream && window.MediaRecorder);
+}
+
+function preferredMimeType(){
+ const types=[
+  "video/webm;codecs=vp9,opus",
+  "video/webm;codecs=vp8,opus",
+  "video/webm"
+ ];
+ return types.find(t=>MediaRecorder.isTypeSupported(t))||"";
+}
+
+function updateRecordingTime(){
+ if(!recordingStart)return;
+ const sec=Math.floor((Date.now()-recordingStart)/1000);
+ const mm=String(Math.floor(sec/60)).padStart(2,"0");
+ const ss=String(sec%60).padStart(2,"0");
+ recordBadge.textContent="● 錄影中 "+mm+":"+ss;
+}
+
+async function makeRecordingStream(){
+ const canvasStream=canvas.captureStream(30);
+
+ // 嘗試把目前影片聲音加入錄影；瀏覽器限制或尚未播放時，仍可錄製無聲畫面。
+ if(video && !video.muted){
+  try{
+   audioContext=audioContext||new (window.AudioContext||window.webkitAudioContext)();
+   if(audioContext.state==="suspended")await audioContext.resume();
+   audioDestination=audioContext.createMediaStreamDestination();
+
+   if(!video.__recordSource){
+    video.__recordSource=audioContext.createMediaElementSource(video);
+    video.__recordGain=audioContext.createGain();
+    video.__recordSource.connect(video.__recordGain);
+    video.__recordGain.connect(audioContext.destination);
+   }
+
+   video.__recordGain.connect(audioDestination);
+   const audioTracks=audioDestination.stream.getAudioTracks();
+   audioTracks.forEach(track=>canvasStream.addTrack(track));
+  }catch(e){
+   console.warn("無法加入影片聲音，將錄製無聲畫面。",e);
+  }
+ }
+ return canvasStream;
+}
+
+async function startRecording(){
+ if(!recordingSupported()){
+  alert("目前瀏覽器不支援螢幕錄影，建議使用最新版Chrome、Edge或Android Chrome。");
+  return;
+ }
+
+ try{
+  const stream=await makeRecordingStream();
+  recordedChunks=[];
+  const mimeType=preferredMimeType();
+  mediaRecorder=new MediaRecorder(stream,mimeType?{mimeType,videoBitsPerSecond:8000000}:undefined);
+
+  mediaRecorder.ondataavailable=e=>{
+   if(e.data&&e.data.size>0)recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop=()=>{
+   const type=mediaRecorder.mimeType||"video/webm";
+   const blob=new Blob(recordedChunks,{type});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement("a");
+   const stamp=new Date().toISOString().replace(/[:.]/g,"-");
+   a.href=url;
+   a.download="心禹_LED播放器錄影_"+stamp+".webm";
+   document.body.appendChild(a);
+   a.click();
+   a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),3000);
+
+   stream.getTracks().forEach(t=>t.stop());
+   mediaRecorder=null;
+   recordedChunks=[];
+   recordBtn.textContent="開始錄影";
+   recordBadge.classList.remove("active");
+   clearInterval(recordingTimer);
+   recordingTimer=null;
+   recordingStart=0;
+  };
+
+  mediaRecorder.start(1000);
+  recordingStart=Date.now();
+  recordBadge.classList.add("active");
+  recordBtn.textContent="停止並儲存";
+  updateRecordingTime();
+  recordingTimer=setInterval(updateRecordingTime,1000);
+ }catch(e){
+  console.error(e);
+  alert("無法開始錄影，請確認瀏覽器已允許媒體功能，或改用最新版Chrome／Edge。");
+ }
+}
+
+function stopRecording(){
+ if(mediaRecorder&&mediaRecorder.state!=="inactive"){
+  mediaRecorder.stop();
+ }
+}
+
+recordBtn.addEventListener("click",()=>{
+ if(mediaRecorder&&mediaRecorder.state==="recording")stopRecording();
+ else startRecording();
+});
+
+if(!recordingSupported()){
+ recordBtn.disabled=true;
+ recordBtn.title="目前瀏覽器不支援Canvas錄影";
+}
 
 function nativeFullscreenElement(){
  return document.fullscreenElement||document.webkitFullscreenElement||null;
