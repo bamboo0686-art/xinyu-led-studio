@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V15</title>
+<title>心禹 LED 虛擬播放器 V16</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740;--green:#4ecb7a}
@@ -36,10 +36,17 @@ small{display:block;color:#999;margin-top:5px;line-height:1.35}
 body.pseudo-fullscreen{overflow:hidden}body.pseudo-fullscreen #viewer{position:fixed;inset:0;z-index:9999;width:100vw;height:100dvh;min-height:100dvh;max-height:none;margin:0;border:0;border-radius:0}
 @media(max-width:1080px){.toolbar{grid-template-columns:repeat(3,1fr)}.workspace{grid-template-columns:1fr}.side{max-height:none}.playbar{grid-template-columns:repeat(4,1fr)}.time{grid-column:1/-1;grid-row:1}}
 @media(max-width:620px){.toolbar{grid-template-columns:1fr}.workspace{display:block}#viewer{height:58vh;min-height:410px}.playbar{grid-template-columns:1fr 1fr}.time{grid-column:1/-1}.grid3{grid-template-columns:1fr 1fr}}
+
+.transform-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.transform-tools button.active{background:#2f6e46;color:#fff;border-color:#4ecb7a}
+#overlayEditorWrap{position:relative;width:100%;aspect-ratio:3/2;background:#050608;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-top:8px}
+#overlayEditor{width:100%;height:100%;display:block;touch-action:none}
+.editor-hint{font-size:11px;color:#999;margin-top:5px}
+
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V15</h1><p>自由設備配置・像素間距模擬・多媒體疊加・成果影片匯出</p></header>
+<header><h1>心禹 LED 虛擬播放器 V16</h1><p>三軸自由變形・設備亮度・疊加物件滑鼠編輯・成果影片匯出</p></header>
 <main>
 <section class="box toolbar">
  <div class="control"><label>LED主要內容</label><input id="contentFile" type="file" accept="video/*,image/*"><small>影片或圖片</small></div>
@@ -95,6 +102,13 @@ body.pseudo-fullscreen{overflow:hidden}body.pseudo-fullscreen #viewer{position:f
     <div class="control"><label>Z位置</label><input id="posZ" type="number" step=".1"></div>
     <div class="control"><label>旋轉°</label><input id="rotY" type="number" min="-360" max="360" step="1"></div>
    </div>
+   <div class="control"><label>LED亮度 <span id="brightnessValue">100%</span></label><input id="deviceBrightness" type="range" min="10" max="200" value="100"></div>
+   <div class="transform-tools">
+    <button id="toolMove" class="alt">移動</button>
+    <button id="toolRotate" class="alt">旋轉</button>
+    <button id="toolScale" class="alt">自由變形</button>
+   </div>
+   <div class="editor-hint">選取設備後可直接拖曳三軸控制器；「自由變形」可分別拉伸X、Y、Z軸，改變位置、方向、寬度、高度與側深比例。</div>
    <div class="row" style="margin-top:8px"><button id="applyDevice">套用調整</button><button id="duplicateDevice" class="alt">複製</button><button id="deleteDevice" class="danger">刪除</button></div>
    <div id="pitchInfo" class="value">P2.604：約147,456點／㎡；建議最短觀看距離約2.6m</div>
   </section>
@@ -114,6 +128,12 @@ body.pseudo-fullscreen{overflow:hidden}body.pseudo-fullscreen #viewer{position:f
    <h3>疊加圖片／影片</h3>
    <input id="overlayFile" type="file" accept="video/*,image/*">
    <button id="addMediaOverlay" style="width:100%;margin-top:8px">新增媒體疊加</button>
+  </section>
+
+  <section class="panel">
+   <h3>疊加物件滑鼠編輯器</h3>
+   <div id="overlayEditorWrap"><canvas id="overlayEditor" width="600" height="400"></canvas></div>
+   <div class="editor-hint">點選物件後：拖曳中央可移動；拖曳右下角控制點可自由改變寬高與比例。</div>
   </section>
 
   <section class="panel">
@@ -143,6 +163,7 @@ body.pseudo-fullscreen{overflow:hidden}body.pseudo-fullscreen #viewer{position:f
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js/+esm";
+import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/TransformControls.js/+esm";
 
 const q=id=>document.getElementById(id);
 window.addEventListener("error",e=>{const b=q("runtimeError");if(b){b.textContent="播放器錯誤：\n"+(e.message||"未知錯誤");b.classList.add("active")}});
@@ -153,6 +174,12 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=T
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x17191f);
 const camera=new THREE.PerspectiveCamera(42,1,.2,80);
 const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.target.set(0,1.3,0);controls.minDistance=3;controls.maxDistance=35;controls.maxPolarAngle=Math.PI*.49;
+const transformControls=new TransformControls(camera,canvas);
+transformControls.setMode("translate");
+transformControls.setSpace("world");
+transformControls.addEventListener("dragging-changed",e=>{controls.enabled=!e.value});
+transformControls.addEventListener("objectChange",()=>{if(selected){syncDimensionsFromScale(selected);refreshEditor()}});
+scene.add(transformControls);
 scene.add(new THREE.HemisphereLight(0xffffff,0x242424,1.7));
 const key=new THREE.DirectionalLight(0xffffff,2);key.position.set(5,9,-6);scene.add(key);
 const floorMat=new THREE.MeshStandardMaterial({color:0x292c32,roughness:.78,metalness:.12});
@@ -169,6 +196,8 @@ let sceneVideo=null,sceneTex=null,sceneUrl=null;
 let devices=[],selected=null,moveMode=false,dragMode="",dragStartX=0,dragStartRot=0,dragOffset=new THREE.Vector3();
 const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
 let mediaRecorder=null,chunks=[],recordStart=0,recordTimer=null;
+const overlayEditor=q("overlayEditor"),ox=overlayEditor.getContext("2d");
+let overlayEditorSelected=null,overlayDragMode="",overlayDragOffset={x:0,y:0};
 
 function ledMaterial(device){
  const pitch=Number(device.userData.pitch||2.604);
@@ -176,7 +205,7 @@ function ledMaterial(device){
  const cellsX=Math.min(700,Math.max(30,totalW*1000/pitch));
  const cellsY=Math.min(700,Math.max(30,device.userData.height*1000/pitch));
  return new THREE.ShaderMaterial({
-  uniforms:{uMap:{value:compTex},uCells:{value:new THREE.Vector2(cellsX,cellsY)},uPixel:{value:.22},uBright:{value:1}},
+  uniforms:{uMap:{value:compTex},uCells:{value:new THREE.Vector2(cellsX,cellsY)},uPixel:{value:.22},uBright:{value:Number(device.userData.brightness||1)}},
   vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
   fragmentShader:`uniform sampler2D uMap;uniform vec2 uCells;uniform float uPixel;uniform float uBright;varying vec2 vUv;void main(){vec2 p=vUv*uCells;vec2 f=fract(p)-.5;float d=length(f);vec2 suv=(floor(p)+.5)/uCells;vec4 c=texture2D(uMap,suv);float dotMask=smoothstep(.62,.18,d);float mixMask=mix(1.0,dotMask,uPixel);gl_FragColor=vec4(c.rgb*uBright*mixMask,c.a);}`,
   side:THREE.FrontSide,depthTest:true,depthWrite:true,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2
@@ -209,6 +238,19 @@ function columnGeo(w,h){
  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();return g
 }
 
+
+function syncDimensionsFromScale(d){
+ const u=d.userData;
+ u.width=Math.max(.2,u.baseWidth*Math.abs(d.scale.x));
+ u.height=Math.max(.2,u.baseHeight*Math.abs(d.scale.y));
+ u.depth=Math.max(.2,u.baseDepth*Math.abs(d.scale.z));
+ if(d.getObjectByName("visual")){
+  const meshes=[];
+  d.getObjectByName("visual").traverse(o=>{if(o.material?.uniforms?.uBright)meshes.push(o)});
+  meshes.forEach(m=>m.material.uniforms.uBright.value=Number(u.brightness||1));
+ }
+}
+
 function rebuildDevice(d){
  const old=d.getObjectByName("visual");if(old){d.remove(old);old.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})}
  const u=d.userData,vg=new THREE.Group();vg.name="visual";d.add(vg);
@@ -226,10 +268,10 @@ function rebuildDevice(d){
 }
 
 function addDevice(cfg){
- const d=new THREE.Group();d.userData={name:cfg.name||"LED設備",shape:cfg.shape||"flat",width:Number(cfg.width||1),height:Number(cfg.height||2),depth:Number(cfg.depth||1),pitch:Number(cfg.pitch||2.604),home:null};
+ const d=new THREE.Group();d.userData={name:cfg.name||"LED設備",shape:cfg.shape||"flat",width:Number(cfg.width||1),height:Number(cfg.height||2),depth:Number(cfg.depth||1),pitch:Number(cfg.pitch||2.604),brightness:Number(cfg.brightness||1),baseWidth:Number(cfg.width||1),baseHeight:Number(cfg.height||2),baseDepth:Number(cfg.depth||1),home:null};
  d.position.set(cfg.x||0,0,cfg.z||0);d.rotation.y=THREE.MathUtils.degToRad(cfg.rot||0);root.add(d);devices.push(d);rebuildDevice(d);d.userData.home={p:d.position.clone(),r:d.rotation.y};selectDevice(d);return d
 }
-function removeAll(){devices.forEach(d=>{root.remove(d);d.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})});devices=[];selected=null;refreshEditor()}
+function removeAll(){transformControls.detach();devices.forEach(d=>{root.remove(d);d.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})});devices=[];selected=null;refreshEditor()}
 
 function buildPreset(type){
  removeAll();
@@ -248,12 +290,12 @@ function buildPreset(type){
  resetCamera()
 }
 
-function selectDevice(d){selected=d;refreshEditor()}
+function selectDevice(d){selected=d;transformControls.attach(d);refreshEditor()}
 function refreshEditor(){
  q("selectedName").textContent=selected?selected.userData.name:"尚未選取設備";
- ["editShape","pitch","editWidth","editHeight","editDepth","posX","posZ","rotY"].forEach(id=>q(id).disabled=!selected);
+ ["editShape","pitch","editWidth","editHeight","editDepth","posX","posZ","rotY","deviceBrightness"].forEach(id=>q(id).disabled=!selected);
  if(!selected)return;
- const u=selected.userData;q("editShape").value=u.shape;q("pitch").value=String(u.pitch);q("editWidth").value=u.width;q("editHeight").value=u.height;q("editDepth").value=u.depth;q("posX").value=selected.position.x.toFixed(2);q("posZ").value=selected.position.z.toFixed(2);q("rotY").value=THREE.MathUtils.radToDeg(selected.rotation.y).toFixed(1);updatePitchInfo()
+ syncDimensionsFromScale(selected);const u=selected.userData;q("editShape").value=u.shape;q("pitch").value=String(u.pitch);q("editWidth").value=u.width.toFixed(2);q("editHeight").value=u.height.toFixed(2);q("editDepth").value=u.depth.toFixed(2);q("posX").value=selected.position.x.toFixed(2);q("posZ").value=selected.position.z.toFixed(2);q("rotY").value=THREE.MathUtils.radToDeg(selected.rotation.y).toFixed(1);q("deviceBrightness").value=Math.round((u.brightness||1)*100);q("brightnessValue").textContent=q("deviceBrightness").value+"%";updatePitchInfo()
 }
 function updatePitchInfo(){
  if(!selected)return;const p=Number(q("pitch").value),density=Math.round(1000000/(p*p));q("pitchInfo").textContent=`P${p}：約${density.toLocaleString()}點／㎡；建議最短觀看距離約${p.toFixed(1)}m`;q("statusBadge").textContent=`P${p}｜${density.toLocaleString()}點／㎡`
@@ -261,7 +303,7 @@ function updatePitchInfo(){
 
 function pointerEvent(e){const r=canvas.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointer,camera)}
 canvas.addEventListener("pointerdown",e=>{
- if(!moveMode)return;pointerEvent(e);const hits=raycaster.intersectObjects(root.children,true);const hit=hits.find(h=>h.object.userData.device);if(!hit)return;selected=hit.object.userData.device;refreshEditor();
+ if(!moveMode)return;pointerEvent(e);const hits=raycaster.intersectObjects(root.children,true);const hit=hits.find(h=>h.object.userData.device);if(!hit)return;selected=hit.object.userData.device;transformControls.attach(selected);refreshEditor();
  dragMode=e.altKey?"rotate":"move";dragStartX=e.clientX;dragStartRot=selected.rotation.y;
  if(dragMode==="move"){const pt=new THREE.Vector3();if(raycaster.ray.intersectPlane(groundPlane,pt))dragOffset.copy(selected.position).sub(pt)}
  canvas.setPointerCapture?.(e.pointerId);e.preventDefault()
@@ -277,10 +319,34 @@ const endDrag=e=>{dragMode="";canvas.releasePointerCapture?.(e.pointerId)};canva
 q("moveMode").onclick=()=>{moveMode=!moveMode;controls.enabled=!moveMode;q("moveMode").textContent=moveMode?"關閉移動／旋轉":"開啟移動／旋轉";q("moveMode").classList.toggle("green",moveMode);q("moveNotice").classList.toggle("active",moveMode)};
 q("preset").onchange=e=>buildPreset(e.target.value);
 q("addDevice").onclick=()=>addDevice({name:q("newName").value,shape:q("newShape").value,width:q("newWidth").value,height:q("newHeight").value,depth:q("newDepth").value,pitch:2.604,x:0,z:0,rot:0});
-q("applyDevice").onclick=()=>{if(!selected)return;Object.assign(selected.userData,{shape:q("editShape").value,width:Number(q("editWidth").value),height:Number(q("editHeight").value),depth:Number(q("editDepth").value),pitch:Number(q("pitch").value)});selected.position.x=Number(q("posX").value);selected.position.z=Number(q("posZ").value);selected.rotation.y=THREE.MathUtils.degToRad(Number(q("rotY").value));rebuildDevice(selected);refreshEditor()};
+q("applyDevice").onclick=()=>{if(!selected)return;
+ const w=Number(q("editWidth").value),h=Number(q("editHeight").value),d=Number(q("editDepth").value);
+ Object.assign(selected.userData,{shape:q("editShape").value,width:w,height:h,depth:d,baseWidth:w,baseHeight:h,baseDepth:d,pitch:Number(q("pitch").value),brightness:Number(q("deviceBrightness").value)/100});
+ selected.scale.set(1,1,1);
+ selected.position.x=Number(q("posX").value);selected.position.z=Number(q("posZ").value);selected.rotation.y=THREE.MathUtils.degToRad(Number(q("rotY").value));
+ rebuildDevice(selected);refreshEditor()
+};
 q("duplicateDevice").onclick=()=>{if(!selected)return;const u=selected.userData;addDevice({...u,x:selected.position.x+.7,z:selected.position.z+.7,rot:THREE.MathUtils.radToDeg(selected.rotation.y)})};
-q("deleteDevice").onclick=()=>{if(!selected)return;root.remove(selected);devices=devices.filter(d=>d!==selected);selected=null;refreshEditor()};
+q("deleteDevice").onclick=()=>{if(!selected)return;transformControls.detach();root.remove(selected);devices=devices.filter(d=>d!==selected);selected=null;refreshEditor()};
 q("pitch").onchange=updatePitchInfo;
+
+q("deviceBrightness").oninput=()=>{
+ if(!selected)return;
+ selected.userData.brightness=Number(q("deviceBrightness").value)/100;
+ q("brightnessValue").textContent=q("deviceBrightness").value+"%";
+ selected.traverse(o=>{if(o.material?.uniforms?.uBright)o.material.uniforms.uBright.value=selected.userData.brightness});
+};
+function setTransformMode(mode){
+ transformControls.setMode(mode);
+ ["toolMove","toolRotate","toolScale"].forEach(id=>q(id).classList.remove("active"));
+ q(mode==="translate"?"toolMove":mode==="rotate"?"toolRotate":"toolScale").classList.add("active");
+ if(selected)transformControls.attach(selected);
+}
+q("toolMove").onclick=()=>setTransformMode("translate");
+q("toolRotate").onclick=()=>setTransformMode("rotate");
+q("toolScale").onclick=()=>setTransformMode("scale");
+setTransformMode("translate");
+
 q("resetLayout").onclick=()=>devices.forEach(d=>{if(d.userData.home){d.position.copy(d.userData.home.p);d.rotation.y=d.userData.home.r}});q("clearScene").onclick=removeAll;
 
 function drawCover(media,x,y,w,h){
@@ -306,10 +372,63 @@ q("sceneFile").onchange=()=>{const f=q("sceneFile").files[0];if(!f)return;if(sce
  else new THREE.TextureLoader().load(sceneUrl,t=>{t.colorSpace=THREE.SRGBColorSpace;make(t)})
 };
 
-function refreshOverlayList(){q("overlayList").innerHTML="";overlays.forEach(o=>{const op=document.createElement("option");op.value=o.id;op.textContent=o.type==="text"?`文字：${o.text}`:`媒體疊加 #${o.id}`;q("overlayList").append(op)})}
-q("addText").onclick=()=>{overlays.push({id:overlayId++,type:"text",text:q("overlayText").value,fontSize:Number(q("textSize").value),color:q("textColor").value,opacity:Number(q("textOpacity").value)/100,x:.1,y:.1,w:.4,h:.15});refreshOverlayList()};
-q("addMediaOverlay").onclick=()=>{const f=q("overlayFile").files[0];if(!f)return;const url=URL.createObjectURL(f);if(f.type.startsWith("video/")){const v=document.createElement("video");v.src=url;v.loop=true;v.muted=true;v.playsInline=true;v.play().catch(()=>{});overlays.push({id:overlayId++,type:"media",media:v,url,opacity:1,x:.1,y:.1,w:.3,h:.25})}else{const img=new Image();img.src=url;overlays.push({id:overlayId++,type:"media",media:img,url,opacity:1,x:.1,y:.1,w:.3,h:.25})}refreshOverlayList()};
-q("overlayList").onchange=()=>{const o=overlays.find(x=>x.id==q("overlayList").value);if(!o)return;q("ovX").value=o.x*100;q("ovY").value=o.y*100;q("ovW").value=o.w*100;q("ovH").value=o.h*100;q("ovOpacity").value=o.opacity*100};
+
+function selectedOverlay(){
+ return overlays.find(o=>o.id===overlayEditorSelected)||null;
+}
+function drawOverlayEditor(){
+ const w=overlayEditor.width,h=overlayEditor.height;
+ ox.fillStyle="#08090b";ox.fillRect(0,0,w,h);
+ try{
+  if(baseMedia)drawCoverTo(ox,baseMedia,0,0,w,h);
+  else{const g=ox.createLinearGradient(0,0,w,h);g.addColorStop(0,"#271b21");g.addColorStop(1,"#062030");ox.fillStyle=g;ox.fillRect(0,0,w,h)}
+ }catch{}
+ overlays.forEach(o=>{
+  ox.save();ox.globalAlpha=o.opacity;
+  const x=o.x*w,y=o.y*h,ow=o.w*w,oh=o.h*h;
+  if(o.type==="text"){ox.fillStyle=o.color;ox.font=`bold ${Math.max(10,o.fontSize*w/comp.width)}px sans-serif`;ox.textBaseline="top";ox.fillText(o.text,x,y)}
+  else if(o.media){try{ox.drawImage(o.media,x,y,ow,oh)}catch{}}
+  if(o.id===overlayEditorSelected){
+   ox.globalAlpha=1;ox.strokeStyle="#f7dfa0";ox.lineWidth=3;ox.strokeRect(x,y,ow,oh);
+   ox.fillStyle="#4ecb7a";ox.fillRect(x+ow-8,y+oh-8,16,16);
+  }
+  ox.restore();
+ });
+}
+function drawCoverTo(ctx,media,x,y,w,h){
+ const mw=media.videoWidth||media.naturalWidth||media.width||w,mh=media.videoHeight||media.naturalHeight||media.height||h;if(!mw||!mh)return;
+ const s=Math.max(w/mw,h/mh),sw=w/s,sh=h/s,sx=(mw-sw)/2,sy=(mh-sh)/2;ctx.drawImage(media,sx,sy,sw,sh,x,y,w,h);
+}
+function overlayPointer(e){
+ const r=overlayEditor.getBoundingClientRect();
+ return {x:(e.clientX-r.left)*overlayEditor.width/r.width,y:(e.clientY-r.top)*overlayEditor.height/r.height};
+}
+overlayEditor.addEventListener("pointerdown",e=>{
+ const p=overlayPointer(e),w=overlayEditor.width,h=overlayEditor.height;
+ const reversed=[...overlays].reverse();
+ const hit=reversed.find(o=>p.x>=o.x*w&&p.x<=o.x*w+o.w*w&&p.y>=o.y*h&&p.y<=o.y*h+o.h*h);
+ if(!hit){overlayEditorSelected=null;drawOverlayEditor();return}
+ overlayEditorSelected=hit.id;q("overlayList").value=String(hit.id);q("overlayList").dispatchEvent(new Event("change"));
+ const rx=hit.x*w+hit.w*w,ry=hit.y*h+hit.h*h;
+ overlayDragMode=Math.abs(p.x-rx)<22&&Math.abs(p.y-ry)<22?"resize":"move";
+ overlayDragOffset={x:p.x-hit.x*w,y:p.y-hit.y*h};
+ overlayEditor.setPointerCapture?.(e.pointerId);drawOverlayEditor();e.preventDefault()
+});
+overlayEditor.addEventListener("pointermove",e=>{
+ if(!overlayDragMode)return;
+ const o=selectedOverlay(),p=overlayPointer(e),w=overlayEditor.width,h=overlayEditor.height;if(!o)return;
+ if(overlayDragMode==="move"){o.x=THREE.MathUtils.clamp((p.x-overlayDragOffset.x)/w,0,1-o.w);o.y=THREE.MathUtils.clamp((p.y-overlayDragOffset.y)/h,0,1-o.h)}
+ else{o.w=THREE.MathUtils.clamp(p.x/w-o.x,.02,1-o.x);o.h=THREE.MathUtils.clamp(p.y/h-o.y,.02,1-o.y)}
+ q("ovX").value=(o.x*100).toFixed(1);q("ovY").value=(o.y*100).toFixed(1);q("ovW").value=(o.w*100).toFixed(1);q("ovH").value=(o.h*100).toFixed(1);
+ drawOverlayEditor();e.preventDefault()
+});
+const endOverlayDrag=e=>{overlayDragMode="";overlayEditor.releasePointerCapture?.(e.pointerId)};
+overlayEditor.addEventListener("pointerup",endOverlayDrag);overlayEditor.addEventListener("pointercancel",endOverlayDrag);
+
+function refreshOverlayList(){q("overlayList").innerHTML="";overlays.forEach(o=>{const op=document.createElement("option");op.value=o.id;op.textContent=o.type==="text"?`文字：${o.text}`:`媒體疊加 #${o.id}`;q("overlayList").append(op)});drawOverlayEditor()}
+q("addText").onclick=()=>{const newId=overlayId++;overlays.push({id:newId,type:"text",text:q("overlayText").value,fontSize:Number(q("textSize").value),color:q("textColor").value,opacity:Number(q("textOpacity").value)/100,x:.1,y:.1,w:.4,h:.15});overlayEditorSelected=newId;refreshOverlayList();q("overlayList").value=String(newId)};
+q("addMediaOverlay").onclick=()=>{const f=q("overlayFile").files[0];if(!f)return;const url=URL.createObjectURL(f);if(f.type.startsWith("video/")){const v=document.createElement("video");v.src=url;v.loop=true;v.muted=true;v.playsInline=true;v.play().catch(()=>{});const newId=overlayId++;overlays.push({id:newId,type:"media",media:v,url,opacity:1,x:.1,y:.1,w:.3,h:.25});overlayEditorSelected=newId}else{const img=new Image();img.src=url;const newId=overlayId++;overlays.push({id:newId,type:"media",media:img,url,opacity:1,x:.1,y:.1,w:.3,h:.25});overlayEditorSelected=newId}refreshOverlayList();if(overlayEditorSelected)q("overlayList").value=String(overlayEditorSelected)};
+q("overlayList").onchange=()=>{overlayEditorSelected=Number(q("overlayList").value);drawOverlayEditor();const o=overlays.find(x=>x.id==q("overlayList").value);if(!o)return;q("ovX").value=o.x*100;q("ovY").value=o.y*100;q("ovW").value=o.w*100;q("ovH").value=o.h*100;q("ovOpacity").value=o.opacity*100};
 q("applyOverlay").onclick=()=>{const o=overlays.find(x=>x.id==q("overlayList").value);if(!o)return;o.x=Number(q("ovX").value)/100;o.y=Number(q("ovY").value)/100;o.w=Number(q("ovW").value)/100;o.h=Number(q("ovH").value)/100;o.opacity=Number(q("ovOpacity").value)/100};
 q("deleteOverlay").onclick=()=>{const id=Number(q("overlayList").value),o=overlays.find(x=>x.id===id);if(o?.url)URL.revokeObjectURL(o.url);overlays=overlays.filter(x=>x.id!==id);refreshOverlayList()};
 
@@ -328,7 +447,7 @@ q("record").onclick=async()=>{
 };
 
 function resize(){const r=viewer.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(viewer);
-function animate(){requestAnimationFrame(animate);drawCompositor();controls.update();renderer.render(scene,camera)}
+function animate(){requestAnimationFrame(animate);drawCompositor();drawOverlayEditor();controls.update();renderer.render(scene,camera)}
 buildPreset("single6");resize();animate();
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
 </script>
