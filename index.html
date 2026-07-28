@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V11</title>
+<title>心禹 LED 虛擬播放器 V12</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740}
@@ -48,11 +48,11 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V11</h1><p>Frameless Sides + Screen Recording Edition · P2.604</p></header>
+<header><h1>心禹 LED 虛擬播放器 V12</h1><p>Multi-Unit Synchronized Display Edition · P2.604</p></header>
 <main>
 <section class="box controls">
 <div class="control file"><label>匯入影片或圖片</label><input id="file" type="file" accept="video/mp4,video/quicktime,video/webm,image/*"><small>三境光幕屏建議3:2內容；4米三面LED精神堡壘建議3:4內容。支援全螢幕播放。</small></div>
-<div class="control"><label>顯示模型</label><select id="model"><option value="single">一境光幕屏</option><option value="triple">三境光幕屏（無縫三面同屏）</option><option value="tower">三面 LED 精神堡壘（4米／頂部無黑框）</option></select></div>
+<div class="control"><label>顯示模型</label><select id="model"><option value="single">一境光幕屏（6支）</option><option value="triple">三境光幕屏（2組）</option><option value="tower">三面 LED 精神堡壘（2組）</option></select></div>
 <div class="control"><label>場景</label><select id="scene"><option value="studio">室內展廳</option><option value="day">白天</option><option value="night">夜晚</option><option value="wedding">婚宴</option><option value="temple">宮廟／廟會</option></select></div>
 <div class="control"><label>亮度 <span id="bv">100%</span></label><input id="bright" type="range" min="30" max="160" value="100"></div>
 <div class="control"><label>發光 <span id="gv">40%</span></label><input id="glow" type="range" min="0" max="100" value="40"></div>
@@ -76,13 +76,13 @@ body.pseudo-fullscreen .fullscreen-tools,#viewer:fullscreen .fullscreen-tools,#v
 <div id="status" class="status">目前模型：一境光幕屏｜單面外向顯示</div>
 
 <section class="box spec">
-<div><strong>無縫銜接</strong><span>兩個90°轉角共用同一組LED網格頂點，無閃爍、黑框或間斷</span></div>
+<div><strong>展示數量</strong><span>一境6支／三境2組／三面精神堡壘2組</span></div>
 <div><strong>單一畫布</strong><span>左、正、右共同展開同一個超寬畫面</span></div>
 <div><strong>連續UV</strong><span>影片從左面連續延伸到正面與右面</span></div>
 <div><strong>三面LED精神堡壘</strong><span>高度4公尺，頂部無黑色外框</span></div>
 </section>
 </main>
-<footer>心禹國際開發科技有限公司 · V11 內部測試版</footer>
+<footer>心禹國際開發科技有限公司 · V12 內部測試版</footer>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";
@@ -130,8 +130,8 @@ function makePlaceholder(){
  const x=c.getContext("2d");
  const g=x.createLinearGradient(0,0,1536,1024);g.addColorStop(0,"#301c22");g.addColorStop(.5,"#2d3038");g.addColorStop(1,"#071c27");
  x.fillStyle=g;x.fillRect(0,0,1536,1024);
- x.fillStyle="#d6b45f";x.font="bold 70px sans-serif";x.textAlign="center";x.fillText("心禹 LED 無縫三面同屏",768,465);
- x.fillStyle="#d9d9dd";x.font="34px sans-serif";x.fillText("左側面  ←  正面  →  右側面",768,535);
+ x.fillStyle="#d6b45f";x.font="bold 70px sans-serif";x.textAlign="center";x.fillText("心禹 LED 多設備同步展示",768,465);
+ x.fillStyle="#d9d9dd";x.font="34px sans-serif";x.fillText("多支／多組設備同步播放",768,535);
  for(let i=0;i<3;i++){x.strokeStyle="rgba(255,255,255,.2)";x.strokeRect(i*512+2,2,508,1020)}
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
@@ -145,6 +145,7 @@ function disposeRoot(){
   });
  }
  displayMesh=null;
+ window.__displayMeshes=[];
 }
 
 function displayMaterial(){
@@ -199,7 +200,7 @@ function makeSeamlessUShapeGeometry(height=2){
 }
 
 function addOuterFrame(parent,heavy=false,height=2){
- // V11：
+ // V12：
  // 三境光幕屏：移除頂部黑框、左右外側黑框，只保留底部必要結構。
  // 三面LED精神堡壘：移除頂部與左右外側黑框，只保留底部必要結構。
  // 兩個90度轉角一律不設黑框，確保LED連續顯示。
@@ -256,56 +257,99 @@ function addBase(parent,heavy){
 
 function buildModel(){
  disposeRoot();
- const g=new THREE.Group();
- root.add(g);
+ const sceneGroup=new THREE.Group();
+ root.add(sceneGroup);
+ window.__displayMeshes=[];
+
  if(model.value==="single"){
   const height=2;
-  displayMesh=new THREE.Mesh(makeSingleGeometry(height),displayMaterial());
-  displayMesh.rotation.y=Math.PI;
-  displayMesh.position.y=.08;
-  displayMesh.renderOrder=10;
-  g.add(displayMesh);
-  const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
-  [-.33,.33].forEach(x=>{
-   const f=new THREE.Mesh(new THREE.BoxGeometry(.34,.09,.5),mat);
-   f.position.set(x,.045,.18);
-   g.add(f);
+  const positions=[
+   [-1.5,0,-.45],[0,0,-.45],[1.5,0,-.45],
+   [-1.5,0,1.25],[0,0,1.25],[1.5,0,1.25]
+  ];
+
+  positions.forEach(([x,y,z])=>{
+   const unit=new THREE.Group();
+   unit.position.set(x,y,z);
+
+   const mesh=new THREE.Mesh(makeSingleGeometry(height),displayMaterial());
+   mesh.rotation.y=Math.PI;
+   mesh.position.y=.08;
+   mesh.renderOrder=10;
+   unit.add(mesh);
+   window.__displayMeshes.push(mesh);
+
+   const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.8,roughness:.3});
+   [-.33,.33].forEach(fx=>{
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.34,.09,.5),mat);
+    f.position.set(fx,.045,.18);
+    unit.add(f);
+   });
+
+   sceneGroup.add(unit);
   });
-  badge.textContent="一境光幕屏｜單面";
-  sync.textContent="單一畫布";
-  status.textContent="目前模型：一境光幕屏｜高度2公尺、單面外向顯示";
+
+  displayMesh=window.__displayMeshes[0];
+  badge.textContent="一境光幕屏｜6支同步";
+  sync.textContent="6支共用同一影片來源";
+  status.textContent="目前模型：一境光幕屏6支｜3×2排列、同步播放同一影片";
  }else{
   const heavy=model.value==="tower";
   const height=heavy?4:2;
-  addBacking(g,heavy,height);
-  displayMesh=new THREE.Mesh(makeSeamlessUShapeGeometry(height),displayMaterial());
-  displayMesh.position.y=.08;
-  displayMesh.renderOrder=10;
-  g.add(displayMesh);
-  addOuterFrame(g,heavy,height);
-  addBase(g,heavy);
+  const spacing=heavy?3.2:2.8;
+  const positions=[[-spacing/2,0,0],[spacing/2,0,0]];
+
+  positions.forEach(([x,y,z])=>{
+   const unit=new THREE.Group();
+   unit.position.set(x,y,z);
+
+   addBacking(unit,heavy,height);
+
+   const mesh=new THREE.Mesh(makeSeamlessUShapeGeometry(height),displayMaterial());
+   mesh.position.y=.08;
+   mesh.renderOrder=10;
+   unit.add(mesh);
+   window.__displayMeshes.push(mesh);
+
+   addOuterFrame(unit,heavy,height);
+   addBase(unit,heavy);
+   sceneGroup.add(unit);
+  });
+
+  displayMesh=window.__displayMeshes[0];
+
   if(heavy){
-   badge.textContent="三面 LED 精神堡壘｜4米無縫三面同屏";
-   status.textContent="目前模型：三面 LED 精神堡壘｜高度4公尺、頂部與左右無黑框、三面外向無縫同屏";
+   badge.textContent="三面 LED 精神堡壘｜2組同步";
+   sync.textContent="2組共用同一影片＋連續UV";
+   status.textContent="目前模型：三面 LED 精神堡壘2組｜每組高度4公尺、頂部與左右無黑框、同步播放";
   }else{
-   badge.textContent="三境光幕屏｜2米無縫三面同屏";
-   status.textContent="目前模型：三境光幕屏｜高度2公尺、頂部與左右無黑框、三面外向無縫同屏";
+   badge.textContent="三境光幕屏｜2組同步";
+   sync.textContent="2組共用同一影片＋連續UV";
+   status.textContent="目前模型：三境光幕屏2組｜每組高度2公尺、頂部與左右無黑框、同步播放";
   }
-  sync.textContent="單一影片＋連續UV";
  }
+
  updateMaterial();
  resetView();
 }
 
 function updateMaterial(){
- if(!displayMesh)return;
+ const meshes=window.__displayMeshes||[];
+ if(!meshes.length)return;
+
  const tex=sharedTexture||placeholderTexture;
  const bright=Number(q("bright").value)/100;
- displayMesh.material.map=tex;
- displayMesh.material.color.setRGB(bright,bright,bright);
- displayMesh.material.needsUpdate=true;
  const glow=Number(q("glow").value)/100;
- renderer.toneMappingExposure=.85+glow*.5;
+
+ meshes.forEach(mesh=>{
+  mesh.material.map=tex;
+  if("emissiveMap" in mesh.material)mesh.material.emissiveMap=tex;
+  if("emissiveIntensity" in mesh.material)mesh.material.emissiveIntensity=glow*1.55*bright;
+  mesh.material.color.setScalar(bright);
+  mesh.material.needsUpdate=true;
+ });
+
+ renderer.toneMappingExposure=.85+glow*.55;
 }
 
 function setSharedTexture(texture){
@@ -315,20 +359,20 @@ function setSharedTexture(texture){
 
 function resetView(){
  if(model.value==="tower"){
-  camera.position.set(7.2,5.8,-10.8);
-  controls.target.set(0,2.05,.38);
+  camera.position.set(9.5,6.6,-13.5);
+  controls.target.set(0,2.05,.45);
+  controls.minDistance=7;
+  controls.maxDistance=28;
+ }else if(model.value==="triple"){
+  camera.position.set(7.2,4.2,-9.6);
+  controls.target.set(0,1.05,.4);
+  controls.minDistance=5;
+  controls.maxDistance=22;
+ }else{
+  camera.position.set(7.6,5.0,-10.8);
+  controls.target.set(0,1.1,.5);
   controls.minDistance=5;
   controls.maxDistance=24;
- }else if(model.value==="triple"){
-  camera.position.set(4.6,3.0,-6.8);
-  controls.target.set(0,1.05,.35);
-  controls.minDistance=3;
-  controls.maxDistance=13;
- }else{
-  camera.position.set(3.2,3.0,-5.4);
-  controls.target.set(0,1.05,.2);
-  controls.minDistance=3;
-  controls.maxDistance=13;
  }
  controls.update();
 }
