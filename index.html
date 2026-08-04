@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>心禹 LED 虛擬播放器 V17</title>
+<title>心禹 LED 虛擬播放器 V18</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:dark;--gold:#d6b45f;--panel:#17191e;--line:#343740;--green:#4ecb7a}
@@ -52,7 +52,7 @@ textarea{width:100%;min-height:78px;border:1px solid var(--line);border-radius:9
 </style>
 </head>
 <body>
-<header><h1>心禹 LED 虛擬播放器 V17</h1><p>多行直橫文字・高亮LED・不規則造型・新增L型曲面ㄇ字型圓形預設</p></header>
+<header><h1>心禹 LED 虛擬播放器 V18</h1><p>可調式底座・多行直橫文字・高亮LED・不規則造型</p></header>
 <main>
 <section class="box toolbar">
  <div class="control"><label>LED主要內容</label><input id="contentFile" type="file" accept="video/*,image/*"><small>影片或圖片</small></div>
@@ -116,12 +116,13 @@ textarea{width:100%;min-height:78px;border:1px solid var(--line);border-radius:9
     <div class="control"><label>旋轉°</label><input id="rotY" type="number" min="-360" max="360" step="1"></div>
    </div>
    <div class="control"><label>LED亮度 <span id="brightnessValue">100%</span></label><input id="deviceBrightness" type="range" min="20" max="300" value="135"></div>
+   <div class="control"><label>底座高度 <span id="baseHeightValue">0.10m</span></label><input id="baseHeight" type="range" min="0.05" max="3" step="0.05" value="0.10"></div>
    <div class="transform-tools">
     <button id="toolMove" class="alt">移動</button>
     <button id="toolRotate" class="alt">旋轉</button>
     <button id="toolScale" class="alt">自由變形</button>
    </div>
-   <div class="editor-hint">選取設備後可直接拖曳三軸控制器；「自由變形」可分別拉伸X、Y、Z軸，改變位置、方向、寬度、高度與側深比例。</div>
+   <div class="editor-hint">選取設備後可直接拖曳三軸控制器；「自由變形」可調整寬度、高度與側深；底座高度可獨立升降，LED顯示面會同步架高。</div>
    <div class="row" style="margin-top:8px"><button id="applyDevice">套用調整</button><button id="duplicateDevice" class="alt">複製</button><button id="deleteDevice" class="danger">刪除</button></div>
    <div id="pitchInfo" class="value">P2.604：約147,456點／㎡；建議最短觀看距離約2.6m</div>
   </section>
@@ -331,8 +332,17 @@ function syncDimensionsFromScale(d){
 }
 
 function rebuildDevice(d){
- const old=d.getObjectByName("visual");if(old){d.remove(old);old.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})}
- const u=d.userData,vg=new THREE.Group();vg.name="visual";d.add(vg);
+ const old=d.getObjectByName("visual");
+ if(old){
+  d.remove(old);
+  old.traverse(o=>{o.geometry?.dispose();o.material?.dispose()});
+ }
+ const u=d.userData;
+ const vg=new THREE.Group();
+ vg.name="visual";
+ d.add(vg);
+
+ const pedestalHeight=Math.max(.05,Number(u.pedestalHeight||.10));
  let geo;
  if(u.shape==="flat")geo=flatGeo(u.width,u.height);
  else if(u.shape==="lshape")geo=lGeo(u.width,u.height,u.depth);
@@ -341,16 +351,60 @@ function rebuildDevice(d){
  else if(u.shape==="circle")geo=circleGeo(u.width,u.height);
  else if(u.shape==="irregular")geo=irregularGeo(u.width,u.height,u.points);
  else geo=uGeo(u.width,u.height,u.depth);
- const mesh=new THREE.Mesh(geo,ledMaterial(d));mesh.position.y=.06;mesh.renderOrder=10;vg.add(mesh);
- if(u.shape==="flat"||u.shape==="irregular")mesh.position.y=u.height/2+.06;
- const mat=new THREE.MeshStandardMaterial({color:0x08090b,metalness:.75,roughness:.3});
- const base=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.5,u.width+.25),.1,Math.max(.45,u.depth+.2)),mat);base.position.y=.05;vg.add(base);
- const pick=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.5,u.width+.2),u.height+.2,Math.max(.45,u.depth+.2)),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
- pick.position.y=u.height/2;pick.userData.device=d;vg.add(pick);
-}
 
+ const mesh=new THREE.Mesh(geo,ledMaterial(d));
+ mesh.name="ledSurface";
+ mesh.renderOrder=10;
+ if(u.shape==="flat"||u.shape==="irregular"){
+  mesh.position.y=pedestalHeight+u.height/2+.01;
+ }else{
+  mesh.position.y=pedestalHeight+.01;
+ }
+ vg.add(mesh);
+
+ const baseMat=new THREE.MeshStandardMaterial({
+  color:0x08090b,
+  metalness:.78,
+  roughness:.28
+ });
+ const baseWidth=Math.max(.5,u.width+.25);
+ const baseDepth=Math.max(.45,u.depth+.2);
+
+ const base=new THREE.Mesh(
+  new THREE.BoxGeometry(baseWidth,pedestalHeight,baseDepth),
+  baseMat
+ );
+ base.name="adjustableBase";
+ base.position.y=pedestalHeight/2;
+ vg.add(base);
+
+ const platform=new THREE.Mesh(
+  new THREE.BoxGeometry(baseWidth+.08,.06,baseDepth+.08),
+  baseMat
+ );
+ platform.name="basePlatform";
+ platform.position.y=pedestalHeight+.03;
+ vg.add(platform);
+
+ const pickHeight=u.height+pedestalHeight+.25;
+ const pick=new THREE.Mesh(
+  new THREE.BoxGeometry(
+   Math.max(.5,u.width+.2),
+   pickHeight,
+   Math.max(.45,u.depth+.2)
+  ),
+  new THREE.MeshBasicMaterial({
+   transparent:true,
+   opacity:0,
+   depthWrite:false
+  })
+ );
+ pick.position.y=pickHeight/2;
+ pick.userData.device=d;
+ vg.add(pick);
+}
 function addDevice(cfg){
- const d=new THREE.Group();d.userData={name:cfg.name||"LED設備",shape:cfg.shape||"flat",width:Number(cfg.width||1),height:Number(cfg.height||2),depth:Number(cfg.depth||1),pitch:Number(cfg.pitch||2.604),brightness:Number(cfg.brightness||1.35),baseWidth:Number(cfg.width||1),baseHeight:Number(cfg.height||2),baseDepth:Number(cfg.depth||1),points:(cfg.points||shapePoints).map(p=>({x:p.x,y:p.y})),home:null};
+ const d=new THREE.Group();d.userData={name:cfg.name||"LED設備",shape:cfg.shape||"flat",width:Number(cfg.width||1),height:Number(cfg.height||2),depth:Number(cfg.depth||1),pitch:Number(cfg.pitch||2.604),brightness:Number(cfg.brightness||1.35),baseWidth:Number(cfg.width||1),baseHeight:Number(cfg.height||2),baseDepth:Number(cfg.depth||1),points:(cfg.points||shapePoints).map(p=>({x:p.x,y:p.y})),pedestalHeight:Number(cfg.pedestalHeight??0.10),home:null};
  d.position.set(cfg.x||0,0,cfg.z||0);d.rotation.y=THREE.MathUtils.degToRad(cfg.rot||0);root.add(d);devices.push(d);rebuildDevice(d);d.userData.home={p:d.position.clone(),r:d.rotation.y};selectDevice(d);return d
 }
 function removeAll(){transformControls.detach();devices.forEach(d=>{root.remove(d);d.traverse(o=>{o.geometry?.dispose();o.material?.dispose()})});devices=[];selected=null;refreshEditor()}
@@ -387,9 +441,9 @@ function buildPreset(type){
 function selectDevice(d){selected=d;transformControls.attach(d);refreshEditor()}
 function refreshEditor(){
  q("selectedName").textContent=selected?selected.userData.name:"尚未選取設備";
- ["editShape","pitch","editWidth","editHeight","editDepth","posX","posZ","rotY","deviceBrightness"].forEach(id=>q(id).disabled=!selected);
+ ["editShape","pitch","editWidth","editHeight","editDepth","posX","posZ","rotY","deviceBrightness","baseHeight"].forEach(id=>q(id).disabled=!selected);
  if(!selected)return;
- syncDimensionsFromScale(selected);const u=selected.userData;q("editShape").value=u.shape;q("pitch").value=String(u.pitch);q("editWidth").value=u.width.toFixed(2);q("editHeight").value=u.height.toFixed(2);q("editDepth").value=u.depth.toFixed(2);q("posX").value=selected.position.x.toFixed(2);q("posZ").value=selected.position.z.toFixed(2);q("rotY").value=THREE.MathUtils.radToDeg(selected.rotation.y).toFixed(1);q("deviceBrightness").value=Math.round((u.brightness||1.35)*100);q("brightnessValue").textContent=q("deviceBrightness").value+"%";updatePitchInfo()
+ syncDimensionsFromScale(selected);const u=selected.userData;q("editShape").value=u.shape;q("pitch").value=String(u.pitch);q("editWidth").value=u.width.toFixed(2);q("editHeight").value=u.height.toFixed(2);q("editDepth").value=u.depth.toFixed(2);q("posX").value=selected.position.x.toFixed(2);q("posZ").value=selected.position.z.toFixed(2);q("rotY").value=THREE.MathUtils.radToDeg(selected.rotation.y).toFixed(1);q("deviceBrightness").value=Math.round((u.brightness||1.35)*100);q("brightnessValue").textContent=q("deviceBrightness").value+"%";q("baseHeight").value=Number(u.pedestalHeight||.10).toFixed(2);q("baseHeightValue").textContent=Number(u.pedestalHeight||.10).toFixed(2)+"m";updatePitchInfo()
 }
 function updatePitchInfo(){
  if(!selected)return;const p=Number(q("pitch").value),density=Math.round(1000000/(p*p));q("pitchInfo").textContent=`P${p}：約${density.toLocaleString()}點／㎡；建議最短觀看距離約${p.toFixed(1)}m`;q("statusBadge").textContent=`P${p}｜${density.toLocaleString()}點／㎡`
@@ -415,12 +469,12 @@ q("preset").onchange=e=>buildPreset(e.target.value);
 q("addDevice").onclick=()=>addDevice({name:q("newName").value,shape:q("newShape").value,width:q("newWidth").value,height:q("newHeight").value,depth:q("newDepth").value,pitch:2.604,x:0,z:0,rot:0});
 q("applyDevice").onclick=()=>{if(!selected)return;
  const w=Number(q("editWidth").value),h=Number(q("editHeight").value),d=Number(q("editDepth").value);
- Object.assign(selected.userData,{shape:q("editShape").value,width:w,height:h,depth:d,baseWidth:w,baseHeight:h,baseDepth:d,pitch:Number(q("pitch").value),brightness:Number(q("deviceBrightness").value)/100,points:(selected.userData.points||shapePoints).map(p=>({x:p.x,y:p.y}))});
+ Object.assign(selected.userData,{shape:q("editShape").value,width:w,height:h,depth:d,baseWidth:w,baseHeight:h,baseDepth:d,pitch:Number(q("pitch").value),brightness:Number(q("deviceBrightness").value)/100,pedestalHeight:Number(q("baseHeight").value),points:(selected.userData.points||shapePoints).map(p=>({x:p.x,y:p.y}))});
  selected.scale.set(1,1,1);
  selected.position.x=Number(q("posX").value);selected.position.z=Number(q("posZ").value);selected.rotation.y=THREE.MathUtils.degToRad(Number(q("rotY").value));
  rebuildDevice(selected);refreshEditor()
 };
-q("duplicateDevice").onclick=()=>{if(!selected)return;const u=selected.userData;addDevice({...u,x:selected.position.x+.7,z:selected.position.z+.7,rot:THREE.MathUtils.radToDeg(selected.rotation.y)})};
+q("duplicateDevice").onclick=()=>{if(!selected)return;const u=selected.userData;addDevice({...u,pedestalHeight:u.pedestalHeight||.10,x:selected.position.x+.7,z:selected.position.z+.7,rot:THREE.MathUtils.radToDeg(selected.rotation.y)})};
 q("deleteDevice").onclick=()=>{if(!selected)return;transformControls.detach();root.remove(selected);devices=devices.filter(d=>d!==selected);selected=null;refreshEditor()};
 q("pitch").onchange=updatePitchInfo;
 
@@ -430,6 +484,13 @@ q("deviceBrightness").oninput=()=>{
  q("brightnessValue").textContent=q("deviceBrightness").value+"%";
  selected.traverse(o=>{if(o.material?.uniforms?.uBright){o.material.uniforms.uBright.value=selected.userData.brightness;if(o.material.uniforms.uAmbient)o.material.uniforms.uAmbient.value=.22}});
 };
+q("baseHeight").oninput=()=>{
+ if(!selected)return;
+ selected.userData.pedestalHeight=Number(q("baseHeight").value);
+ q("baseHeightValue").textContent=selected.userData.pedestalHeight.toFixed(2)+"m";
+ rebuildDevice(selected);
+};
+
 function setTransformMode(mode){
  transformControls.setMode(mode);
  ["toolMove","toolRotate","toolScale"].forEach(id=>q(id).classList.remove("active"));
