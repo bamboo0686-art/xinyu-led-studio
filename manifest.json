@@ -1,11 +1,10 @@
 {
-  "name": "心禹 LED 虛擬播放器 V18",
-  "short_name": "心禹 LED V18",
+  "name": "Xinyu LED Studio｜心禹國際 LED 智慧視覺編輯器 V3.0",
+  "short_name": "Xinyu LED Studio",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#090a0c",
-  "theme_color": "#090a0c",
-  "orientation": "any",
+  "background_color": "#0a0b0e",
+  "theme_color": "#0a0b0e",
   "icons": [
     {
       "src": "icon.svg",
