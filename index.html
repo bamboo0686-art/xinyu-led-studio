@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Xinyu LED Studio V3.3</title>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Xinyu LED Studio V3.4</title>
 <style>
 :root{--bg:#0a0b0e;--p:#14171c;--p2:#0f1115;--line:#30343d;--gold:#d6b45f;--txt:#f4f4f5;--muted:#9a9ea7}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;overflow:hidden}
@@ -88,14 +88,14 @@ button,input,select,textarea{font:inherit}.top{height:54px;display:flex;align-it
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V3.3 拖曳組裝與場景工作流強化 === */
+/* === V3.4 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V3.3 流暢度與播放核心修正版 === */
+/* === V3.4 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -104,6 +104,17 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #c{image-rendering:auto}
 .quick button{user-select:none}
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
+
+
+/* === V3.4 影音播放與工作區輸出強化版 === */
+.audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
+.audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
+.audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
+.sceneSizeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.recState{margin-top:6px;padding:6px 8px;border-radius:7px;border:1px solid #303944;background:#0d1117;color:#9ba4b1;font-size:9px}
+.recState.recording{border-color:#7c3b3b;background:#331919;color:#f4bcbc;animation:pulseRec 1.3s infinite}
+@keyframes pulseRec{50%{opacity:.72}}
+.levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 </style></head><body>
 <header class="top"><div class="brand">Xinyu LED Studio<small>心禹國際 LED 智慧視覺編輯器 V3.0｜開發單位：心禹國際開發科技有限公司</small></div><button id="home">專案</button><button>編輯</button><button>檢視</button><button id="goExport">匯出</button><button>設定</button><button id="undo">復原</button><button id="redo">重做</button><button id="snapToggle">吸附：開</button><button id="gridToggle">格線：開</button><button id="toggle3d">3D Preview</button><span id="autosaveState" class="autosave">自動儲存：待命</span><button id="proposalMode" class="active">提案模式</button><button id="constructionMode">施工模式</button><button id="save" class="save">儲存專案</button></header>
@@ -125,7 +136,16 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 <div class="groupBox"><div class="g3"><button id="groupMove" class="btn">群組移動</button><button id="groupScaleUp" class="btn">放大10%</button><button id="groupScaleDown" class="btn">縮小10%</button></div><div class="g2" style="margin-top:5px"><button id="groupRotateL" class="btn">左轉5°</button><button id="groupRotateR" class="btn">右轉5°</button></div></div></div><div class="panel" style="margin-top:7px"><h3>工程對齊／分布</h3>
 <div class="alignGrid"><button id="alLeft">靠左</button><button id="alCenter">水平置中</button><button id="alRight">靠右</button><button id="alTop">靠上</button><button id="alMiddle">垂直置中</button><button id="alBottom">靠下</button><button id="distH">水平等距</button><button id="distV">垂直等距</button><button id="autoDim">自動尺寸</button></div></div></div></section>
 <section class="panel"><h3>顯示內容</h3><div class="field"><input id="content" type="file" accept="image/*,video/*"></div><div class="field"><label>填充模式</label><select id="fit"><option>填滿</option><option>適應</option><option>拉伸</option><option>置中</option><option>平鋪</option><option>裁切</option><option>保持比例</option></select></div>
-<div class="panel"><h3>內容裁切框</h3><div class="g2"><div class="field"><label>裁切X%</label><input id="cropX" type="number" min="0" max="99" value="0"></div><div class="field"><label>裁切Y%</label><input id="cropY" type="number" min="0" max="99" value="0"></div></div><div class="g2"><div class="field"><label>裁切寬%</label><input id="cropW" type="number" min="1" max="100" value="100"></div><div class="field"><label>裁切高%</label><input id="cropH" type="number" min="1" max="100" value="100"></div></div><button id="resetCrop" class="btn" style="width:100%">重設裁切</button><div class="cropHint">裁切框會直接影響LED內的圖片／影片顯示，不改變原始素材。</div></div><div class="g2"><div class="field"><label>內容縮放%</label><input id="contentScale" type="number" min="10" max="500" value="100"></div><div class="field"><label>內容旋轉°</label><input id="contentRotate" type="number" min="-360" max="360" value="0"></div></div><div class="g2"><div class="field"><label>內容X%</label><input id="contentX" type="number" min="-100" max="100" value="0"></div><div class="field"><label>內容Y%</label><input id="contentY" type="number" min="-100" max="100" value="0"></div></div><div class="row"><button id="contentEdit" class="btn">滑鼠編輯內容</button><button id="contentReset" class="btn">重設內容</button></div><div class="contentEditHint">內容編輯：在LED內拖曳可移動素材；滑鼠滾輪縮放；Shift＋滾輪旋轉。按Esc離開。</div><div class="row"><button id="play" class="btn green">▶ 播放</button><button id="pause" class="btn">⏸ 暫停</button></div><div id="playStatus" class="playStatus">尚未載入可播放影片</div><div class="wheelHelp">滑鼠滾輪：縮放場景｜Shift＋滾輪：水平移動｜Alt＋滾輪：調整選取內容縮放｜中鍵拖曳：平移畫布</div></section>
+<div class="panel"><h3>內容裁切框</h3><div class="g2"><div class="field"><label>裁切X%</label><input id="cropX" type="number" min="0" max="99" value="0"></div><div class="field"><label>裁切Y%</label><input id="cropY" type="number" min="0" max="99" value="0"></div></div><div class="g2"><div class="field"><label>裁切寬%</label><input id="cropW" type="number" min="1" max="100" value="100"></div><div class="field"><label>裁切高%</label><input id="cropH" type="number" min="1" max="100" value="100"></div></div><button id="resetCrop" class="btn" style="width:100%">重設裁切</button><div class="cropHint">裁切框會直接影響LED內的圖片／影片顯示，不改變原始素材。</div></div><div class="g2"><div class="field"><label>內容縮放%</label><input id="contentScale" type="number" min="10" max="500" value="100"></div><div class="field"><label>內容旋轉°</label><input id="contentRotate" type="number" min="-360" max="360" value="0"></div></div><div class="g2"><div class="field"><label>內容X%</label><input id="contentX" type="number" min="-100" max="100" value="0"></div><div class="field"><label>內容Y%</label><input id="contentY" type="number" min="-100" max="100" value="0"></div></div><div class="row"><button id="contentEdit" class="btn">滑鼠編輯內容</button><button id="contentReset" class="btn">重設內容</button></div><div class="contentEditHint">內容編輯：在LED內拖曳可移動素材；滑鼠滾輪縮放；Shift＋滾輪旋轉。按Esc離開。</div><div class="row"><button id="play" class="btn green">▶ 播放</button><button id="pause" class="btn">⏸ 暫停</button></div>
+<div id="playStatus" class="playStatus">尚未載入可播放影片</div>
+<section class="panel audioPanel" style="margin-top:7px"><h3>音效／背景音樂</h3>
+<div class="field"><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg"></div>
+<div class="g2"><button id="audioPlay" class="btn green">▶ 播放音效</button><button id="audioPause" class="btn">⏸ 暫停</button></div>
+<div class="field" style="margin-top:6px"><label>音量 <span id="audioVolVal">80%</span></label><input id="audioVolume" type="range" min="0" max="100" value="80"></div>
+<div class="g2"><label class="field"><span>循環播放</span><input id="audioLoop" type="checkbox" checked></label><label class="field"><span>靜音</span><input id="audioMute" type="checkbox"></label></div>
+<label class="field"><span>播放 LED 影片原音</span><input id="videoAudioEnabled" type="checkbox" checked></label>
+<div id="audioState" class="audioState">尚未載入音效</div><div class="levelMeter"><i id="audioMeter"></i></div>
+</section><div class="wheelHelp">滑鼠滾輪：縮放場景｜Shift＋滾輪：水平移動｜Alt＋滾輪：調整選取內容縮放｜中鍵拖曳：平移畫布</div></section>
 <section class="panel"><h3>工程自動計算 V3.0</h3>
 <div class="g2"><div class="field"><label>模組寬 mm</label><input id="moduleW" type="number" min="50" max="1000" value="320"></div><div class="field"><label>模組高 mm</label><input id="moduleH" type="number" min="50" max="1000" value="160"></div></div>
 <div class="g2"><div class="field"><label>箱體寬 mm</label><input id="cabinetW" type="number" min="100" max="3000" value="640"></div><div class="field"><label>箱體高 mm</label><input id="cabinetH" type="number" min="100" max="3000" value="480"></div></div>
@@ -153,6 +173,16 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 <div id="aiResult" class="aiResult" style="margin-top:6px">AI尚未分析場景。</div>
 </section></div>
 <div id="tab-project" class="hidden">
+<section class="panel"><h3>編輯工作區／場景尺寸</h3>
+<div class="sceneSizeGrid">
+ <div class="field"><label>場景寬度 px</label><input id="sceneW" type="number" min="100" max="12000" value="1600"></div>
+ <div class="field"><label>場景高度 px</label><input id="sceneH" type="number" min="100" max="12000" value="900"></div>
+</div>
+<div class="field"><label><input id="sceneLockRatio" type="checkbox" checked> 鎖定原始比例</label></div>
+<div class="g2"><button id="applySceneSize" class="btn gold">套用場景大小</button><button id="fitSceneBtn" class="btn">完整顯示場景</button></div>
+<div class="g2" style="margin-top:5px"><button id="sceneOriginal" class="btn">原始比例尺寸</button><button id="scenePresetHD" class="btn">1920×1080</button></div>
+<div class="meta" style="margin-top:5px">場景尺寸只影響編輯工作區座標與輸出畫布，不會修改原始照片檔案。</div>
+</section>
 <section class="panel"><h3>專案健康檢查</h3>
 <div id="healthScore" class="health warn">尚未執行檢查</div>
 <div id="healthList"></div>
@@ -163,6 +193,11 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 <div class="row"><button id="addScene" class="btn gold">＋新增場景</button><button id="dupScene" class="btn">複製場景</button></div><div class="row" style="margin-top:5px"><button id="renameScene" class="btn">重新命名</button><button id="delScene" class="btn red">刪除場景</button></div></section>
 <section class="panel"><h3>參考物尺度校正</h3><div class="field"><label>已知距離 cm</label><input id="known" type="number" value="90"></div><div class="row"><button id="scaleBtn" class="btn gold">選兩點校正</button><button id="scaleClear" class="btn">清除</button></div></section></div>
 <div id="tab-out" class="hidden"><section class="panel"><h3>輸出中心</h3><div class="row"><button id="png" class="btn gold">PNG效果圖</button><button id="jpg" class="btn">JPG效果圖</button></div><div class="row" style="margin-top:5px"><button id="json" class="btn">專案JSON</button><button id="report" class="btn">專案報告</button></div><div class="row" style="margin-top:5px"><button id="dxf" class="btn">DXF工程框線</button><button id="rec" class="btn">錄製3D</button></div>
+<section class="panel"><h3>編輯工作區影音輸出</h3>
+<div class="field"><label><input id="recordAutoPlay" type="checkbox" checked> 錄製時自動播放工作區全部影片與音效</label></div>
+<div class="g2"><button id="recordWorkspace" class="btn gold">● 開始錄製工作區</button><button id="stopWorkspaceRecord" class="btn red" disabled>■ 停止並輸出</button></div>
+<div id="workspaceRecState" class="recState">可輸出：場景圖片＋LED/LCD圖片＋影片畫面＋音效／背景音樂。</div>
+</section>
 <div class="row" style="margin-top:5px"><button id="captureA" class="btn">擷取方案A</button><button id="captureB" class="btn">擷取方案B</button></div>
 <button id="pdfProposal" class="btn gold" style="width:100%;margin-top:5px">PDF客戶提案</button>
 <div class="compare" style="margin-top:7px"><div class="compareBox"><canvas id="cmpA" width="480" height="360"></canvas><small>方案 A</small></div><div class="compareBox"><canvas id="cmpB" width="480" height="360"></canvas><small>方案 B</small></div></div></section><section class="panel"><h3>V2.0 高階 3D／三面同步映射</h3>
@@ -187,7 +222,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 <div id="modal" class="modal"><div class="dialog"><h3>建立新專案</h3><div class="g2"><div class="field"><label>專案名稱</label><input id="nn" value="新LED專案"></div><div class="field"><label>客戶名稱</label><input id="nc"></div></div><div class="field"><label>地址</label><input id="na"></div><div class="g2"><div class="field"><label>業務</label><input id="ns"></div><div class="field"><label>工程</label><input id="ne"></div></div><div class="field"><label>LED類型</label><select id="nt"><option>平面 LED</option><option>弧形 LED</option><option>曲面 LED</option><option>圓柱 LED</option><option>包柱 LED</option><option>L 型 LED</option><option>U 型 LED</option><option>三面 LED</option><option>異形 LED</option><option>LCD 拼接</option><option>自訂</option></select></div><div class="field"><label>備註</label><textarea id="nno"></textarea></div><div class="row"><button id="cancel" class="btn">取消</button><button id="create" class="btn gold">建立</button></div></div></div><div id="toast" class="toast"></div>
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";import{OrbitControls}from"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js/+esm";
-const q=x=>document.getElementById(x),qa=x=>[...document.querySelectorAll(x)],c=q("c"),x=c.getContext("2d");let P=JSON.parse(localStorage.getItem("XLS_PROJECTS")||"[]"),cur=null,O=[],A=[],V=[],sel=null,tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[]}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:0,h:0},renderPending=false,lastVideoRender=0,videoLoopRunning=false;
+const q=x=>document.getElementById(x),qa=x=>[...document.querySelectorAll(x)],c=q("c"),x=c.getContext("2d");let P=JSON.parse(localStorage.getItem("XLS_PROJECTS")||"[]"),cur=null,O=[],A=[],V=[],sel=null,tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[]}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:0,h:0},renderPending=false,lastVideoRender=0,videoLoopRunning=false,audioTrack=null,audioContext=null,audioMixDest=null,audioMasterGain=null,audioNodes=new WeakMap(),workspaceRecorder=null,workspaceChunks=[],workspaceRecordStarted=0,workspaceRecordTimer=null;
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5),esc=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 function toast(t){q("toast").textContent=t;q("toast").classList.add("show");setTimeout(()=>q("toast").classList.remove("show"),1800)}
 function scheduleAutoSave(){
@@ -520,7 +555,7 @@ window.addEventListener("error",e=>toast("錯誤："+(e.message||"未知錯誤")
 function saveList(){localStorage.setItem("XLS_PROJECTS",JSON.stringify(P))}
 function dash(){q("projects").innerHTML="";if(!P.length){q("projects").innerHTML='<div class="meta">尚無專案，請建立第一個Xinyu LED Studio專案。</div>';return}P.slice().reverse().forEach(p=>{let e=document.createElement("div");e.className="proj";e.innerHTML=`<div class="cover">▣</div><div class="pbody"><h3>${esc(p.name)}</h3><div class="meta">客戶：${esc(p.client||"-")}<br>編號：${p.id}<br>修改：${new Date(p.m).toLocaleString()}</div><span class="status">${p.status||"草稿"}</span><div class="row" style="margin-top:7px"><button class="btn op">開啟</button><button class="btn cp">複製</button><button class="btn red rm">刪除</button></div></div>`;e.querySelector(".op").onclick=()=>open(p.id);e.querySelector(".cp").onclick=()=>{let d=structuredClone(p);d.id="P"+Date.now();d.name+="－複製";d.m=Date.now();P.push(d);saveList();dash()};e.querySelector(".rm").onclick=()=>{P=P.filter(a=>a.id!==p.id);saveList();dash()};q("projects").append(e)})}
 q("new").onclick=()=>q("modal").classList.add("show");q("cancel").onclick=()=>q("modal").classList.remove("show");q("create").onclick=()=>{let p={id:"P"+Date.now(),name:q("nn").value,client:q("nc").value,address:q("na").value,sales:q("ns").value,eng:q("ne").value,type:q("nt").value,note:q("nno").value,status:"草稿",m:Date.now(),data:{o:[],a:[],v:[],groups:{}}};P.push(p);saveList();q("modal").classList.remove("show");open(p.id)};
-function open(id){cur=P.find(a=>a.id===id);scenes=structuredClone(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[]}]);sceneIndex=0;O=structuredClone(scenes[0]?.objects||[]);A=cur.data?.a||[];V=cur.data?.v||[];guideLines=structuredClone(cur.data?.guideLines||[]);aiDetections=structuredClone(cur.data?.aiDetections||[]);if(q("aiEndpoint"))q("aiEndpoint").value=cur.data?.aiEndpoint||"";renderAIDetections();studioMode=cur.data?.studioMode||"proposal";engineeringLocked=!!cur.data?.engineeringLocked;showModuleGrid=!!cur.data?.showModuleGrid;showCabinetGrid=!!cur.data?.showCabinetGrid;showPortMap=!!cur.data?.showPortMap;showPowerMap=!!cur.data?.showPowerMap;const es=cur.data?.engSettings||{};["moduleW","moduleH","cabinetW","cabinetH","psuW","spareRate","maxPowerDensity","avgPowerRate","circuitW","pixelsPerPort","phaseMode","systemVoltage","powerSafety","currentSafety"].forEach(id=>{if(q(id)&&es[id]!=null)q(id).value=es[id]});renderGuides();groups=structuredClone(cur.data?.groups||{});q("jname").value=cur.name;q("client").value=cur.client||"";q("addr").value=cur.address||"";q("sales").value=cur.sales||"";q("eng").value=cur.eng||"";q("status").value=cur.status||"草稿";q("note").value=cur.note||"";q("dashboard").classList.add("hidden");setStudioMode(studioMode);setEngineeringLock(engineeringLocked);draw();layers();props();bottom("ledmodels");summary()}
+function open(id){cur=P.find(a=>a.id===id);scenes=structuredClone(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[]}]);sceneIndex=0;O=structuredClone(scenes[0]?.objects||[]);A=cur.data?.a||[];V=cur.data?.v||[];guideLines=structuredClone(cur.data?.guideLines||[]);aiDetections=structuredClone(cur.data?.aiDetections||[]);if(q("aiEndpoint"))q("aiEndpoint").value=cur.data?.aiEndpoint||"";renderAIDetections();studioMode=cur.data?.studioMode||"proposal";engineeringLocked=!!cur.data?.engineeringLocked;showModuleGrid=!!cur.data?.showModuleGrid;showCabinetGrid=!!cur.data?.showCabinetGrid;showPortMap=!!cur.data?.showPortMap;showPowerMap=!!cur.data?.showPowerMap;const es=cur.data?.engSettings||{};["moduleW","moduleH","cabinetW","cabinetH","psuW","spareRate","maxPowerDensity","avgPowerRate","circuitW","pixelsPerPort","phaseMode","systemVoltage","powerSafety","currentSafety"].forEach(id=>{if(q(id)&&es[id]!=null)q(id).value=es[id]});renderGuides();groups=structuredClone(cur.data?.groups||{});q("jname").value=cur.name;q("client").value=cur.client||"";q("addr").value=cur.address||"";q("sales").value=cur.sales||"";q("eng").value=cur.eng||"";q("status").value=cur.status||"草稿";q("note").value=cur.note||"";q("dashboard").classList.add("hidden");setStudioMode(studioMode);setEngineeringLock(engineeringLocked);syncSceneInputs();draw();layers();props();bottom("ledmodels");summary()}
 function save(ver=true){if(!cur)return;Object.assign(cur,{name:q("jname").value,client:q("client").value,address:q("addr").value,sales:q("sales").value,eng:q("eng").value,status:q("status").value,note:q("note").value,m:Date.now()});if(ver)V.push({id:"V"+(V.length+1),t:Date.now(),o:structuredClone(O)});cur.data={o:structuredClone(O),a:A,v:V,groups:structuredClone(groups),guideLines:structuredClone(guideLines),engSettings:engSettings(),studioMode,engineeringLocked,showModuleGrid,showCabinetGrid,showPortMap,showPowerMap,aiDetections:structuredClone(aiDetections),aiEndpoint:q("aiEndpoint")?.value||""};saveList();toast("專案已儲存")}q("save").onclick=()=>save();q("home").onclick=()=>{q("dashboard").classList.remove("hidden");dash()};
 
 function sceneImageSize(){
@@ -543,6 +578,23 @@ function updateFitBadge(){
  if(!bg){el.textContent=`縮放 ${Math.round(z*100)}%`;return}
  const s=sceneImageSize();el.textContent=`場景 ${Math.round(s.w)}×${Math.round(s.h)}｜縮放 ${Math.round(z*100)}%`
 }
+
+function syncSceneInputs(){
+ const s=sceneImageSize();if(q("sceneW"))q("sceneW").value=Math.round(s.w||1600);if(q("sceneH"))q("sceneH").value=Math.round(s.h||900)
+}
+function applySceneSize(){
+ let w=Math.max(100,Math.min(12000,+q("sceneW").value||1600)),h=Math.max(100,Math.min(12000,+q("sceneH").value||900));
+ if(q("sceneLockRatio")?.checked&&bg){
+  const nat=(bg.naturalWidth||bg.width)/(bg.naturalHeight||bg.height);
+  if(document.activeElement===q("sceneW"))h=w/nat;else w=h*nat;
+ }
+ bgScene={w,h};syncSceneInputs();fitScene();markChanged();toast(`場景已調整為 ${Math.round(w)}×${Math.round(h)}`)
+}
+function useOriginalSceneRatio(){
+ if(!bg){toast("請先上傳場景照片");return}
+ const nw=bg.naturalWidth||bg.width,nh=bg.naturalHeight||bg.height,maxDim=2400,ratio=Math.min(1,maxDim/Math.max(nw,nh));bgScene={w:nw*ratio,h:nh*ratio};syncSceneInputs();fitScene();markChanged()
+}
+
 function fitScene(){
  const sb=getSceneBounds(),vw=Math.max(1,c.clientWidth),vh=Math.max(1,c.clientHeight),margin=56;
  z=Math.max(.05,Math.min(4,Math.min((vw-margin*2)/sb.w,(vh-margin*2)/sb.h)));
@@ -575,6 +627,59 @@ function draw(force=false){
  if(renderPending)return;
  renderPending=true;requestAnimationFrame(()=>{renderPending=false;renderNow()})
 }
+
+function ensureAudioContext(){
+ if(audioContext)return audioContext;
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+ audioContext=new AC();audioMixDest=audioContext.createMediaStreamDestination();audioMasterGain=audioContext.createGain();audioMasterGain.gain.value=.8;
+ audioMasterGain.connect(audioContext.destination);audioMasterGain.connect(audioMixDest);return audioContext
+}
+function connectMediaToMixer(media,gainValue=1){
+ const ac=ensureAudioContext();if(!ac||!media)return null;
+ if(audioNodes.has(media)){const rec=audioNodes.get(media);rec.gain.gain.value=gainValue;return rec}
+ try{
+  const src=ac.createMediaElementSource(media),gain=ac.createGain();gain.gain.value=gainValue;src.connect(gain);gain.connect(audioMasterGain);
+  const rec={src,gain};audioNodes.set(media,rec);return rec
+ }catch(e){return null}
+}
+function setAudioState(text,playing=false){
+ const el=q("audioState");if(!el)return;el.textContent=text;el.className="audioState"+(playing?" playing":"")
+}
+function updateAudioControls(){
+ const v=Number(q("audioVolume")?.value||80)/100;if(audioMasterGain)audioMasterGain.gain.value=q("audioMute")?.checked?0:v;
+ if(audioTrack){audioTrack.loop=!!q("audioLoop")?.checked}
+ q("audioVolVal")&&(q("audioVolVal").textContent=Math.round(v*100)+"%")
+}
+function loadAudioFile(file){
+ if(!file)return;
+ if(audioTrack){audioTrack.pause();try{URL.revokeObjectURL(audioTrack.dataset.url||"")}catch{}}
+ const a=new Audio();const url=URL.createObjectURL(file);a.src=url;a.dataset.url=url;a.preload="auto";a.loop=!!q("audioLoop")?.checked;a.crossOrigin="anonymous";
+ audioTrack=a;connectMediaToMixer(a,1);
+ a.addEventListener("canplay",()=>setAudioState(`音效已就緒：${file.name}`));
+ a.addEventListener("play",()=>{setAudioState(`音效播放中：${file.name}`,true);startAudioMeter()});
+ a.addEventListener("pause",()=>setAudioState(`音效已暫停：${file.name}`));
+ a.addEventListener("error",()=>setAudioState("音效載入失敗，請改用 MP3 / WAV / M4A"));
+ setAudioState(`音效載入中：${file.name}`)
+}
+function playAudioTrack(){
+ if(!audioTrack){toast("請先上傳音效或背景音樂");return}
+ ensureAudioContext()?.resume?.();updateAudioControls();audioTrack.play().catch(e=>{setAudioState("音效播放失敗："+(e.message||"瀏覽器限制"));toast("請再按一次播放音效")})
+}
+function pauseAudioTrack(){audioTrack?.pause()}
+function startAudioMeter(){
+ const meter=q("audioMeter");if(!meter)return;
+ let active=true;
+ const tick=()=>{
+  if(!audioTrack||audioTrack.paused){meter.style.width="0%";return}
+  const p=.25+.55*Math.abs(Math.sin(performance.now()/380));meter.style.width=Math.round(p*100)+"%";requestAnimationFrame(tick)
+ };requestAnimationFrame(tick)
+}
+function registerVideoAudio(v){
+ if(!v)return;
+ connectMediaToMixer(v,1);
+ v.muted=!q("videoAudioEnabled")?.checked;
+}
+
 function setPlayStatus(text,state=""){
  const el=q("playStatus");if(!el)return;el.textContent=text;el.className="playStatus"+(state?" "+state:"")
 }
@@ -583,16 +688,22 @@ function anyPlayingVideo(){
 }
 function ensureVideoLoop(){
  if(videoLoopRunning)return;videoLoopRunning=true;
- const loop=(t)=>{
-  if(!anyPlayingVideo()){videoLoopRunning=false;return}
-  if(t-lastVideoRender>=33){lastVideoRender=t;renderNow();if(is3&&threeContentTex)threeContentTex.needsUpdate=true}
-  requestAnimationFrame(loop)
+ const active=()=>O.filter(o=>o.media?.tagName==="VIDEO"&&!o.media.paused&&!o.media.ended&&o.ready).map(o=>o.media);
+ const attachRVFC=(v)=>{
+  if(v.__xinyuRVFC)return;v.__xinyuRVFC=true;
+  const cb=()=>{
+   if(v.paused||v.ended){v.__xinyuRVFC=false;if(!anyPlayingVideo())videoLoopRunning=false;return}
+   draw();if(is3&&threeContentTex)threeContentTex.needsUpdate=true;
+   if(typeof v.requestVideoFrameCallback==="function")v.requestVideoFrameCallback(cb);else setTimeout(cb,42)
+  };
+  if(typeof v.requestVideoFrameCallback==="function")v.requestVideoFrameCallback(cb);else setTimeout(cb,42)
  };
- requestAnimationFrame(loop)
+ active().forEach(attachRVFC);
+ if(!active().length)videoLoopRunning=false
 }
 function bindVideoObject(o,v){
  o.media=v;o.ready=0;o.mediaType="video";
- v.loop=true;v.muted=true;v.playsInline=true;v.preload="auto";
+ v.loop=true;v.muted=false;v.playsInline=true;v.preload="metadata";registerVideoAudio(v);
  v.addEventListener("loadeddata",()=>{o.ready=1;draw();setPlayStatus(`影片已就緒：${o.assetName||"影片"}，按「播放」開始`)});
  v.addEventListener("play",()=>{setPlayStatus(`播放中：${o.assetName||"影片"}`,"playing");ensureVideoLoop()});
  v.addEventListener("pause",()=>setPlayStatus(`已暫停：${o.assetName||"影片"}`));
@@ -634,7 +745,7 @@ function nearSeg(a,p,d=14){let bi=-1,bd=1e9;for(let i=0;i<a.length;i++){let A=a[
 function curvePath(a,k){if(!a.length)return;k=Math.max(0,Math.min(1,k||0));if(k<.02){x.moveTo(a[0].x,a[0].y);for(let i=1;i<a.length;i++)x.lineTo(a[i].x,a[i].y);x.closePath();return}for(let i=0;i<a.length;i++){let pr=a[(i-1+a.length)%a.length],cu=a[i],nx=a[(i+1)%a.length],p1={x:cu.x+(pr.x-cu.x)*k*.22,y:cu.y+(pr.y-cu.y)*k*.22},p2={x:cu.x+(nx.x-cu.x)*k*.22,y:cu.y+(nx.y-cu.y)*k*.22};if(i===0)x.moveTo(p1.x,p1.y);else x.lineTo(p1.x,p1.y);x.quadraticCurveTo(cu.x,cu.y,p2.x,p2.y)}x.closePath()}
 function mediaDraw(o,b){let m=o.media;if(!m||!o.ready)return false;let mw=m.videoWidth||m.naturalWidth||m.width||b.w,mh=m.videoHeight||m.naturalHeight||m.height||b.h;if(!mw||!mh)return false;let fit=o.fit||"填滿",sc=(o.contentScale||100)/100,sx=(o.contentX||0)/100*b.w,sy=(o.contentY||0)/100*b.h,rot=(o.contentRotate||0)*Math.PI/180,dw,dh;if(fit==="拉伸"){dw=b.w*sc;dh=b.h*sc}else{let rr=(fit==="適應"||fit==="保持比例")?Math.min(b.w/mw,b.h/mh):Math.max(b.w/mw,b.h/mh);dw=mw*rr*sc;dh=mh*rr*sc}x.save();x.translate(b.x+b.w/2+sx,b.y+b.h/2+sy);x.rotate(rot);x.drawImage(m,-dw/2,-dh/2,dw,dh);x.restore();return true}
 function syncBox(o){if(!o.corners)return;let b=bounds(o.corners);o.x=b.x;o.y=b.y;o.w=Math.max(5,b.w);o.h=Math.max(5,b.h)}
-/* V3.3: draw() replaced by requestAnimationFrame-throttled renderer above */
+/* V3.4: draw() replaced by requestAnimationFrame-throttled renderer above */
 function paint(o){x.save();x.globalAlpha=o.opacity??1;x.filter=`brightness(${o.bright||1}) contrast(${o.contrast||1}) saturate(${o.sat||1})`;if(o.type==="maskbrush"){x.fillStyle="rgba(90,90,90,.6)";x.fillRect(o.x,o.y,o.w,o.h)}else if(o.type==="text"){x.fillStyle="#fff";x.font="bold 30px sans-serif";x.fillText(o.text,o.x,o.y)}else if(o.type==="dim"){x.strokeStyle="#f1d78c";x.fillStyle="#f1d78c";x.beginPath();x.moveTo(o.x,o.y);x.lineTo(o.x+o.w,o.y+o.h);x.stroke();x.fillText(o.label,o.x+5,o.y-5)}else{let a=polyPts(o);x.beginPath();curvePath(a,(o.curvePower||0)/100);if(o.mask){x.fillStyle="#555";x.fill()}else{x.save();x.clip();let b=bounds(a);if(!mediaDraw(o,b)){let g=x.createLinearGradient(b.x,b.y,b.x+b.w,b.y+b.h);g.addColorStop(0,"#0d2438");g.addColorStop(.5,"#2850a2");g.addColorStop(1,"#912a67");x.fillStyle=g;x.fillRect(b.x,b.y,b.w,b.h);x.fillStyle="#ffffff25";for(let i=b.x;i<b.x+b.w;i+=6)for(let j=b.y;j<b.y+b.h;j+=6)x.fillRect(i,j,2,2)}x.restore();x.strokeStyle=o.id===sel?"#f2d98c":"#8b8e96";x.lineWidth=o.id===sel?2:1;x.stroke()}if(o.id===sel&&(geomMode==="perspective"||geomMode==="anchor")){let ps=o.pts?.length?o.pts:ensureCorners(o);ps.forEach((p,i)=>{x.beginPath();x.arc(p.x,p.y,6/z,0,Math.PI*2);x.fillStyle=i===anchorDrag?"#5d8dff":"#4ecb7a";x.fill();x.strokeStyle="#fff";x.stroke()})}}if(o.rw&&o.rh&&!o.mask)drawEngineeringOverlay(o);x.restore()}
 function pt(e){let r=c.getBoundingClientRect();return{x:(e.clientX-r.left-pan.x)/z,y:(e.clientY-r.top-pan.y)/z}}function hit(p){for(let o of [...O].reverse()){if(o.lock||o.vis===false)continue;let a=(o.pts?.length||o.corners?.length)?polyPts(o):null;if(a){if(poly(p,a))return o}else if(p.x>=o.x&&p.x<=o.x+o.w&&p.y>=o.y&&p.y<=o.y+o.h)return o}return null}function poly(p,a){let c=false;for(let i=0,j=a.length-1;i<a.length;j=i++)if(((a[i].y>p.y)!=(a[j].y>p.y))&&(p.x<(a[j].x-a[i].x)*(p.y-a[i].y)/(a[j].y-a[i].y)+a[i].x))c=!c;return c}
 function snap(){H.push(JSON.stringify(O));if(H.length>40)H.shift();F=[]}q("undo").onclick=()=>{if(!H.length)return;F.push(JSON.stringify(O));O=JSON.parse(H.pop());draw();layers();props();summary()};q("redo").onclick=()=>{if(!F.length)return;H.push(JSON.stringify(O));O=JSON.parse(F.pop());draw();layers();props();summary()};
@@ -847,15 +958,60 @@ if(q("exportSVGEngineering"))q("exportSVGEngineering").onclick=exportEngineering
 
 qa(".btabs button").forEach(b=>b.onclick=()=>bottom(b.dataset.b));
 function model(n){snap();const o=presetObject(n);O.push(o);sel=o.id;draw();props();layers();summary();markChanged();toast('已新增：'+n)}
-q("bgBtn").onclick=()=>{let i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{let f=i.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{bg=im;bgScene={w:0,h:0};requestAnimationFrame(()=>fitScene());markChanged()};im.src=r.result};r.readAsDataURL(f)};i.click()};
+q("bgBtn").onclick=()=>{let i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{let f=i.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{bg=im;bgScene={w:0,h:0};sceneImageSize();syncSceneInputs();requestAnimationFrame(()=>fitScene());markChanged()};im.src=r.result};r.readAsDataURL(f)};i.click()};
 q("zin").onclick=()=>zoomAtClient(c.getBoundingClientRect().left+c.clientWidth/2,c.getBoundingClientRect().top+c.clientHeight/2,1.15);
 q("zout").onclick=()=>zoomAtClient(c.getBoundingClientRect().left+c.clientWidth/2,c.getBoundingClientRect().top+c.clientHeight/2,.87);
 q("z100").onclick=centerSceneAt100;
 q("zfit").onclick=fitScene;
 q("fs").onclick=()=>document.fullscreenElement?document.exitFullscreen():q("stage").requestFullscreen?.();document.addEventListener("fullscreenchange",()=>setTimeout(()=>{resize();if(bg)fitScene()},80));
 q("content").onchange=()=>{const f=q("content").files[0];if(!f)return;const runtimeId='AR'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),url=URL.createObjectURL(f);assetRuntime.set(runtimeId,{url,type:f.type,name:f.name});const a={id:runtimeId,runtimeId,name:f.name,type:f.type};A.push(a);const o=selected();if(o)attachRuntimeAssetToObject(a,o);bottom("assets");markChanged()};q("play").onclick=playSelectedMedia;q("pause").onclick=pauseSelectedMedia;
+q("audioFile").onchange=()=>loadAudioFile(q("audioFile").files[0]);
+q("audioPlay").onclick=playAudioTrack;q("audioPause").onclick=pauseAudioTrack;
+q("audioVolume").oninput=updateAudioControls;q("audioLoop").onchange=updateAudioControls;q("audioMute").onchange=updateAudioControls;
+q("videoAudioEnabled").onchange=()=>O.forEach(o=>{if(o.media?.tagName==="VIDEO")o.media.muted=!q("videoAudioEnabled").checked});
+q("applySceneSize").onclick=applySceneSize;q("fitSceneBtn").onclick=fitScene;q("sceneOriginal").onclick=useOriginalSceneRatio;
+q("scenePresetHD").onclick=()=>{bgScene={w:1920,h:1080};syncSceneInputs();fitScene();markChanged()};
+q("recordWorkspace").onclick=startWorkspaceRecording;q("stopWorkspaceRecord").onclick=stopWorkspaceRecording;
 q("scaleBtn").onclick=()=>{scalePts=[];q("scaleBtn").dataset.on="1";toast("請在照片上點選兩點")};q("scaleClear").onclick=()=>{scale=null;scalePts=[]};function summary(){buildBOM();let a=O.filter(o=>o.rw&&o.rh),s=a.reduce((n,o)=>n+o.rw*o.rh/1e6,0);q("sum").innerHTML=`LED/LCD物件：${a.length} 件<br>總顯示面積：約 ${s.toFixed(3)}㎡<br>照片尺度：${scale?"已校正":"未校正"}<br>吸附：${snapEnabled?"開":"關"}<br>群組：${Object.keys(groups).length} 組`}
 qa(".tabs button").forEach(b=>b.onclick=()=>{qa(".tabs button").forEach(a=>a.classList.remove("active"));b.classList.add("active");["prop","project","out"].forEach(t=>q("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab))});q("goExport").onclick=()=>q('[data-tab="out"]').click();
+
+function preferredWebMMime(){
+ const types=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
+ return types.find(t=>MediaRecorder.isTypeSupported?.(t))||"video/webm"
+}
+async function autoPlayWorkspaceMedia(){
+ ensureAudioContext()?.resume?.();
+ const jobs=[];
+ O.forEach(o=>{const v=o.media;if(v?.tagName==="VIDEO"){registerVideoAudio(v);v.muted=!q("videoAudioEnabled")?.checked;jobs.push(v.play().catch(()=>{}))}});
+ if(audioTrack)jobs.push(audioTrack.play().catch(()=>{}));
+ await Promise.allSettled(jobs);ensureVideoLoop()
+}
+function pauseWorkspaceMedia(){
+ O.forEach(o=>{const v=o.media;if(v?.tagName==="VIDEO")v.pause()});audioTrack?.pause()
+}
+async function startWorkspaceRecording(){
+ if(workspaceRecorder?.state==="recording")return;
+ if(!c.captureStream||!window.MediaRecorder){toast("此瀏覽器不支援工作區錄影");return}
+ try{
+  if(q("recordAutoPlay")?.checked)await autoPlayWorkspaceMedia();
+  draw(true);
+  const stream=c.captureStream(30),ac=ensureAudioContext();
+  if(ac){await ac.resume();if(audioMixDest?.stream?.getAudioTracks?.().length){const at=audioMixDest.stream.getAudioTracks()[0];stream.addTrack(at)}}
+  workspaceChunks=[];workspaceRecorder=new MediaRecorder(stream,{mimeType:preferredWebMMime(),videoBitsPerSecond:8000000,audioBitsPerSecond:192000});
+  workspaceRecorder.ondataavailable=e=>{if(e.data?.size)workspaceChunks.push(e.data)};
+  workspaceRecorder.onerror=e=>{q("workspaceRecState").textContent="錄製錯誤："+(e.error?.message||"未知錯誤")};
+  workspaceRecorder.onstop=()=>{
+   clearInterval(workspaceRecordTimer);workspaceRecordTimer=null;
+   const blob=new Blob(workspaceChunks,{type:workspaceRecorder.mimeType||"video/webm"});dl(blob,(cur?.name||"Xinyu_LED_Studio")+"_工作區影音.webm");
+   q("recordWorkspace").disabled=false;q("stopWorkspaceRecord").disabled=true;q("workspaceRecState").className="recState";q("workspaceRecState").textContent="錄製完成並已輸出 WebM。";
+  };
+  workspaceRecorder.start(1000);workspaceRecordStarted=Date.now();
+  q("recordWorkspace").disabled=true;q("stopWorkspaceRecord").disabled=false;q("workspaceRecState").className="recState recording";
+  workspaceRecordTimer=setInterval(()=>{const s=Math.floor((Date.now()-workspaceRecordStarted)/1000);q("workspaceRecState").textContent=`錄製中 ${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}｜圖片＋影片＋音效`},500)
+ }catch(e){toast("工作區錄製啟動失敗");q("workspaceRecState").textContent="錄製啟動失敗："+(e.message||"未知原因")}
+}
+function stopWorkspaceRecording(){if(workspaceRecorder?.state==="recording")workspaceRecorder.stop()}
+
 function dl(blob,n){let a=document.createElement("a"),u=URL.createObjectURL(blob);a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}q("png").onclick=()=>{draw(true);let a=document.createElement("a");a.download=(cur?.name||"效果圖")+".png";a.href=c.toDataURL();a.click()};q("jpg").onclick=()=>{draw(true);let a=document.createElement("a");a.download=(cur?.name||"效果圖")+".jpg";a.href=c.toDataURL("image/jpeg",.92);a.click()};q("json").onclick=()=>dl(new Blob([JSON.stringify({project:cur,objects:O,assets:A,versions:V,groups},null,2)],{type:"application/json"}),(cur?.name||"project")+".json");q("report").onclick=()=>{let t=`Xinyu LED Studio 專案設計報告\n專案：${cur?.name||""}\n客戶：${cur?.client||""}\n\n`;O.filter(o=>o.rw&&o.rh).forEach((o,i)=>t+=`${i+1}. ${o.name} ${o.rw}×${o.rh}mm ${(o.rw*o.rh/1e6).toFixed(4)}㎡ ${o.pitch||""}\n`);dl(new Blob([t],{type:"text/plain;charset=utf-8"}),(cur?.name||"報告")+".txt")};
 q("pdfProposal").onclick=()=>{
  syncSceneFromObjects();
@@ -920,14 +1076,14 @@ q("pdfProposal").onclick=()=>{
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V3.3 拖曳組裝與場景工作流強化 === */
+/* === V3.4 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V3.3 流暢度與播放核心修正版 === */
+/* === V3.4 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -936,6 +1092,17 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #c{image-rendering:auto}
 .quick button{user-select:none}
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
+
+
+/* === V3.4 影音播放與工作區輸出強化版 === */
+.audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
+.audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
+.audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
+.sceneSizeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.recState{margin-top:6px;padding:6px 8px;border-radius:7px;border:1px solid #303944;background:#0d1117;color:#9ba4b1;font-size:9px}
+.recState.recording{border-color:#7c3b3b;background:#331919;color:#f4bcbc;animation:pulseRec 1.3s infinite}
+@keyframes pulseRec{50%{opacity:.72}}
+.levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 </style></head><body><h1>Xinyu LED Studio</h1><div class="gold">心禹國際 LED 專案提案</div><p>專案：${esc(cur?.name||"")}</p><p>客戶：${esc(cur?.client||"")}</p><p>日期：${new Date().toLocaleDateString()}</p>${pages}</body></html>`);w.document.close();setTimeout(()=>w.print(),600)
 };
@@ -988,6 +1155,6 @@ q("toggle3d").onclick=()=>{is3=!is3;q("stage").classList.toggle("is3d",is3);q("m
 q("import").onclick=()=>{let i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=()=>{let f=i.files[0],r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result),p=d.project||{name:"匯入專案"};p.id="P"+Date.now();p.m=Date.now();p.data={o:d.objects||[],a:d.assets||[],v:d.versions||[],groups:d.groups||{}};P.push(p);saveList();dash()}catch{alert("格式錯誤")}};r.readAsText(f)};i.click()};
 
 function enableStageDrop(){const st=q('stage');if(!st||st.dataset.dropReady)return;st.dataset.dropReady='1';st.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('application/x-xinyu')){e.preventDefault();st.classList.add('drop-ready')}});st.addEventListener('dragleave',e=>{if(!st.contains(e.relatedTarget))st.classList.remove('drop-ready')});st.addEventListener('drop',e=>{e.preventDefault();st.classList.remove('drop-ready');let data={};try{data=JSON.parse(e.dataTransfer.getData('application/x-xinyu')||'{}')}catch{}if(data.kind==='model'){addModelAt(data.name,e.clientX,e.clientY);return}if(data.kind==='asset'){const o=hit(pt(e));if(!o){toast('請把素材拖到 LED / LCD 上');return}sel=o.id;const a=A.find(v=>(v.runtimeId||v.id||v.name)===data.id)||A.find(v=>v.name===data.name);attachRuntimeAssetToObject(a,o);props();layers();draw()}})}
-function installV32(){q('collapseDock')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('dock-collapsed');q('collapseDock').textContent=document.body.classList.contains('dock-collapsed')?'▶':'◀';setTimeout(resize,80)});q('collapseInspector')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('inspector-collapsed');q('collapseInspector').textContent=document.body.classList.contains('inspector-collapsed')?'◀':'▶';setTimeout(resize,80)});qa('.btabs button').forEach(btn=>btn.onclick=()=>bottom(btn.dataset.b));q('dockSearch')?.addEventListener('input',()=>bottom(document.querySelector('.btabs button.active')?.dataset.b||'ledmodels'));enableStageDrop();installWheelControls();updateFitBadge();const oldUp=c.onpointerup;c.onpointerup=e=>{if(oldUp)oldUp.call(c,e);const o=selected();if(o&&autoAttachAssembly(o)){draw();props();layers();summary();markChanged()}}}installV32();
+function installV32(){q('collapseDock')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('dock-collapsed');q('collapseDock').textContent=document.body.classList.contains('dock-collapsed')?'▶':'◀';setTimeout(resize,80)});q('collapseInspector')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('inspector-collapsed');q('collapseInspector').textContent=document.body.classList.contains('inspector-collapsed')?'◀':'▶';setTimeout(resize,80)});qa('.btabs button').forEach(btn=>btn.onclick=()=>bottom(btn.dataset.b));q('dockSearch')?.addEventListener('input',()=>bottom(document.querySelector('.btabs button.active')?.dataset.b||'ledmodels'));enableStageDrop();installWheelControls();updateFitBadge();syncSceneInputs();updateAudioControls();const oldUp=c.onpointerup;c.onpointerup=e=>{if(oldUp)oldUp.call(c,e);const o=selected();if(o&&autoAttachAssembly(o)){draw();props();layers();summary();markChanged()}}}installV32();
 dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
 </script><section id="pdfPage" class="pdfPage"><h1>Xinyu LED Studio</h1><div class="gold">心禹國際 LED 專案提案</div><div id="pdfMeta"></div><img id="pdfImg"><div id="pdfTable"></div></section></body></html>
