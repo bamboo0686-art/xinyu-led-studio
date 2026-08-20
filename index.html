@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0f14">
-  <title>Xinyu LED Studio V21.0.5</title>
+  <title>Xinyu LED Studio V21.0.6</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg">
   <link rel="stylesheet" href="./styles.css">
@@ -134,16 +134,22 @@
         <section class="side-panel" data-panel-content="devices">
           <div class="panel-title"><div><span>DEVICES</span><h2>顯示設備</h2></div></div>
           <div class="preset-grid">
-            <button class="preset" data-create-device="standard"><b>一般 LED</b><small>自由尺寸</small></button>
-            <button class="preset" data-create-device="single"><b>一境光幕屏</b><small>單面直立</small></button>
-            <button class="preset" data-create-device="triple"><b>三境光幕屏</b><small>三面 ㄇ 字型</small></button>
-            <button class="preset" data-create-device="tower"><b>三面精神堡壘</b><small>高 4m</small></button>
-            <button class="preset" data-create-device="lshape"><b>L 型屏</b><small>90°轉角</small></button>
-            <button class="preset" data-create-device="curve"><b>曲面屏</b><small>弧形顯示</small></button>
-            <button class="preset" data-create-device="ushape"><b>ㄇ字型屏</b><small>三面連體</small></button>
-            <button class="preset" data-create-device="cylinder"><b>圓柱屏</b><small>包柱效果</small></button>
-            <button class="preset" data-create-device="irregular"><b>異形設備</b><small>自由異形／多邊形</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="standard"><b>一般 LED</b><small>自由尺寸</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="single"><b>一境光幕屏</b><small>單面直立</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="triple"><b>三境光幕屏</b><small>三面 ㄇ 字型</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="tower"><b>三面精神堡壘</b><small>高 4m</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="lshape"><b>L 型屏</b><small>90°轉角</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="curve"><b>曲面屏</b><small>弧形顯示</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="ushape"><b>ㄇ字型屏</b><small>三面連體</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="cylinder"><b>圓柱屏</b><small>包柱效果</small></button>
+            <button class="preset draggable-device" draggable="true" data-create-device="irregular"><b>異形設備</b><small>自由異形／多邊形</small></button>
             <button class="preset custom-device-preset" data-action="open-custom-device"><b>＋ 自定義設備</b><small>自由名稱／尺寸／形狀</small></button>
+          </div>
+          <div class="separator"></div>
+          <div class="direct-create-box">
+            <div class="subsection-title"><span>DIRECT CREATE</span><h3>滑鼠直接新增設備</h3></div>
+            <button class="btn primary full" data-action="draw-device-mode">＋ 進入拖拉新增設備模式</button>
+            <div class="hint-box">啟用後，在中央工作區空白處按住滑鼠並拖曳，即可直接畫出設備尺寸；放開滑鼠即完成建立。</div>
           </div>
           <div class="separator"></div>
           <div class="action-stack">
@@ -177,7 +183,7 @@
           <button class="flow" data-panel-jump="media"><b>3</b><span>素材</span></button>
           <button class="flow" data-action="focus-inspector"><b>4</b><span>調整</span></button>
           <button class="flow" data-action="preview-3d"><b>5</b><span>預覽</span></button>
-          <div id="nextHint" class="next-hint">建議：先上傳實景。</div><div id="directManipulationHint" class="direct-manipulation-hint">滑鼠：拖曳移動｜四角縮放｜上方旋轉｜異形頂點可直接拖拉</div>
+          <div id="nextHint" class="next-hint">建議：先上傳實景。</div><div id="directManipulationHint" class="direct-manipulation-hint">滑鼠：拖曳移動｜四角縮放｜上方旋轉｜異形頂點可直接拖拉</div><div id="drawDeviceModeState" class="draw-mode-state hidden">新增設備模式：拖曳畫布建立</div>
         </div>
 
         <div id="stageShell" class="stage-shell">
@@ -322,25 +328,80 @@
             </div>
 
 
-            <div id="naked3dControls" class="hidden">
+            <div id="naked3dControls" class="hidden naked3d-editor-panel">
               <div class="separator"></div>
-              <div class="subsection-title"><span>NAKED-EYE 3D</span><h3>裸眼3D調整</h3></div>
-              <button class="btn primary full" data-action="open-naked3d-preview">開啟裸眼3D預覽</button>
+              <div class="subsection-title"><span>NAKED-EYE 3D</span><h3>裸眼3D 播放預覽</h3></div>
+              <div id="n3dInlinePreview" class="n3d-inline-preview">
+                <div id="n3dInlineMedia" class="n3d-inline-media"></div>
+                <div class="n3d-inline-badge">即時預覽</div>
+              </div>
+
+              <label class="n3d-enable-card">
+                <input id="n3dEnabled" type="checkbox" checked>
+                <span class="n3d-check-ui">✓</span>
+                <b>啟用裸眼3D視差／破框預覽</b>
+              </label>
+
+              <div class="form-row">
+                <label>3D 深度強度 <output id="n3dDepthStrengthOut">35%</output></label>
+                <input id="n3dDepthStrength" type="range" min="0" max="100" value="35">
+              </div>
+
+              <div class="form-row">
+                <label>播放動畫</label>
+                <select id="n3dAnimationMode">
+                  <option value="parallax">視差推拉</option>
+                  <option value="breakout">懸浮破框</option>
+                  <option value="breathing">景深呼吸</option>
+                  <option value="orbit">環繞視差</option>
+                  <option value="static">靜態透視</option>
+                </select>
+              </div>
+
+              <div class="n3d-mode-explain" id="n3dModeExplain">
+                視差推拉：讓內容依深度做前後位移，建立裸眼立體感。
+              </div>
+
+              <div class="separator"></div>
+              <div class="subsection-title"><span>CAMERA / PERSPECTIVE</span><h3>透視與視點</h3></div>
 
               <div class="form-row"><label>透視強度 <output id="n3dPerspectiveOut">900</output></label><input id="n3dPerspective" type="range" min="300" max="2000" step="10" value="900"></div>
               <div class="form-row"><label>突出深度 <output id="n3dDepthOut">24</output></label><input id="n3dDepth" type="range" min="0" max="120" value="24"></div>
+
               <div class="form-grid">
                 <div class="form-row"><label>水平視角</label><input id="n3dRotateY" type="number" min="-45" max="45" value="-12"></div>
                 <div class="form-row"><label>垂直視角</label><input id="n3dRotateX" type="number" min="-45" max="45" value="4"></div>
               </div>
+
               <div class="form-grid">
-                <div class="form-row"><label>視點 X %</label><input id="n3dOriginX" type="number" min="0" max="100" value="50"></div>
-                <div class="form-row"><label>視點 Y %</label><input id="n3dOriginY" type="number" min="0" max="100" value="50"></div>
+                <div class="form-row"><label>Sweet Spot X %</label><input id="n3dOriginX" type="number" min="0" max="100" value="50"></div>
+                <div class="form-row"><label>Sweet Spot Y %</label><input id="n3dOriginY" type="number" min="0" max="100" value="50"></div>
               </div>
+
               <div class="form-row"><label>畫面縮放 <output id="n3dScaleOut">100%</output></label><input id="n3dScale" type="range" min="50" max="180" value="100"></div>
+              <div class="form-row"><label>破框強度 <output id="n3dBreakoutOut">20%</output></label><input id="n3dBreakout" type="range" min="0" max="100" value="20"></div>
+              <div class="form-row"><label>景深呼吸 <output id="n3dBreathingOut">12%</output></label><input id="n3dBreathing" type="range" min="0" max="50" value="12"></div>
               <div class="form-row"><label>邊框暗角 <output id="n3dVignetteOut">18%</output></label><input id="n3dVignette" type="range" min="0" max="70" value="18"></div>
+
+              <div class="form-grid">
+                <button class="btn" data-action="naked3d-preview-play">▶ 預覽播放</button>
+                <button class="btn" data-action="naked3d-preview-pause">Ⅱ 預覽暫停</button>
+              </div>
+              <button class="btn primary full" data-action="open-naked3d-preview">開啟裸眼3D即時預覽</button>
+
+              <div class="separator"></div>
+              <div class="subsection-title"><span>EXPORT</span><h3>裸眼3D輸出</h3></div>
+              <div class="form-grid">
+                <button class="btn" data-action="export-naked3d-png">輸出 PNG</button>
+                <button class="btn" data-action="export-naked3d-webm">輸出 WebM</button>
+              </div>
+              <button class="btn full" data-action="export-naked3d-config">輸出裸眼3D設定 JSON</button>
               <button class="btn full" data-action="reset-naked3d">重設裸眼3D參數</button>
-              <div class="hint-box">此處為視覺模擬與內容校正預覽。實際裸眼3D成片仍需依 LED 實體幾何、Sweet Spot 與原生解析度做最終校正。</div>
+
+              <div class="hint-box">
+                裸眼3D即時預覽會套用動畫模式、深度、透視、Sweet Spot 與破框參數。
+                最終正式成片仍需依實體 LED 幾何、原生解析度與最佳觀看點校正。
+              </div>
             </div>
 
             <div class="separator"></div>
@@ -404,11 +465,11 @@
         <button class="icon-btn" data-action="close-intro">×</button>
       </div>
       <div class="intro-body">
-        <p><b>Xinyu LED Studio V21.0.5</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
+        <p><b>Xinyu LED Studio V21.0.6</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
         <div class="intro-flow">
           <span>實景</span><i>→</i><span>設備</span><i>→</i><span>素材</span><i>→</i><span>調整</span><i>→</i><span>3D預覽／輸出</span>
         </div>
-        <p>V21.0.5 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
+        <p>V21.0.6 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
       </div>
     </div>
   </div>
@@ -449,7 +510,7 @@ setTimeout(function(){
 <div id="selfTestModal" class="modal hidden">
   <div class="intro-card">
     <div class="modal-head">
-      <div><span>DIAGNOSTICS</span><h2>V21.0.5 系統自我測試</h2></div>
+      <div><span>DIAGNOSTICS</span><h2>V21.0.6 系統自我測試</h2></div>
       <button class="icon-btn" id="closeSelfTest">×</button>
     </div>
     <div id="selfTestResults" class="intro-body"></div>

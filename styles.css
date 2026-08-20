@@ -187,3 +187,45 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .direct-manipulation-hint{margin-left:10px;color:#6f8fb2;font-size:9px;white-space:nowrap}
 .naked3d-export-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}
 @media(max-width:1250px){.direct-manipulation-hint{display:none}}
+
+/* === V21.0.6 Qianmu Style Direct Create + Full Naked3D Editor === */
+.draggable-device{cursor:grab;user-select:none}
+.draggable-device:active{cursor:grabbing}
+.draggable-device.dragging{opacity:.45;outline:2px solid var(--gold)}
+.stage-world.drag-create-target{outline:2px dashed var(--gold2);outline-offset:-5px}
+.device-create-ghost{
+  position:absolute;border:2px dashed #f1d47c;background:rgba(215,180,87,.12);
+  z-index:20;pointer-events:none;min-width:2px;min-height:2px
+}
+.draw-mode-state{
+  margin-left:8px;border:1px solid #94783a;background:#271f0f;color:#f2d57f;
+  border-radius:7px;padding:5px 9px;font-size:9px;white-space:nowrap
+}
+.draw-mode-state.hidden{display:none}
+body.draw-device-mode #stageWorld{cursor:crosshair}
+
+.naked3d-editor-panel{border-top:1px solid #2d3946}
+.n3d-enable-card{
+  display:grid;grid-template-columns:36px 1fr;align-items:center;gap:8px;
+  border:1px solid #334050;background:#121923;border-radius:10px;padding:12px;margin-bottom:12px
+}
+.n3d-enable-card input{display:none}
+.n3d-check-ui{
+  width:34px;height:34px;border-radius:7px;background:#118df0;color:#fff;
+  display:grid;place-items:center;font-size:25px;font-weight:900;box-shadow:0 0 18px #118df044
+}
+.n3d-enable-card input:not(:checked)+.n3d-check-ui{background:#252d37;color:#647181}
+.n3d-mode-explain{
+  border:1px dashed #39485a;background:#0d141d;border-radius:8px;padding:9px;
+  color:#8fa2b5;font-size:9px;line-height:1.45;margin-top:-4px
+}
+.n3d-inline-preview{
+  position:relative;aspect-ratio:16/9;background:#05070a;border:1px solid #334150;
+  border-radius:9px;overflow:hidden;margin-bottom:12px;perspective:900px
+}
+.n3d-inline-media{position:absolute;inset:0;transform-style:preserve-3d;background:#030507}
+.n3d-inline-media img,.n3d-inline-media video{width:100%;height:100%;object-fit:cover;display:block}
+.n3d-inline-badge{
+  position:absolute;right:7px;top:7px;background:#0b111acc;color:#8fd6ff;
+  border:1px solid #315d78;border-radius:999px;padding:3px 7px;font-size:8px
+}

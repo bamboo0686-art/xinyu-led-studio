@@ -1,13 +1,13 @@
 {
-  "version": "21.0.5",
-  "name": "Custom Device + Direct Manipulation + Naked-Eye 3D Export Restoration",
+  "version": "21.0.6",
+  "name": "Qianmu-Style Drag Create + Full Naked-Eye 3D Editor Restoration",
   "architecture": "clean rebuild",
-  "release_state": "INTERNAL_ALPHA_RESTORED_FEATURES_READY",
+  "release_state": "INTERNAL_ALPHA_QIANMU_NAKED3D_RESTORED",
   "validation_score": 100,
   "visible_actions": 29,
   "registered_actions": 29,
   "missing_visible_actions": [],
-  "baseline": "21.0.4",
+  "baseline": "21.0.5",
   "startup_architecture": "single classic deferred app.js; core bundled",
   "core_mjs_required_at_runtime": false
 }

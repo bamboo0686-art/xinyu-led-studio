@@ -18,7 +18,7 @@ function createProject(name="未命名專案",client=""){
 }
 function createDevice(kind="standard",x=350,y=220){
   const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
-  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false,n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18};
+  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false,n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18,n3dEnabled:true,n3dDepthStrength:35,n3dAnimationMode:"parallax",n3dBreakout:20,n3dBreathing:12};
 }
 function createCustomDevice({name="自定義 LED 設備",w=3000,h=1800,type="standard",pitch="P2.604",x=350,y=220}={}){
   const o=createDevice(type==="rect"?"standard":type,x,y);
@@ -209,6 +209,80 @@ async function deleteScene(){
 }
 
 
+
+let drawDeviceMode=false,drawStart=null,drawGhost=null,dragCreateKind=null;
+
+function installDeviceDragCreate(){
+  qa(".draggable-device").forEach(el=>{
+    el.addEventListener("dragstart",e=>{
+      dragCreateKind=el.dataset.createDevice||"standard";
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed="copy";
+      e.dataTransfer.setData("text/x-xinyu-device",dragCreateKind)
+    });
+    el.addEventListener("dragend",()=>{el.classList.remove("dragging");dragCreateKind=null})
+  });
+
+  const world=q("stageWorld");
+  world.addEventListener("dragover",e=>{
+    if(!e.dataTransfer.types.includes("text/x-xinyu-device"))return;
+    e.preventDefault();e.dataTransfer.dropEffect="copy";world.classList.add("drag-create-target")
+  });
+  world.addEventListener("dragleave",()=>world.classList.remove("drag-create-target"));
+  world.addEventListener("drop",e=>{
+    e.preventDefault();world.classList.remove("drag-create-target");
+    if(!project)return;
+    const kind=e.dataTransfer.getData("text/x-xinyu-device")||dragCreateKind||"standard";
+    const r=world.getBoundingClientRect();
+    const x=(e.clientX-r.left)/stageZoom,y=(e.clientY-r.top)/stageZoom;
+    snapHistory();
+    const o=createDevice(kind,x,y);const s=objectToScreen(o,SCREEN_SCALE);
+    o.x=clamp(x-s.width/2,0,1000-s.width);o.y=clamp(y-s.height/2,0,650-s.height);
+    project.objects.push(o);selectedId=o.id;renderAll();markDirty();toast(`已拖入：${o.name}`,"success")
+  });
+
+  world.addEventListener("pointerdown",e=>{
+    if(!drawDeviceMode||e.target.closest(".device"))return;
+    e.preventDefault();e.stopPropagation();
+    const r=world.getBoundingClientRect();
+    const x=(e.clientX-r.left)/stageZoom,y=(e.clientY-r.top)/stageZoom;
+    drawStart={x:clamp(x,0,1000),y:clamp(y,0,650)};
+    drawGhost=document.createElement("div");drawGhost.className="device-create-ghost";
+    drawGhost.style.left=drawStart.x+"px";drawGhost.style.top=drawStart.y+"px";
+    world.append(drawGhost);
+    world.setPointerCapture?.(e.pointerId)
+  },true);
+
+  world.addEventListener("pointermove",e=>{
+    if(!drawDeviceMode||!drawStart||!drawGhost)return;
+    const r=world.getBoundingClientRect();
+    const x=clamp((e.clientX-r.left)/stageZoom,0,1000),y=clamp((e.clientY-r.top)/stageZoom,0,650);
+    const left=Math.min(drawStart.x,x),top=Math.min(drawStart.y,y),w=Math.abs(x-drawStart.x),h=Math.abs(y-drawStart.y);
+    Object.assign(drawGhost.style,{left:left+"px",top:top+"px",width:w+"px",height:h+"px"})
+  },true);
+
+  const finish=e=>{
+    if(!drawDeviceMode||!drawStart||!drawGhost)return;
+    const r=drawGhost.getBoundingClientRect(),wr=world.getBoundingClientRect();
+    const left=(r.left-wr.left)/stageZoom,top=(r.top-wr.top)/stageZoom,w=r.width/stageZoom,h=r.height/stageZoom;
+    drawGhost.remove();drawGhost=null;drawStart=null;
+    if(w<30||h<30){toast("拖曳範圍太小，未建立設備");return}
+    snapHistory();
+    const o=createDevice("standard",left,top);
+    o.w=Math.round(w/SCREEN_SCALE);o.h=Math.round(h/SCREEN_SCALE);o.x=left;o.y=top;o.name="滑鼠新增 LED";
+    project.objects.push(o);selectedId=o.id;renderAll();markDirty();
+    setDrawDeviceMode(false);toast("已用滑鼠拖拉建立設備","success")
+  };
+  world.addEventListener("pointerup",finish,true);
+  world.addEventListener("pointercancel",finish,true)
+}
+function setDrawDeviceMode(enabled=!drawDeviceMode){
+  drawDeviceMode=!!enabled;
+  document.body.classList.toggle("draw-device-mode",drawDeviceMode);
+  q("drawDeviceModeState")?.classList.toggle("hidden",!drawDeviceMode);
+  qa('[data-action="draw-device-mode"]').forEach(b=>b.textContent=drawDeviceMode?"取消拖拉新增模式":"＋ 進入拖拉新增設備模式");
+}
+
 function openCustomDevice(){q("customDeviceModal").classList.remove("hidden")}
 function closeCustomDevice(){q("customDeviceModal").classList.add("hidden")}
 function submitCustomDevice(e){
@@ -289,17 +363,91 @@ function deviceAnchorHTML(o){
  return corners+verts
 }
 function normalizeN3D(o){
- const d={n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18};
+ const d={n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18,n3dEnabled:true,n3dDepthStrength:35,n3dAnimationMode:"parallax",n3dBreakout:20,n3dBreathing:12};
  Object.entries(d).forEach(([k,v])=>{if(o[k]===undefined||o[k]===null)o[k]=v});return o
 }
+
+const N3D_MODE_TEXT={
+  parallax:"視差推拉：讓內容依深度做前後位移，建立裸眼立體感。",
+  breakout:"懸浮破框：將主體往觀看者方向推出，營造突破螢幕邊界的效果。",
+  breathing:"景深呼吸：以緩慢深度脈動製造前後景呼吸感。",
+  orbit:"環繞視差：水平與垂直視角小幅循環，模擬視點移動。",
+  static:"靜態透視：停用動畫，只保留目前透視與深度設定。"
+};
+let n3dAnimFrame=0,n3dAnimStart=0,n3dAnimPlaying=false;
+
+function updateN3DModeExplain(){
+ const mode=q("n3dAnimationMode")?.value||"parallax";
+ if(q("n3dModeExplain"))q("n3dModeExplain").textContent=N3D_MODE_TEXT[mode]||"";
+}
+function buildInlineNaked3DPreview(){
+ const o=selected(),asset=project?.assets?.find(a=>a.id===o?.assetId),box=q("n3dInlineMedia");
+ if(!o||!asset?.type?.startsWith("video/")||!box)return;
+ if(box.dataset.assetId===o.assetId){applyInlineNaked3DFrame();return}
+ box.innerHTML="";box.dataset.assetId=o.assetId;
+ getBlob(o.assetId).then(rec=>{
+   if(!rec)return;
+   const v=document.createElement("video");v.src=URL.createObjectURL(rec.blob);v.playsInline=true;v.loop=true;v.muted=true;
+   v.addEventListener("loadeddata",()=>applyInlineNaked3DFrame());box.append(v)
+ })
+}
+function applyInlineNaked3DFrame(t=0){
+ const o=selected(),box=q("n3dInlineMedia"),media=box?.querySelector("video,img");if(!o||!box||!media)return;
+ normalizeN3D(o);
+ let dx=0,dy=0,dz=o.n3dDepth||0,rx=o.n3dRotateX||0,ry=o.n3dRotateY||0,sc=(o.n3dScale||100)/100;
+ const strength=(o.n3dDepthStrength||0)/100,mode=o.n3dAnimationMode||"parallax",phase=t/1000;
+ if(o.n3dEnabled!==false){
+  if(mode==="parallax"){dx=Math.sin(phase*1.2)*12*strength;dz+=Math.cos(phase*1.2)*18*strength}
+  if(mode==="breakout"){dz+=(o.n3dBreakout||0)*.8 + Math.sin(phase*1.6)*8*strength;sc*=1+(o.n3dBreakout||0)/500}
+  if(mode==="breathing"){sc*=1+Math.sin(phase*.9)*(o.n3dBreathing||0)/500;dz+=Math.sin(phase*.9)*20*strength}
+  if(mode==="orbit"){ry+=Math.sin(phase*.8)*8*strength;rx+=Math.cos(phase*.7)*5*strength}
+ }
+ box.parentElement.style.perspective=`${o.n3dPerspective}px`;
+ box.parentElement.style.perspectiveOrigin=`${o.n3dOriginX}% ${o.n3dOriginY}%`;
+ box.style.transform=`translate(${dx}px,${dy}px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${dz}px) scale(${sc})`;
+ box.style.opacity=o.n3dEnabled===false?.55:1
+}
+function animateNaked3D(now){
+ if(!n3dAnimPlaying)return;
+ applyInlineNaked3DFrame(now);
+ const o=selected(),host=q("naked3dMediaHost");
+ if(o&&host&&!q("naked3dModal").classList.contains("hidden")){
+   // reuse same animation transform on full preview
+   normalizeN3D(o);
+   const strength=(o.n3dDepthStrength||0)/100,phase=now/1000,mode=o.n3dAnimationMode||"parallax";
+   let dz=o.n3dDepth||0,rx=o.n3dRotateX||0,ry=o.n3dRotateY||0,sc=(o.n3dScale||100)/100,dx=0;
+   if(mode==="parallax"){dx=Math.sin(phase*1.2)*18*strength;dz+=Math.cos(phase*1.2)*25*strength}
+   if(mode==="breakout"){dz+=(o.n3dBreakout||0)+Math.sin(phase*1.6)*12*strength;sc*=1+(o.n3dBreakout||0)/450}
+   if(mode==="breathing"){sc*=1+Math.sin(phase*.9)*(o.n3dBreathing||0)/400;dz+=Math.sin(phase*.9)*25*strength}
+   if(mode==="orbit"){ry+=Math.sin(phase*.8)*10*strength;rx+=Math.cos(phase*.7)*7*strength}
+   host.style.transform=`translateX(${dx}px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${dz}px) scale(${sc})`
+ }
+ n3dAnimFrame=requestAnimationFrame(animateNaked3D)
+}
+function playNaked3DPreview(){
+ const o=selected();if(!o)return;n3dAnimPlaying=true;
+ q("n3dInlineMedia")?.querySelector("video")?.play().catch(()=>{});
+ q("naked3dMediaHost")?.querySelector("video")?.play().catch(()=>{});
+ cancelAnimationFrame(n3dAnimFrame);n3dAnimFrame=requestAnimationFrame(animateNaked3D)
+}
+function pauseNaked3DPreview(){
+ n3dAnimPlaying=false;cancelAnimationFrame(n3dAnimFrame);
+ q("n3dInlineMedia")?.querySelector("video")?.pause();
+ q("naked3dMediaHost")?.querySelector("video")?.pause()
+}
+
 function updateNaked3DInspector(){
  const o=selected(),asset=project?.assets?.find(a=>a.id===o?.assetId),isVideo=asset?.type?.startsWith("video/");
  q("naked3dControls")?.classList.toggle("hidden",!isVideo);
  if(!o||!isVideo)return;normalizeN3D(o);
- ["Perspective","Depth","RotateY","RotateX","OriginX","OriginY","Scale","Vignette"].forEach(k=>{
-   const id="n3d"+k;if(q(id))q(id).value=o[id]
- });
- q("n3dPerspectiveOut").value=o.n3dPerspective;q("n3dDepthOut").value=o.n3dDepth;q("n3dScaleOut").value=`${o.n3dScale}%`;q("n3dVignetteOut").value=`${o.n3dVignette}%`;
+ const map={n3dPerspective:o.n3dPerspective,n3dDepth:o.n3dDepth,n3dRotateY:o.n3dRotateY,n3dRotateX:o.n3dRotateX,n3dOriginX:o.n3dOriginX,n3dOriginY:o.n3dOriginY,n3dScale:o.n3dScale,n3dVignette:o.n3dVignette,n3dDepthStrength:o.n3dDepthStrength,n3dBreakout:o.n3dBreakout,n3dBreathing:o.n3dBreathing};
+ Object.entries(map).forEach(([id,val])=>{if(q(id))q(id).value=val});
+ if(q("n3dEnabled"))q("n3dEnabled").checked=o.n3dEnabled!==false;
+ if(q("n3dAnimationMode"))q("n3dAnimationMode").value=o.n3dAnimationMode||"parallax";
+ q("n3dPerspectiveOut").value=o.n3dPerspective;q("n3dDepthOut").value=o.n3dDepth;
+ q("n3dScaleOut").value=`${o.n3dScale}%`;q("n3dVignetteOut").value=`${o.n3dVignette}%`;
+ q("n3dDepthStrengthOut").value=`${o.n3dDepthStrength}%`;q("n3dBreakoutOut").value=`${o.n3dBreakout}%`;q("n3dBreathingOut").value=`${o.n3dBreathing}%`;
+ updateN3DModeExplain();buildInlineNaked3DPreview()
 }
 async function buildNaked3DPreview(){
  const o=selected();if(!o?.assetId)return toast("請先選取含影片的設備");
@@ -321,16 +469,17 @@ function applyNaked3DPreview(){
  q("n3dReadPerspective").textContent=`${o.n3dPerspective}px`;q("n3dReadDepth").textContent=`${o.n3dDepth}px`;q("n3dReadRotateY").textContent=`${o.n3dRotateY}°`;q("n3dReadRotateX").textContent=`${o.n3dRotateX}°`;q("n3dReadOrigin").textContent=`${o.n3dOriginX}% / ${o.n3dOriginY}%`;
 }
 function bindNaked3DControls(){
- const ids={n3dPerspective:"n3dPerspective",n3dDepth:"n3dDepth",n3dRotateY:"n3dRotateY",n3dRotateX:"n3dRotateX",n3dOriginX:"n3dOriginX",n3dOriginY:"n3dOriginY",n3dScale:"n3dScale",n3dVignette:"n3dVignette"};
+ const ids={n3dPerspective:"n3dPerspective",n3dDepth:"n3dDepth",n3dRotateY:"n3dRotateY",n3dRotateX:"n3dRotateX",n3dOriginX:"n3dOriginX",n3dOriginY:"n3dOriginY",n3dScale:"n3dScale",n3dVignette:"n3dVignette",n3dDepthStrength:"n3dDepthStrength",n3dBreakout:"n3dBreakout",n3dBreathing:"n3dBreathing"};
  Object.entries(ids).forEach(([id,key])=>{
-   const el=q(id);if(!el)return;
-   const evt=el.type==="range"?"input":"change";
-   el.addEventListener(evt,()=>{const o=selected();if(!o)return;o[key]=Number(el.value);updateNaked3DInspector();applyNaked3DPreview();markDirty()})
- })
+   const el=q(id);if(!el)return;const evt=el.type==="range"?"input":"change";
+   el.addEventListener(evt,()=>{const o=selected();if(!o)return;o[key]=Number(el.value);updateNaked3DInspector();applyNaked3DPreview();applyInlineNaked3DFrame(performance.now());markDirty()})
+ });
+ q("n3dEnabled")?.addEventListener("change",()=>{const o=selected();if(!o)return;o.n3dEnabled=q("n3dEnabled").checked;updateNaked3DInspector();markDirty()});
+ q("n3dAnimationMode")?.addEventListener("change",()=>{const o=selected();if(!o)return;o.n3dAnimationMode=q("n3dAnimationMode").value;updateN3DModeExplain();markDirty();playNaked3DPreview()})
 }
 function resetNaked3D(){
  const o=selected();if(!o)return;snapHistory();
- Object.assign(o,{n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18});
+ Object.assign(o,{n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18,n3dEnabled:true,n3dDepthStrength:35,n3dAnimationMode:"parallax",n3dBreakout:20,n3dBreathing:12});
  updateNaked3DInspector();applyNaked3DPreview();markDirty()
 }
 
@@ -693,14 +842,14 @@ function closeIntro(){q("introModal").classList.add("hidden")}
 
 function registerActions(){
   Object.assign(ACTIONS,{
-    "system-intro":openIntro,"new-project":openProjectModal,"open-custom-device":openCustomDevice,"close-custom-device":closeCustomDevice,"open-last-project":()=>projects[0]?openProject(projects.sort((a,b)=>b.updatedAt-a.updatedAt)[0].id):openProjectModal(),
+    "system-intro":openIntro,"new-project":openProjectModal,"open-custom-device":openCustomDevice,"close-custom-device":closeCustomDevice,"draw-device-mode":()=>setDrawDeviceMode(),"open-last-project":()=>projects[0]?openProject(projects.sort((a,b)=>b.updatedAt-a.updatedAt)[0].id):openProjectModal(),
     "clear-projects":()=>{if(confirm("確定清除所有本機專案資料？")){projects=[];saveProjects();renderRecentProjects()}},
     "back-dashboard":()=>{if(dirty&&confirm("專案尚未儲存，要先儲存嗎？"))persistCurrent();showDashboard()},
     "undo":undo,"redo":redo,"fit-stage":fitStage,"toggle-grid":toggleGrid,"toggle-snap":toggleSnap,"preview-3d":open3D,"save-project":()=>{persistCurrent();toast("專案已儲存","success")},
     "open-ai":openAI,"close-ai":closeAI,"delete-scene":deleteScene,"scene-fit":()=>{project.scene.scale=1;project.scene.rotation=0;renderSceneControls();markDirty()},
     "duplicate-selected":duplicateSelected,"delete-selected":deleteSelected,"restore-deleted":restoreDeleted,"center-selected":centerSelected,"focus-inspector":()=>q("inspector").scrollIntoView({behavior:"smooth"}),
     "trigger-scene-upload":()=>q("sceneFile").click(),"toggle-dock":toggleDock,"video-play":videoPlay,"video-pause":videoPause,
-    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"open-naked3d-preview":buildNaked3DPreview,"close-naked3d":closeNaked3D,"reset-naked3d":resetNaked3D,"naked3d-play-pause":naked3dPlayPause,"export-naked3d-png":exportNaked3DPNG,"export-naked3d-webm":exportNaked3DWebM,"export-naked3d-config":exportNaked3DConfig,"naked3d-fit":()=>{const o=selected();if(o){o.n3dScale=100;updateNaked3DInspector();applyNaked3DPreview()}},"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
+    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"open-naked3d-preview":buildNaked3DPreview,"close-naked3d":closeNaked3D,"reset-naked3d":resetNaked3D,"naked3d-play-pause":naked3dPlayPause,"naked3d-preview-play":playNaked3DPreview,"naked3d-preview-pause":pauseNaked3DPreview,"export-naked3d-png":exportNaked3DPNG,"export-naked3d-webm":exportNaked3DWebM,"export-naked3d-config":exportNaked3DConfig,"naked3d-fit":()=>{const o=selected();if(o){o.n3dScale=100;updateNaked3DInspector();applyNaked3DPreview()}},"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
   });
 }
 function wireActions(){
@@ -781,7 +930,7 @@ function deleteSelectedNoConfirmForTest(){const o=selected();if(!o)return;delete
 async function boot(){
   try{
     setBoot("讀取專案資料");loadProjects();
-    setBoot("註冊操作");registerActions();wireActions();bindStaticUI();bindSelfTestUI();
+    setBoot("註冊操作");registerActions();wireActions();bindStaticUI();bindSelfTestUI();installDeviceDragCreate();
     const audit=runtimeButtonAudit();if(!audit.pass)throw new Error("可見按鈕缺少 Action："+audit.missing.join(","));
     setBoot("啟動工作環境");
     if(new URLSearchParams(location.search).get("selftest")==="1"){
@@ -790,7 +939,7 @@ async function boot(){
     }
     renderRecentProjects();window.__XINYU_BOOT_OK__=true;setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
     if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    log(`V21.0.5 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
+    log(`V21.0.6 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
   }catch(e){
     q("bootStatus").textContent="啟動失敗："+e.message;q("bootStatus").style.color="#ff8d94";console.error(e)
   }
