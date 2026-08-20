@@ -1,33 +1,41 @@
-# Xinyu LED Studio V21.0
-## Professional Product Rebuild Edition
+# Xinyu LED Studio V20.8｜AI Engineering Optimizer＋Role-Based Adaptive UI
 
-這不是 V20.x 的換色版，而是新的產品外殼與互動核心。
+## 1. Role-Based Adaptive UI
+新增四種角色：
+- 管理者：完整功能與健檢、Agent、工程、輸出。
+- 業務：實景、快速建模、素材、3D預覽、輸出。
+- 設計：實景、設備、素材、屬性、3D。
+- 工程：工程計算、屬性、圖層、3D、BOM/Mapping/輸出。
 
-### 核心工作流程
-實景 → 設備 → 素材 → 調整 → 3D 預覽／輸出
+角色切換後，系統會自動精簡與突出相關功能。
 
-### V21.0 已實作
-- 儀表板／最近專案
-- 新專案建立與 LocalStorage 儲存
-- 實景圖片上傳、旋轉、縮放、刪除
-- 8 種 LED 設備預設
-- 設備滑鼠拖曳、縮放、旋轉
-- 設備複製、刪除、還原
-- 右側上下文屬性面板
-- 圖片／影片素材庫（IndexedDB）
-- 影片播放、暫停、時間軸、音量、循環
-- 圖層列表
-- 格線、吸附、適合畫面
-- 3D 預覽（Three.js 動態載入；失敗不影響 2D）
-- Xinyu AI 本機指令入口
-- ACTIONS Registry：可見按鈕沒有 Handler 時直接禁用
-- Global Error Boundary
-- ?selftest=1 內建 Self Test
-- PWA / Service Worker
+## 2. AI Engineering Optimizer
+依據：
+- 用途
+- 室內／戶外
+- 最短觀看距離
+- 舒適觀看距離
+- 目標亮度
+- 預留係數
+- LED 尺寸
+- Pixel Pitch
+- 像素數
+- 接收卡容量
+- 網口容量
+- 功率
 
-### 目前狀態
-**INTERNAL_ALPHA_RUNTIME_GATED**
+產出：
+- AI工程適配分數
+- 目前方案
+- 建議方案
+- 建議 Pitch
+- 建議亮度
+- 建議解析度
+- 建議接收卡
+- 建議網口
+- 功率估算
+- 工程風險提示
 
-靜態與核心 Runtime 測試：**100%**
-
-這個狀態名稱刻意不使用 PRODUCTION_CANDIDATE。正式發布前仍必須在 Windows Chrome / Edge 上完成真實瀏覽器 E2E、影片 Codec、3D WebGL、檔案上傳與不同 DPI 實機驗收。
+## 3. AI Agent 整合
+Agent 新增 `optimize-engineering` Action。
+工程角色下，Contextual UX 會優先推薦 AI 工程優化，再進 BOM。

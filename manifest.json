@@ -1,15 +1,16 @@
 {
-  "name": "Xinyu LED Studio V21.0.1",
-  "short_name": "Xinyu LED Studio",
+  "name": "Xinyu LED Studio V20.8｜AI Engineering Optimizer + Role-Based Adaptive UI",
+  "short_name": "Xinyu LED Studio V20.8",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0a0d12",
-  "theme_color": "#0b0f14",
+  "background_color": "#0a0b0e",
+  "theme_color": "#0a0b0e",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "./icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }

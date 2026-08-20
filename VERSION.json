@@ -1,13 +1,32 @@
 {
-  "version": "21.0.6",
-  "name": "Qianmu-Style Drag Create + Full Naked-Eye 3D Editor Restoration",
-  "architecture": "clean rebuild",
-  "release_state": "INTERNAL_ALPHA_QIANMU_NAKED3D_RESTORED",
+  "product": "Xinyu LED Studio",
+  "version": "20.8",
+  "edition": "AI Engineering Optimizer + Role-Based Adaptive UI",
+  "developer": "心禹國際開發科技有限公司",
+  "build_date": "2026-08-20",
+  "baseline": "V20.7",
+  "release_state": "PRODUCTION_CANDIDATE",
   "validation_score": 100,
-  "visible_actions": 29,
-  "registered_actions": 29,
-  "missing_visible_actions": [],
-  "baseline": "21.0.5",
-  "startup_architecture": "single classic deferred app.js; core bundled",
-  "core_mjs_required_at_runtime": false
+  "leftmost_sidebar": "心禹工具軌（Xinyu Tool Rail）",
+  "second_sidebar": "心禹工作台（Xinyu Workbench）",
+  "button_count": 143,
+  "button_static_handler_coverage": "143/143",
+  "browser_e2e": "BLOCKED_ENVIRONMENT",
+  "fixture_mock_layer": true,
+  "ai_context_engine": true,
+  "agent_levels": [
+    "assist",
+    "semi",
+    "auto"
+  ],
+  "human_approval_high_risk": true,
+  "self_healing_agent": true,
+  "contextual_next_action": true,
+  "role_modes": [
+    "manager",
+    "sales",
+    "designer",
+    "engineer"
+  ],
+  "engineering_optimizer": true
 }
