@@ -42,3 +42,20 @@
 
 ## Release rule
 只要上述真實環境驗收未完成，版本不得標示 PRODUCTION_READY 或 PRODUCTION_CANDIDATE。
+
+# V21.0.1 Startup Hotfix Gate
+- Validation: 100%
+- State: **INTERNAL_ALPHA_STARTUP_HOTFIX_READY**
+- PASS｜Bundled app.js syntax
+- PASS｜Service worker syntax
+- PASS｜HTML unique IDs｜58/58
+- PASS｜DOM refs
+- PASS｜No static core.mjs import
+- PASS｜Classic defer startup
+- PASS｜Boot watchdog
+- PASS｜Boot OK flag
+- PASS｜Core functions bundled
+- PASS｜3D lazy import
+- PASS｜SW no core runtime dependency
+- PASS｜SW network-first
+- PASS｜Core source smoke｜PASS

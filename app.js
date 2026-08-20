@@ -1,4 +1,49 @@
-import {DEVICE_PRESETS,uid,createProject,createDevice,deepClone,pushHistory,clamp,objectToScreen,resizeDevice,validateProject,nextStep} from "./core.mjs";
+window.__XINYU_APP_SCRIPT_LOADED__=true;
+window.__XINYU_BOOT_OK__=false;
+const DEVICE_PRESETS={
+  standard:{name:"一般 LED",w:3000,h:1800,type:"standard",pitch:"P2.604"},
+  single:{name:"一境光幕屏",w:1000,h:2000,type:"single",pitch:"P2.604"},
+  triple:{name:"三境光幕屏",w:3000,h:2000,type:"triple",pitch:"P2.604"},
+  tower:{name:"三面 LED 精神堡壘",w:3000,h:4000,type:"tower",pitch:"P2.604"},
+  lshape:{name:"L 型屏",w:2800,h:1900,type:"lshape",pitch:"P2.604"},
+  curve:{name:"曲面屏",w:3200,h:1800,type:"curve",pitch:"P2.604"},
+  ushape:{name:"ㄇ字型屏",w:3000,h:2000,type:"ushape",pitch:"P2.604"},
+  cylinder:{name:"圓柱屏",w:1800,h:2400,type:"cylinder",pitch:"P2.604"}
+};
+const uid=(p="ID")=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+function createProject(name="未命名專案",client=""){
+  return {id:uid("PRJ"),name,client,createdAt:Date.now(),updatedAt:Date.now(),
+    scene:{assetId:null,rotation:0,scale:1},objects:[],assets:[],ui:{grid:true,snap:true,zoom:1}};
+}
+function createDevice(kind="standard",x=350,y=220){
+  const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
+  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null};
+}
+function deepClone(v){return JSON.parse(JSON.stringify(v))}
+function pushHistory(history,state,max=60){history.push(deepClone(state));while(history.length>max)history.shift()}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function objectToScreen(o,scale=0.12){return {left:o.x,top:o.y,width:Math.max(55,o.w*scale),height:Math.max(45,o.h*scale)}}
+function screenToReal(px,scale=0.12){return Math.round(px/scale)}
+function moveDevice(o,dx,dy,snap=false,grid=10){o.x+=dx;o.y+=dy;if(snap){o.x=Math.round(o.x/grid)*grid;o.y=Math.round(o.y/grid)*grid}return o}
+function resizeDevice(o,widthPx,heightPx,scale=0.12){o.w=Math.max(100,screenToReal(widthPx,scale));o.h=Math.max(100,screenToReal(heightPx,scale));return o}
+function rotateDevice(o,deg){o.rotation=((deg%360)+360)%360;return o}
+function validateProject(p){
+ const errors=[];
+ if(!p||typeof p!=="object")errors.push("project_not_object");
+ if(!Array.isArray(p?.objects))errors.push("objects_not_array");
+ if(!Array.isArray(p?.assets))errors.push("assets_not_array");
+ if(!p?.scene)errors.push("scene_missing");
+ return {ok:errors.length===0,errors};
+}
+function nextStep(p,selectedId=null){
+ if(!p.scene?.assetId)return {panel:"scene",label:"上傳實景",reason:"先建立現場背景"};
+ if(!p.objects.length)return {panel:"devices",label:"建立 LED",reason:"場景目前沒有設備"};
+ if(!selectedId)return {panel:"layers",label:"選取設備",reason:"選取設備後才能調整"};
+ const o=p.objects.find(x=>x.id===selectedId);
+ if(o&&!o.assetId)return {panel:"media",label:"套用素材",reason:"設備尚未有圖片或影片"};
+ return {panel:"preview",label:"3D 預覽",reason:"主要視覺流程已完成"};
+}
+
 
 const q=id=>document.getElementById(id);
 const qa=s=>[...document.querySelectorAll(s)];
@@ -286,7 +331,6 @@ function selectPanel(name){
 function fitStage(){
   const vp=q("stageViewport").getBoundingClientRect();const z=Math.min((vp.width-30)/1000,(vp.height-30)/650,1.35);stageZoom=clamp(z,.35,1.35);applyStageZoom()
 }
-function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
 function applyStageZoom(){q("stageWorld").style.transform=`translate(-50%,-50%) scale(${stageZoom})`;renderStatus()}
 function toggleGrid(){project.ui.grid=!project.ui.grid;q("gridLayer").style.display=project.ui.grid?"block":"none";markDirty()}
 function toggleSnap(){project.ui.snap=!project.ui.snap;toast(`吸附：${project.ui.snap?"開":"關"}`);markDirty()}
@@ -435,7 +479,7 @@ async function selfTest(){
     check("projectValidation",validateProject(project).ok);
   }catch(e){check("selfTestRuntime",false,e.message)}
   const pass=results.filter(x=>x.ok).length;
-  document.body.innerHTML=`<div style="padding:30px;background:#0a0d12;color:#eee;font-family:monospace"><h1>V21.0 Self Test ${pass}/${results.length}</h1>${results.map(x=>`<p>${x.ok?"✅":"❌"} ${escapeHTML(x.name)} ${escapeHTML(x.detail||"")}</p>`).join("")}</div>`;
+  document.body.innerHTML=`<div style="padding:30px;background:#0a0d12;color:#eee;font-family:monospace"><h1>V21.0.1 Self Test ${pass}/${results.length}</h1>${results.map(x=>`<p>${x.ok?"✅":"❌"} ${escapeHTML(x.name)} ${escapeHTML(x.detail||"")}</p>`).join("")}</div>`;
   window.__XINYU_SELF_TEST__={pass,total:results.length,results}
 }
 function deleteSelectedNoConfirmForTest(){const o=selected();if(!o)return;deletedStack.push(deepClone(o));project.objects=project.objects.filter(x=>x.id!==o.id);selectedId=null}
@@ -447,9 +491,9 @@ async function boot(){
     const audit=runtimeButtonAudit();if(!audit.pass)throw new Error("可見按鈕缺少 Action："+audit.missing.join(","));
     setBoot("啟動工作環境");
     if(new URLSearchParams(location.search).get("selftest")==="1"){q("bootOverlay").remove();await selfTest();return}
-    renderRecentProjects();setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
+    renderRecentProjects();window.__XINYU_BOOT_OK__=true;setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
     if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    log(`V21.0 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
+    log(`V21.0.1 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
   }catch(e){
     q("bootStatus").textContent="啟動失敗："+e.message;q("bootStatus").style.color="#ff8d94";console.error(e)
   }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0f14">
-  <title>Xinyu LED Studio V21.0</title>
+  <title>Xinyu LED Studio V21.0.1</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg">
   <link rel="stylesheet" href="./styles.css">
@@ -305,11 +305,11 @@
         <button class="icon-btn" data-action="close-intro">×</button>
       </div>
       <div class="intro-body">
-        <p><b>Xinyu LED Studio V21.0</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
+        <p><b>Xinyu LED Studio V21.0.1</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
         <div class="intro-flow">
           <span>實景</span><i>→</i><span>設備</span><i>→</i><span>素材</span><i>→</i><span>調整</span><i>→</i><span>3D預覽／輸出</span>
         </div>
-        <p>V21.0 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
+        <p>V21.0.1 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
       </div>
     </div>
   </div>
@@ -332,6 +332,19 @@
 
   <div id="toastHost" class="toast-host"></div>
 
-  <script type="module" src="./app.js"></script>
+  <script>
+window.__XINYU_APP_SCRIPT_LOADED__=false;
+window.__XINYU_BOOT_OK__=false;
+setTimeout(function(){
+  if(!window.__XINYU_APP_SCRIPT_LOADED__){
+    var s=document.getElementById("bootStatus");
+    if(s){s.textContent="啟動失敗：主程式 app.js 未載入，請完整覆蓋新版檔案並重新整理。";s.style.color="#ff8d94";}
+  }else if(!window.__XINYU_BOOT_OK__){
+    var s=document.getElementById("bootStatus");
+    if(s && !/失敗/.test(s.textContent)){s.textContent="啟動異常：主程式已載入但尚未完成初始化，請查看畫面錯誤提示。";s.style.color="#ffcf70";}
+  }
+},4500);
+</script>
+<script defer src="./app.js"></script>
 </body>
 </html>
