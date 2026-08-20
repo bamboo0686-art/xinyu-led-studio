@@ -20,6 +20,14 @@ function createDevice(kind="standard",x=350,y=220){
   const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
   return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false,n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18};
 }
+function createCustomDevice({name="自定義 LED 設備",w=3000,h=1800,type="standard",pitch="P2.604",x=350,y=220}={}){
+  const o=createDevice(type==="rect"?"standard":type,x,y);
+  o.name=name;o.w=Math.max(100,Number(w)||3000);o.h=Math.max(100,Number(h)||1800);o.pitch=pitch||"P2.604";
+  if(type==="rect")o.type="standard";
+  if(type==="irregular"){o.type="irregular";o.shape="custom";o.shapePoints="0 15, 75 0, 100 35, 90 100, 18 90, 0 55"}
+  return o
+}
+
 function deepClone(v){return JSON.parse(JSON.stringify(v))}
 function pushHistory(history,state,max=60){history.push(deepClone(state));while(history.length>max)history.shift()}
 function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
@@ -200,6 +208,27 @@ async function deleteScene(){
   snapHistory();const id=project.scene.assetId;project.scene.assetId=null;await deleteBlob(id);await restoreSceneImage();markDirty();renderWorkflow()
 }
 
+
+function openCustomDevice(){q("customDeviceModal").classList.remove("hidden")}
+function closeCustomDevice(){q("customDeviceModal").classList.add("hidden")}
+function submitCustomDevice(e){
+ e.preventDefault();if(!project)return;
+ snapHistory();
+ const type=q("customDeviceShape").value;
+ const o=createCustomDevice({
+   name:q("customDeviceName").value.trim()||"自定義 LED 設備",
+   w:Number(q("customDeviceW").value)||3000,
+   h:Number(q("customDeviceH").value)||1800,
+   type,pitch:q("customDevicePitch").value,
+   x:320+project.objects.length*15,y:200+project.objects.length*12
+ });
+ project.objects.push(o);selectedId=o.id;
+ if(q("customDeviceCenter").checked){
+   const s=objectToScreen(o,SCREEN_SCALE);o.x=500-s.width/2;o.y=325-s.height/2
+ }
+ closeCustomDevice();renderAll();markDirty();toast(`已建立：${o.name}`,"success")
+}
+
 function addDevice(kind){
   if(!project)return;
   snapHistory();
@@ -288,7 +317,7 @@ function applyNaked3DPreview(){
  host.parentElement.style.perspectiveOrigin=`${o.n3dOriginX}% ${o.n3dOriginY}%`;
  host.style.transform=`rotateX(${o.n3dRotateX}deg) rotateY(${o.n3dRotateY}deg) translateZ(${o.n3dDepth}px) scale(${o.n3dScale/100})`;
  host.style.boxShadow=`0 0 ${Math.max(0,o.n3dVignette*1.5)}px rgba(0,0,0,${Math.min(.85,o.n3dVignette/100+.12)})`;
- if(media)media.style.transform=`translateZ(${o.n3dDepth}px)`;
+ if(media)media.style.transform=`translateZ(${o.n3dDepth}px)`;drawNaked3DFrame();
  q("n3dReadPerspective").textContent=`${o.n3dPerspective}px`;q("n3dReadDepth").textContent=`${o.n3dDepth}px`;q("n3dReadRotateY").textContent=`${o.n3dRotateY}°`;q("n3dReadRotateX").textContent=`${o.n3dRotateX}°`;q("n3dReadOrigin").textContent=`${o.n3dOriginX}% / ${o.n3dOriginY}%`;
 }
 function bindNaked3DControls(){
@@ -304,6 +333,72 @@ function resetNaked3D(){
  Object.assign(o,{n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18});
  updateNaked3DInspector();applyNaked3DPreview();markDirty()
 }
+
+function n3dCanvas(){
+ const c=q("naked3dExportCanvas");if(!c)return null;
+ const r=q("naked3dStage").getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);
+ c.width=Math.max(640,Math.round(r.width*dpr));c.height=Math.max(360,Math.round(r.height*dpr));
+ return c
+}
+function drawNaked3DFrame(){
+ const o=selected(),c=n3dCanvas();if(!o||!c)return false;
+ const ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
+ ctx.fillStyle="#030507";ctx.fillRect(0,0,w,h);
+ const media=q("naked3dMediaHost")?.querySelector("video,img");
+ if(!media)return false;
+ const depth=(o.n3dDepth||0)/120,ry=(o.n3dRotateY||0)/45,rx=(o.n3dRotateX||0)/45,sc=(o.n3dScale||100)/100;
+ const insetX=Math.abs(ry)*w*.08+depth*w*.04,insetY=Math.abs(rx)*h*.08+depth*h*.03;
+ const dx=(o.n3dOriginX-50)/50*w*.05,dy=(o.n3dOriginY-50)/50*h*.05;
+ ctx.save();
+ ctx.translate(w/2+dx,h/2+dy);ctx.scale(sc,sc);ctx.translate(-w/2,-h/2);
+ ctx.beginPath();
+ ctx.moveTo(insetX+(ry<0?w*.04:0),insetY+(rx<0?h*.025:0));
+ ctx.lineTo(w-insetX+(ry>0?-w*.04:0),insetY+(rx<0?h*.025:0));
+ ctx.lineTo(w-insetX+(ry>0?-w*.02:0),h-insetY+(rx>0?-h*.025:0));
+ ctx.lineTo(insetX+(ry<0?w*.02:0),h-insetY+(rx>0?-h*.025:0));ctx.closePath();ctx.clip();
+ try{ctx.drawImage(media,0,0,w,h)}catch{ctx.restore();return false}
+ ctx.restore();
+ const vig=Math.min(.85,(o.n3dVignette||0)/100);
+ if(vig>0){
+   const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.15,w/2,h/2,Math.max(w,h)*.7);
+   g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,`rgba(0,0,0,${vig})`);
+   ctx.fillStyle=g;ctx.fillRect(0,0,w,h)
+ }
+ return true
+}
+function downloadBlob(blob,name){
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500)
+}
+function exportNaked3DPNG(){
+ if(!drawNaked3DFrame())return toast("目前沒有可輸出的裸眼3D畫面","error");
+ q("naked3dExportCanvas").toBlob(b=>{if(b){downloadBlob(b,`Xinyu_Naked3D_${Date.now()}.png`);q("n3dExportState").textContent="PNG 已輸出"}}, "image/png")
+}
+function exportNaked3DConfig(){
+ const o=selected();if(!o)return;
+ const cfg={version:"21.0.5",device:{id:o.id,name:o.name,type:o.type,w:o.w,h:o.h,pitch:o.pitch},naked3d:{
+   perspective:o.n3dPerspective,depth:o.n3dDepth,rotateY:o.n3dRotateY,rotateX:o.n3dRotateX,originX:o.n3dOriginX,originY:o.n3dOriginY,scale:o.n3dScale,vignette:o.n3dVignette
+ },note:"視覺模擬設定；實際成片須依LED幾何、Sweet Spot、原生解析度校正"};
+ downloadBlob(new Blob([JSON.stringify(cfg,null,2)],{type:"application/json"}),`Xinyu_Naked3D_Config_${Date.now()}.json`);
+ q("n3dExportState").textContent="裸眼3D設定 JSON 已輸出"
+}
+async function exportNaked3DWebM(){
+ const c=n3dCanvas();if(!c?.captureStream||typeof MediaRecorder==="undefined")return toast("此瀏覽器不支援 Canvas 錄影","error");
+ const v=q("naked3dMediaHost")?.querySelector("video");if(!v)return toast("請先開啟影片裸眼3D預覽","error");
+ const stream=c.captureStream(30),chunks=[];
+ let mime="video/webm;codecs=vp9";if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
+ const rec=new MediaRecorder(stream,{mimeType:mime});rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+ rec.onstop=()=>{downloadBlob(new Blob(chunks,{type:mime}),`Xinyu_Naked3D_${Date.now()}.webm`);q("n3dExportState").textContent="WebM 錄影已輸出"};
+ rec.start(250);q("n3dExportState").textContent="正在錄製裸眼3D…";
+ const wasPaused=v.paused;if(wasPaused)await v.play().catch(()=>{});
+ const start=performance.now(),duration=Math.min(10000,Math.max(3000,(Number.isFinite(v.duration)?v.duration*1000:5000)));
+ function loop(now){
+   drawNaked3DFrame();
+   if(now-start<duration&&rec.state==="recording")requestAnimationFrame(loop);
+   else{if(rec.state==="recording")rec.stop();if(wasPaused)v.pause()}
+ }
+ requestAnimationFrame(loop)
+}
+
 function closeNaked3D(){
  const host=q("naked3dMediaHost");const v=host?.querySelector("video");if(v){v.pause();if(v.src?.startsWith("blob:"))URL.revokeObjectURL(v.src)}if(host)host.innerHTML="";q("naked3dModal").classList.add("hidden")
 }
@@ -349,6 +444,13 @@ function onDevicePointerDown(e){
       if(handle.includes("s"))newH=Math.max(45,start.h+dy);
       if(handle.includes("w")){newW=Math.max(50,start.w-dx);newX=start.ox+(start.w-newW)}
       if(handle.includes("n")){newH=Math.max(45,start.h-dy);newY=start.oy+(start.h-newH)}
+      if(ev.shiftKey){
+        const ratio=start.w/Math.max(1,start.h);
+        if(Math.abs(dx)>=Math.abs(dy))newH=newW/ratio;else newW=newH*ratio;
+      }
+      if(ev.altKey){
+        newX=start.ox-(newW-start.w)/2;newY=start.oy-(newH-start.h)/2;
+      }
       resizeDevice(o,newW,newH,SCREEN_SCALE);o.x=newX;o.y=newY
     }
     if(handle==="vertex"&&o.type==="irregular"&&start.points?.[start.vertexIndex]){
@@ -591,14 +693,14 @@ function closeIntro(){q("introModal").classList.add("hidden")}
 
 function registerActions(){
   Object.assign(ACTIONS,{
-    "system-intro":openIntro,"new-project":openProjectModal,"open-last-project":()=>projects[0]?openProject(projects.sort((a,b)=>b.updatedAt-a.updatedAt)[0].id):openProjectModal(),
+    "system-intro":openIntro,"new-project":openProjectModal,"open-custom-device":openCustomDevice,"close-custom-device":closeCustomDevice,"open-last-project":()=>projects[0]?openProject(projects.sort((a,b)=>b.updatedAt-a.updatedAt)[0].id):openProjectModal(),
     "clear-projects":()=>{if(confirm("確定清除所有本機專案資料？")){projects=[];saveProjects();renderRecentProjects()}},
     "back-dashboard":()=>{if(dirty&&confirm("專案尚未儲存，要先儲存嗎？"))persistCurrent();showDashboard()},
     "undo":undo,"redo":redo,"fit-stage":fitStage,"toggle-grid":toggleGrid,"toggle-snap":toggleSnap,"preview-3d":open3D,"save-project":()=>{persistCurrent();toast("專案已儲存","success")},
     "open-ai":openAI,"close-ai":closeAI,"delete-scene":deleteScene,"scene-fit":()=>{project.scene.scale=1;project.scene.rotation=0;renderSceneControls();markDirty()},
     "duplicate-selected":duplicateSelected,"delete-selected":deleteSelected,"restore-deleted":restoreDeleted,"center-selected":centerSelected,"focus-inspector":()=>q("inspector").scrollIntoView({behavior:"smooth"}),
     "trigger-scene-upload":()=>q("sceneFile").click(),"toggle-dock":toggleDock,"video-play":videoPlay,"video-pause":videoPause,
-    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"open-naked3d-preview":buildNaked3DPreview,"close-naked3d":closeNaked3D,"reset-naked3d":resetNaked3D,"naked3d-play-pause":naked3dPlayPause,"naked3d-fit":()=>{const o=selected();if(o){o.n3dScale=100;updateNaked3DInspector();applyNaked3DPreview()}},"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
+    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"open-naked3d-preview":buildNaked3DPreview,"close-naked3d":closeNaked3D,"reset-naked3d":resetNaked3D,"naked3d-play-pause":naked3dPlayPause,"export-naked3d-png":exportNaked3DPNG,"export-naked3d-webm":exportNaked3DWebM,"export-naked3d-config":exportNaked3DConfig,"naked3d-fit":()=>{const o=selected();if(o){o.n3dScale=100;updateNaked3DInspector();applyNaked3DPreview()}},"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
   });
 }
 function wireActions(){
@@ -628,7 +730,7 @@ function bindSelfTestUI(){
 }
 
 function bindStaticUI(){
-  q("projectForm").addEventListener("submit",newProjectFromForm);
+  q("projectForm").addEventListener("submit",newProjectFromForm);q("customDeviceForm").addEventListener("submit",submitCustomDevice);
   q("sceneFile").addEventListener("change",e=>{const f=e.target.files?.[0];if(f)handleSceneFile(f);e.target.value=""});
   q("mediaFile").addEventListener("change",e=>{const f=e.target.files?.[0];if(f)handleMediaFile(f);e.target.value=""});
   q("sceneRotation").addEventListener("input",()=>{project.scene.rotation=Number(q("sceneRotation").value);applySceneTransform();markDirty()});
@@ -688,7 +790,7 @@ async function boot(){
     }
     renderRecentProjects();window.__XINYU_BOOT_OK__=true;setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
     if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    log(`V21.0.4 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
+    log(`V21.0.5 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
   }catch(e){
     q("bootStatus").textContent="啟動失敗："+e.message;q("bootStatus").style.color="#ff8d94";console.error(e)
   }

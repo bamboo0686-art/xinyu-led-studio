@@ -42,3 +42,11 @@ export function nextStep(p,selectedId=null){
  if(o&&!o.assetId)return {panel:"media",label:"套用素材",reason:"設備尚未有圖片或影片"};
  return {panel:"preview",label:"3D 預覽",reason:"主要視覺流程已完成"};
 }
+
+export function createCustomDevice({name="自定義 LED 設備",w=3000,h=1800,type="standard",pitch="P2.604",x=350,y=220}={}){
+  const o=createDevice(type==="rect"?"standard":type,x,y);
+  o.name=name;o.w=Math.max(100,Number(w)||3000);o.h=Math.max(100,Number(h)||1800);o.pitch=pitch||"P2.604";
+  if(type==="rect")o.type="standard";
+  if(type==="irregular"){o.type="irregular";o.shape="custom";o.shapePoints="0 15, 75 0, 100 35, 90 100, 18 90, 0 55"}
+  return o
+}

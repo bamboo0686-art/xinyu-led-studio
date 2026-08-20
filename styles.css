@@ -180,3 +180,10 @@ input[type=range]{width:100%;accent-color:var(--gold)}
 .naked3d-side{border-left:1px solid var(--line);background:#11161d;padding:15px;overflow:auto}
 .naked3d-side h3{margin:0 0 12px;color:var(--gold2)}
 .n3d-readout{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #26313d;font-size:11px;color:#93a1af}.n3d-readout b{color:#e0e8f1}
+
+/* === V21.0.5 Restoration Edition === */
+.custom-device-preset{grid-column:1/-1;border-color:#8c7133;background:linear-gradient(180deg,#211c11,#17140d)}
+.custom-device-form{width:min(560px,94vw)}.custom-device-body{padding:14px 16px}.custom-device-body>label{display:block;margin:10px 0;color:#b9c4cf;font-size:11px}.custom-device-body label input,.custom-device-body label select{display:block;width:100%;height:38px;margin-top:6px;border:1px solid var(--line2);border-radius:8px;background:#0c1117;color:var(--text);padding:0 10px}
+.direct-manipulation-hint{margin-left:10px;color:#6f8fb2;font-size:9px;white-space:nowrap}
+.naked3d-export-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}
+@media(max-width:1250px){.direct-manipulation-hint{display:none}}

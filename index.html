@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0f14">
-  <title>Xinyu LED Studio V21.0.4</title>
+  <title>Xinyu LED Studio V21.0.5</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg">
   <link rel="stylesheet" href="./styles.css">
@@ -143,6 +143,7 @@
             <button class="preset" data-create-device="ushape"><b>ㄇ字型屏</b><small>三面連體</small></button>
             <button class="preset" data-create-device="cylinder"><b>圓柱屏</b><small>包柱效果</small></button>
             <button class="preset" data-create-device="irregular"><b>異形設備</b><small>自由異形／多邊形</small></button>
+            <button class="preset custom-device-preset" data-action="open-custom-device"><b>＋ 自定義設備</b><small>自由名稱／尺寸／形狀</small></button>
           </div>
           <div class="separator"></div>
           <div class="action-stack">
@@ -176,7 +177,7 @@
           <button class="flow" data-panel-jump="media"><b>3</b><span>素材</span></button>
           <button class="flow" data-action="focus-inspector"><b>4</b><span>調整</span></button>
           <button class="flow" data-action="preview-3d"><b>5</b><span>預覽</span></button>
-          <div id="nextHint" class="next-hint">建議：先上傳實景。</div>
+          <div id="nextHint" class="next-hint">建議：先上傳實景。</div><div id="directManipulationHint" class="direct-manipulation-hint">滑鼠：拖曳移動｜四角縮放｜上方旋轉｜異形頂點可直接拖拉</div>
         </div>
 
         <div id="stageShell" class="stage-shell">
@@ -403,11 +404,11 @@
         <button class="icon-btn" data-action="close-intro">×</button>
       </div>
       <div class="intro-body">
-        <p><b>Xinyu LED Studio V21.0.4</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
+        <p><b>Xinyu LED Studio V21.0.5</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
         <div class="intro-flow">
           <span>實景</span><i>→</i><span>設備</span><i>→</i><span>素材</span><i>→</i><span>調整</span><i>→</i><span>3D預覽／輸出</span>
         </div>
-        <p>V21.0.4 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
+        <p>V21.0.5 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
       </div>
     </div>
   </div>
@@ -448,7 +449,7 @@ setTimeout(function(){
 <div id="selfTestModal" class="modal hidden">
   <div class="intro-card">
     <div class="modal-head">
-      <div><span>DIAGNOSTICS</span><h2>V21.0.4 系統自我測試</h2></div>
+      <div><span>DIAGNOSTICS</span><h2>V21.0.5 系統自我測試</h2></div>
       <button class="icon-btn" id="closeSelfTest">×</button>
     </div>
     <div id="selfTestResults" class="intro-body"></div>
@@ -468,7 +469,7 @@ setTimeout(function(){
       </div>
       <div class="naked3d-layout">
         <div class="naked3d-stage-wrap">
-          <div id="naked3dStage" class="naked3d-stage">
+          <div id="naked3dStage" class="naked3d-stage"><canvas id="naked3dExportCanvas" class="naked3d-export-canvas"></canvas>
             <div class="naked3d-depth-plane plane-back"></div>
             <div id="naked3dMediaHost" class="naked3d-media-host"></div>
             <div class="naked3d-depth-plane plane-front"></div>
@@ -485,10 +486,58 @@ setTimeout(function(){
           <div class="separator"></div>
           <button class="btn primary full" data-action="naked3d-play-pause">播放／暫停</button>
           <button class="btn full" data-action="naked3d-fit">適合預覽框</button>
+          <div class="separator"></div>
+          <h3>裸眼3D輸出</h3>
+          <button class="btn full" data-action="export-naked3d-png">輸出預覽 PNG</button>
+          <button class="btn full" data-action="export-naked3d-webm">錄製裸眼3D WebM</button>
+          <button class="btn full" data-action="export-naked3d-config">輸出裸眼3D設定 JSON</button>
+          <div id="n3dExportState" class="hint-box">輸出會使用目前透視、深度、視角、Sweet Spot、縮放與暗角設定。</div>
           <div class="hint-box">模擬的是內容視覺透視效果，不等同實體 LED 專案的最終離軸透視成片。</div>
         </aside>
       </div>
     </div>
+  </div>
+
+
+  <div id="customDeviceModal" class="modal hidden">
+    <form id="customDeviceForm" class="project-form custom-device-form">
+      <div class="modal-head">
+        <div><span>CUSTOM DEVICE</span><h2>建立自定義設備</h2></div>
+        <button type="button" class="icon-btn" data-action="close-custom-device">×</button>
+      </div>
+      <div class="custom-device-body">
+        <label>設備名稱<input id="customDeviceName" value="自定義 LED 設備"></label>
+        <div class="form-grid">
+          <label>寬度 mm<input id="customDeviceW" type="number" min="100" value="3000"></label>
+          <label>高度 mm<input id="customDeviceH" type="number" min="100" value="1800"></label>
+        </div>
+        <div class="form-grid">
+          <label>設備形狀
+            <select id="customDeviceShape">
+              <option value="rect">矩形</option>
+              <option value="curve">曲面</option>
+              <option value="lshape">L 型</option>
+              <option value="ushape">ㄇ字型</option>
+              <option value="cylinder">圓柱</option>
+              <option value="irregular">自由異形</option>
+            </select>
+          </label>
+          <label>Pixel Pitch
+            <select id="customDevicePitch">
+              <option>P1.25</option><option>P1.56</option><option>P1.86</option>
+              <option>P2</option><option>P2.5</option><option selected>P2.604</option>
+              <option>P2.976</option><option>P3.91</option><option>P4</option><option>P5</option>
+            </select>
+          </label>
+        </div>
+        <label class="checkbox"><input id="customDeviceCenter" type="checkbox" checked> 建立後自動置中</label>
+        <div class="hint-box">建立後可直接在畫布上拖曳位置、四角縮放、旋轉；自由異形可直接拖動頂點。</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-action="close-custom-device">取消</button>
+        <button type="submit" class="btn primary">建立設備</button>
+      </div>
+    </form>
   </div>
 
 </body>
