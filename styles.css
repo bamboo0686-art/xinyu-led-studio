@@ -87,14 +87,14 @@ button,input,select,textarea{font:inherit}.top{height:54px;display:flex;align-it
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V20.0 拖曳組裝與場景工作流強化 === */
+/* === V20.1 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 流暢度與播放核心修正版 === */
+/* === V20.1 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -105,7 +105,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 影音播放與工作區輸出強化版 === */
+/* === V20.1 影音播放與工作區輸出強化版 === */
 .audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
 .audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
 .audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
@@ -116,7 +116,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 
-/* === V20.0 操作核心與影音輸出修正版 === */
+/* === V20.1 操作核心與影音輸出修正版 === */
 .selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
 .selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
 .selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
@@ -129,14 +129,14 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .quick{display:none!important}
 
 
-/* === V20.0 穩定核心與播放引擎重構版 === */
+/* === V20.1 穩定核心與播放引擎重構版 === */
 .runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
 .runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
 .runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
 .performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
 
 
-/* === V20.0 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+/* === V20.1 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
 #propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 #propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
 #propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
@@ -144,7 +144,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
 
 
-/* === V20.0 模型建立修復＋工作台整合版 === */
+/* === V20.1 模型建立修復＋工作台整合版 === */
 .dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
 .dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
 .dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
@@ -166,13 +166,13 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #tab-prop>.panel:first-child{margin-top:0}
 
 
-/* === V20.0 實景 LED 建模核心修復版 === */
+/* === V20.1 實景 LED 建模核心修復版 === */
 .dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
 .dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
 .dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
 
 
-/* === V20.0 功能健檢與穩定性修正版 === */
+/* === V20.1 功能健檢與穩定性修正版 === */
 .auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
 .btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
 
@@ -232,14 +232,14 @@ body{font-family:Arial,"Noto Sans TC",sans-serif;padding:28px;color:#111}h1{marg
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V20.0 拖曳組裝與場景工作流強化 === */
+/* === V20.1 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 流暢度與播放核心修正版 === */
+/* === V20.1 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -250,7 +250,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 影音播放與工作區輸出強化版 === */
+/* === V20.1 影音播放與工作區輸出強化版 === */
 .audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
 .audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
 .audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
@@ -261,7 +261,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 
-/* === V20.0 操作核心與影音輸出修正版 === */
+/* === V20.1 操作核心與影音輸出修正版 === */
 .selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
 .selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
 .selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
@@ -274,14 +274,14 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .quick{display:none!important}
 
 
-/* === V20.0 穩定核心與播放引擎重構版 === */
+/* === V20.1 穩定核心與播放引擎重構版 === */
 .runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
 .runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
 .runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
 .performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
 
 
-/* === V20.0 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+/* === V20.1 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
 #propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 #propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
 #propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
@@ -289,7 +289,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
 
 
-/* === V20.0 模型建立修復＋工作台整合版 === */
+/* === V20.1 模型建立修復＋工作台整合版 === */
 .dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
 .dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
 .dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
@@ -311,18 +311,18 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #tab-prop>.panel:first-child{margin-top:0}
 
 
-/* === V20.0 實景 LED 建模核心修復版 === */
+/* === V20.1 實景 LED 建模核心修復版 === */
 .dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
 .dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
 .dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
 
 
-/* === V20.0 功能健檢與穩定性修正版 === */
+/* === V20.1 功能健檢與穩定性修正版 === */
 .auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
 .btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
 
 
-/* === V20.0 Professional Engineering & 3D Edition === */
+/* === V20.1 Professional Engineering & 3D Edition === */
 html,body{min-height:100%;overflow:auto!important}
 body{min-width:1180px}
 .top{position:sticky!important;top:0;z-index:200;height:auto!important;min-height:54px;flex-wrap:wrap}
@@ -342,3 +342,9 @@ body.ui90{zoom:.90} body.ui80{zoom:.80}
  .app{height:760px!important;min-height:760px!important}
  .tools,.bottom,.right{min-height:760px;max-height:760px}
 }
+
+/* === V20.1 Workspace Startup Stability === */
+.startupBanner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:9px 11px;border:1px solid #34533e;background:#12241a;border-radius:9px;color:#c9e7d1;font-size:10px}
+.startupBanner strong{color:#f0d894}.startupBanner span{flex:1;min-width:220px}
+.fatalBoot{position:fixed;inset:0;z-index:9999;background:#090b0ef5;color:#fff;display:grid;place-content:center;text-align:center;padding:30px}
+.fatalBoot.hidden{display:none}.fatalBoot button{margin:10px auto;border:1px solid #66552b;background:#d2ae52;color:#111;padding:9px 16px;border-radius:8px}

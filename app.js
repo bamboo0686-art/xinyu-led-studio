@@ -1,6 +1,47 @@
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.169.0/+esm";import{OrbitControls}from"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js/+esm";
-const q=x=>document.getElementById(x),qa=x=>[...document.querySelectorAll(x)],c=q("c"),x=c.getContext("2d");let P=JSON.parse(localStorage.getItem("XLS_PROJECTS")||"[]"),cur=null,O=[],A=[],V=[],sel=null,tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[]}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:0,h:0},renderPending=false,lastVideoRender=0,videoLoopRunning=false,audioTrack=null,audioContext=null,audioMixDest=null,audioMasterGain=null,audioNodes=new WeakMap(),workspaceRecorder=null,workspaceChunks=[],workspaceRecordStarted=0,workspaceRecordTimer=null,heavyRefreshPending=false,autoRecordStopTimer=null,mediaLoopActive=false,mediaLoopLast=0,ledPatternCache=null,runtimeErrorCount=0,heavyTimer=null,autoAssemblyEnabled=true,naked3DClock=0,naked3DLoop=false,groupMoveMode=false,bgObjectURL=null,mediaDbPromise=null,bgTransform={rotation:0,scale:1},timelineRAF=0,uiScaleMode=100;
+let THREE=null,OrbitControls=null,threeLoadPromise=null;
+async function ensureThree(){
+ if(THREE&&OrbitControls)return true;
+ if(threeLoadPromise)return threeLoadPromise;
+ threeLoadPromise=(async()=>{
+  try{
+   const [tm,om]=await Promise.all([
+    import("https://cdn.jsdelivr.net/npm/three@0.169.0/+esm"),
+    import("https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/controls/OrbitControls.js/+esm")
+   ]);
+   THREE=tm;OrbitControls=om.OrbitControls;
+   setRuntimeState("3D引擎已就緒","ok");
+   return true
+  }catch(e){
+   console.error("Three.js dynamic import failed",e);
+   setRuntimeState("3D離線／載入失敗","warn");
+   toast("3D引擎目前無法載入；2D工作區仍可正常使用");
+   threeLoadPromise=null;
+   return false
+  }
+ })();
+ return threeLoadPromise
+}
+
+const q=x=>document.getElementById(x),qa=x=>[...document.querySelectorAll(x)],c=q("c"),x=c.getContext("2d");
+function safeLoadProjects(){
+ try{
+  const raw=localStorage.getItem("XLS_PROJECTS");
+  if(!raw)return [];
+  const data=JSON.parse(raw);
+  if(!Array.isArray(data))throw new Error("專案資料格式不是陣列");
+  return data
+ }catch(e){
+  console.error("XLS_PROJECTS corrupted",e);
+  try{
+   const raw=localStorage.getItem("XLS_PROJECTS");
+   if(raw)localStorage.setItem("XLS_PROJECTS_CORRUPT_BACKUP_"+Date.now(),raw)
+  }catch{}
+  try{localStorage.removeItem("XLS_PROJECTS")}catch{}
+  return []
+ }
+}
+let P=safeLoadProjects(),cur=null,O=[],A=[],V=[],sel=null,tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[]}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:0,h:0},renderPending=false,lastVideoRender=0,videoLoopRunning=false,audioTrack=null,audioContext=null,audioMixDest=null,audioMasterGain=null,audioNodes=new WeakMap(),workspaceRecorder=null,workspaceChunks=[],workspaceRecordStarted=0,workspaceRecordTimer=null,heavyRefreshPending=false,autoRecordStopTimer=null,mediaLoopActive=false,mediaLoopLast=0,ledPatternCache=null,runtimeErrorCount=0,heavyTimer=null,autoAssemblyEnabled=true,naked3DClock=0,naked3DLoop=false,groupMoveMode=false,bgObjectURL=null,mediaDbPromise=null,bgTransform={rotation:0,scale:1},timelineRAF=0,uiScaleMode=100;
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5),esc=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 function toast(t){q("toast").textContent=t;q("toast").classList.add("show");setTimeout(()=>q("toast").classList.remove("show"),1800)}
 function setRuntimeState(text,level="ok"){
@@ -396,7 +437,7 @@ async function runReleaseGate(){
  }catch(e){checks.push({name:"IndexedDB 寫入/讀取/刪除",ok:false,detail:e.message})}
  const pass=checks.filter(x=>x.ok).length,score=Math.round(pass/checks.length*100),critical=checks.filter(x=>!x.ok);
  const status=critical.length===0?"PRODUCTION_CANDIDATE":"INTERNAL_TEST_ONLY";
- const box=q("releaseGateResult");if(box){box.className="health "+(score===100?"ok":score>=80?"warn":"bad");box.innerHTML=`V20.0 Release Gate：${score}%｜${pass}/${checks.length} PASS｜狀態：${status}<ul class="auditList">${checks.map(i=>`<li>${i.ok?"✅":"⚠️"} ${i.name}${i.detail?"｜"+esc(i.detail):""}</li>`).join("")}</ul>`}
+ const box=q("releaseGateResult");if(box){box.className="health "+(score===100?"ok":score>=80?"warn":"bad");box.innerHTML=`V20.1 Release Gate：${score}%｜${pass}/${checks.length} PASS｜狀態：${status}<ul class="auditList">${checks.map(i=>`<li>${i.ok?"✅":"⚠️"} ${i.name}${i.detail?"｜"+esc(i.detail):""}</li>`).join("")}</ul>`}
  window.__V20_RELEASE_REPORT={version:"20.0",score,status,checks,time:new Date().toISOString()};
  return window.__V20_RELEASE_REPORT
 }
@@ -617,7 +658,7 @@ function buildBOM(){
   maxPower:e?.maxPower||0,avgPower:e?.avgPower||0,circuits:e?.circuits||0,ports:e?.ports||0,base:o.base||0
  }});
  const wrap=q("bomWrap");
- if(wrap)wrap.innerHTML=rows.length?`<table class="bomTable"><thead><tr><th>類型</th><th>設備</th><th>尺寸</th><th>Pitch</th><th>面積</th><th>模組</th><th>箱體/面板</th><th>電源</th><th>接收卡</th><th>最大W</th><th>回路</th><th>網口</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.kind}</td><td>${esc(r.name)}</td><td>${r.w}×${r.h}</td><td>${r.pitch}</td><td>${r.area.toFixed(3)}</td><td>${r.modules}/${r.modulesSpare}</td><td>${r.cabinets}/${r.cabinetsSpare}</td><td>${r.psu}/${r.psuSpare}</td><td>${r.receivers}/${r.receiversSpare}</td><td>${Math.round(r.maxPower)}</td><td>${r.circuits}</td><td>${r.ports}</td></tr>`).join("")}</tbody></table><div class="meta" style="margin-top:5px">V20.0 已分離 LED / LCD / STRUCTURE，結構件不再套用 LED Pitch、像素、接收卡與功率公式。</div>`:'<div class="meta">尚無設備資料</div>';
+ if(wrap)wrap.innerHTML=rows.length?`<table class="bomTable"><thead><tr><th>類型</th><th>設備</th><th>尺寸</th><th>Pitch</th><th>面積</th><th>模組</th><th>箱體/面板</th><th>電源</th><th>接收卡</th><th>最大W</th><th>回路</th><th>網口</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.kind}</td><td>${esc(r.name)}</td><td>${r.w}×${r.h}</td><td>${r.pitch}</td><td>${r.area.toFixed(3)}</td><td>${r.modules}/${r.modulesSpare}</td><td>${r.cabinets}/${r.cabinetsSpare}</td><td>${r.psu}/${r.psuSpare}</td><td>${r.receivers}/${r.receiversSpare}</td><td>${Math.round(r.maxPower)}</td><td>${r.circuits}</td><td>${r.ports}</td></tr>`).join("")}</tbody></table><div class="meta" style="margin-top:5px">V20.1 已分離 LED / LCD / STRUCTURE，結構件不再套用 LED Pitch、像素、接收卡與功率公式。</div>`:'<div class="meta">尚無設備資料</div>';
  return rows
 }
 function exportBOMCSV(){
@@ -629,21 +670,44 @@ function exportBOMCSV(){
 window.addEventListener("error",e=>toast("錯誤："+(e.message||"未知錯誤")));
 function saveList(){localStorage.setItem("XLS_PROJECTS",JSON.stringify(P))}
 function dash(){q("projects").innerHTML="";if(!P.length){q("projects").innerHTML='<div class="meta">尚無專案，請建立第一個Xinyu LED Studio專案。</div>';return}P.slice().reverse().forEach(p=>{let e=document.createElement("div");e.className="proj";e.innerHTML=`<div class="cover">▣</div><div class="pbody"><h3>${esc(p.name)}</h3><div class="meta">客戶：${esc(p.client||"-")}<br>編號：${p.id}<br>修改：${new Date(p.m).toLocaleString()}</div><span class="status">${p.status||"草稿"}</span><div class="row" style="margin-top:7px"><button class="btn op">開啟</button><button class="btn cp">複製</button><button class="btn red rm">刪除</button></div></div>`;e.querySelector(".op").onclick=()=>open(p.id);e.querySelector(".cp").onclick=()=>{let d=structuredClone(p);d.id="P"+Date.now();d.name+="－複製";d.m=Date.now();P.push(d);saveList();dash()};e.querySelector(".rm").onclick=()=>{P=P.filter(a=>a.id!==p.id);saveList();dash()};q("projects").append(e)})}
-q("new").onclick=()=>q("modal").classList.add("show");q("cancel").onclick=()=>q("modal").classList.remove("show");q("create").onclick=()=>{let p={id:"P"+Date.now(),name:q("nn").value,client:q("nc").value,address:q("na").value,sales:q("ns").value,eng:q("ne").value,type:q("nt").value,note:q("nno").value,status:"草稿",m:Date.now(),data:{o:[],a:[],v:[],groups:{}}};P.push(p);saveList();q("modal").classList.remove("show");open(p.id)};
+q("new").onclick=()=>q("modal").classList.add("show");q("cancel").onclick=()=>q("modal").classList.remove("show");q("create").onclick=async()=>{
+ const p={id:"P"+Date.now(),name:q("nn").value||"新LED專案",client:q("nc").value,address:q("na").value,sales:q("ns").value,eng:q("ne").value,type:q("nt").value,note:q("nno").value,status:"草稿",m:Date.now(),data:{o:[],scenes:[{id:"S1",name:"場景1",objects:[],bgScene:{w:0,h:0},bgTransform:{rotation:0,scale:1}}],a:[],v:[],groups:{}}};
+ P.push(p);saveList();q("modal").classList.remove("show");await open(p.id)
+};
 async function open(id){
- cur=P.find(a=>a.id===id);if(!cur)return;
- scenes=cloneProjectScenes(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[],bgScene:{w:0,h:0}}]);
- sceneIndex=0;O=restoreObjectsFromPlain(scenes[0]?.objects||[]);
- A=cur.data?.a||[];V=cur.data?.v||[];guideLines=structuredClone(cur.data?.guideLines||[]);
- aiDetections=structuredClone(cur.data?.aiDetections||[]);
- if(q("aiEndpoint"))q("aiEndpoint").value=cur.data?.aiEndpoint||"";
- studioMode=cur.data?.studioMode||"proposal";engineeringLocked=!!cur.data?.engineeringLocked;
- showModuleGrid=!!cur.data?.showModuleGrid;showCabinetGrid=!!cur.data?.showCabinetGrid;showPortMap=!!cur.data?.showPortMap;showPowerMap=!!cur.data?.showPowerMap;
- const es=cur.data?.engSettings||{};["moduleW","moduleH","cabinetW","cabinetH","psuW","spareRate","maxPowerDensity","avgPowerRate","circuitW","pixelsPerPort","phaseMode","systemVoltage","powerFactor","receiverPixelCapacity","powerSafety","currentSafety"].forEach(id=>{if(q(id)&&es[id]!=null)q(id).value=es[id]});
- groups=structuredClone(cur.data?.groups||{});
- q("jname").value=cur.name;q("client").value=cur.client||"";q("addr").value=cur.address||"";q("sales").value=cur.sales||"";q("eng").value=cur.eng||"";q("status").value=cur.status||"草稿";q("note").value=cur.note||"";
- q("dashboard").classList.add("hidden");setStudioMode(studioMode);setEngineeringLock(engineeringLocked);renderAIDetections();renderGuides();renderSceneTabs();
- await restoreSceneRuntime();draw();layers();props();bottom("ledmodels");summary()
+ cur=P.find(a=>a.id===id);
+ if(!cur){toast("找不到專案");return false}
+ q("dashboard").classList.add("hidden");
+ try{
+  scenes=cloneProjectScenes(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[],bgScene:{w:0,h:0}}]);
+  if(!Array.isArray(scenes)||!scenes.length)scenes=[{id:"S1",name:"場景1",objects:[],bgScene:{w:0,h:0}}];
+  sceneIndex=0;O=restoreObjectsFromPlain(scenes[0]?.objects||[]);
+  A=Array.isArray(cur.data?.a)?cur.data.a:[];V=Array.isArray(cur.data?.v)?cur.data.v:[];
+  guideLines=structuredClone(cur.data?.guideLines||[]);aiDetections=structuredClone(cur.data?.aiDetections||[]);
+  if(q("aiEndpoint"))q("aiEndpoint").value=cur.data?.aiEndpoint||"";
+  studioMode=cur.data?.studioMode||"proposal";engineeringLocked=!!cur.data?.engineeringLocked;
+  showModuleGrid=!!cur.data?.showModuleGrid;showCabinetGrid=!!cur.data?.showCabinetGrid;showPortMap=!!cur.data?.showPortMap;showPowerMap=!!cur.data?.showPowerMap;
+  const es=cur.data?.engSettings||{};
+  ["moduleW","moduleH","cabinetW","cabinetH","psuW","spareRate","maxPowerDensity","avgPowerRate","circuitW","pixelsPerPort","phaseMode","systemVoltage","powerFactor","receiverPixelCapacity","powerSafety","currentSafety"].forEach(k=>{if(q(k)&&es[k]!=null)q(k).value=es[k]});
+  groups=structuredClone(cur.data?.groups||{});
+  q("jname").value=cur.name||"未命名專案";q("client").value=cur.client||"";q("addr").value=cur.address||"";q("sales").value=cur.sales||"";q("eng").value=cur.eng||"";q("status").value=cur.status||"草稿";q("note").value=cur.note||"";
+  guarded(()=>setStudioMode(studioMode),"提案模式");
+  guarded(()=>setEngineeringLock(engineeringLocked),"工程鎖定");
+  guarded(renderAIDetections,"AI區域");
+  guarded(renderGuides,"參考線");
+  guarded(renderSceneTabs,"場景頁籤");
+  try{await restoreSceneRuntime()}catch(e){console.warn("restoreSceneRuntime",e)}
+  renderNow();guarded(layers,"圖層");guarded(props,"屬性");guarded(()=>bottom("ledmodels"),"模型庫");guarded(summary,"摘要");
+  setRuntimeState("工作區已就緒","ok");toast("已進入工作區");
+  return true
+ }catch(e){
+  console.error("open workspace fatal",e);
+  setRuntimeState("工作區進入失敗","bad");
+  q("dashboard").classList.remove("hidden");
+  q("startupText").textContent="工作區進入失敗："+e.message;
+  toast("無法進入工作區："+e.message);
+  return false
+ }
 }
 function save(ver=true){
  if(!cur)return;
@@ -975,7 +1039,6 @@ function drawTransformHandles(o){const h=transformHandlePoints(o);if(!h)return;x
 function nearTransformHandle(p,o){const h=transformHandlePoints(o);if(!h)return null;const rad=12/Math.max(.2,z);if(Math.hypot(p.x-h.rotate.x,p.y-h.rotate.y)<=rad)return"rotate";if(Math.hypot(p.x-h.resize.x,p.y-h.resize.y)<=rad)return"resize";return null}
 
 function pt(e){let r=c.getBoundingClientRect();return{x:(e.clientX-r.left-pan.x)/z,y:(e.clientY-r.top-pan.y)/z}}
-}
 function inverseObjectPoint(p,o){const b=objectBounds(o);return rotatePoint(p,b.x+b.w/2,b.y+b.h/2,-(o.rotation||0))}
 function hit(p){for(let o of [...O].reverse()){if(o.lock||o.vis===false)continue;const lp=inverseObjectPoint(p,o);let a=(o.pts?.length||o.corners?.length||["curve","u"].includes(o.type))?polyPts(o):null;if(a){if(poly(lp,a))return o}else if(lp.x>=o.x&&lp.x<=o.x+o.w&&lp.y>=o.y&&lp.y<=o.y+o.h)return o}return null}function poly(p,a){let c=false;for(let i=0,j=a.length-1;i<a.length;j=i++)if(((a[i].y>p.y)!=(a[j].y>p.y))&&(p.x<(a[j].x-a[i].x)*(p.y-a[i].y)/(a[j].y-a[i].y)+a[i].x))c=!c;return c}
 function snap(){
@@ -1588,14 +1651,14 @@ q("pdfProposal").onclick=()=>{
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V20.0 拖曳組裝與場景工作流強化 === */
+/* === V20.1 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 流暢度與播放核心修正版 === */
+/* === V20.1 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -1606,7 +1669,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
 
 
-/* === V20.0 影音播放與工作區輸出強化版 === */
+/* === V20.1 影音播放與工作區輸出強化版 === */
 .audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
 .audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
 .audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
@@ -1617,7 +1680,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 
-/* === V20.0 操作核心與影音輸出修正版 === */
+/* === V20.1 操作核心與影音輸出修正版 === */
 .selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
 .selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
 .selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
@@ -1630,14 +1693,14 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .quick{display:none!important}
 
 
-/* === V20.0 穩定核心與播放引擎重構版 === */
+/* === V20.1 穩定核心與播放引擎重構版 === */
 .runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
 .runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
 .runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
 .performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
 
 
-/* === V20.0 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+/* === V20.1 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
 #propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 #propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
 #propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
@@ -1645,7 +1708,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
 
 
-/* === V20.0 模型建立修復＋工作台整合版 === */
+/* === V20.1 模型建立修復＋工作台整合版 === */
 .dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
 .dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
 .dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
@@ -1667,13 +1730,13 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #tab-prop>.panel:first-child{margin-top:0}
 
 
-/* === V20.0 實景 LED 建模核心修復版 === */
+/* === V20.1 實景 LED 建模核心修復版 === */
 .dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
 .dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
 .dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
 
 
-/* === V20.0 功能健檢與穩定性修正版 === */
+/* === V20.1 功能健檢與穩定性修正版 === */
 .auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
 .btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
 
@@ -1726,13 +1789,13 @@ function addStructureFrame(group,w,h,depth,b){
  [b,b+h].forEach(yy=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w+t,t,t),mat);m.position.set(0,yy,.04);group.add(m)})
 }
 
-function init3(){if(tr)return;tr=new THREE.WebGLRenderer({canvas:q("tc"),antialias:true,preserveDrawingBuffer:true});tr.setPixelRatio(Math.min(devicePixelRatio,2));ts=new THREE.Scene();ts.background=new THREE.Color(0x0b0d11);cam=new THREE.PerspectiveCamera(45,1,.2,100);cam.position.set(8,6,-10);oc=new OrbitControls(cam,q("tc"));oc.target.set(0,1.5,0);ts.add(new THREE.HemisphereLight(0xffffff,0x222222,2));let fl=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x22252b}));fl.rotation.x=-Math.PI/2;ts.add(fl);root=new THREE.Group();ts.add(root);(function an(){requestAnimationFrame(an);if(tr){oc.update();tr.render(ts,cam)}})()}
+async function init3(){if(tr)return true;if(!await ensureThree())return false;tr=new THREE.WebGLRenderer({canvas:q("tc"),antialias:true,preserveDrawingBuffer:true});tr.setPixelRatio(Math.min(devicePixelRatio,2));ts=new THREE.Scene();ts.background=new THREE.Color(0x0b0d11);cam=new THREE.PerspectiveCamera(45,1,.2,100);cam.position.set(8,6,-10);oc=new OrbitControls(cam,q("tc"));oc.target.set(0,1.5,0);ts.add(new THREE.HemisphereLight(0xffffff,0x222222,2));let fl=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x22252b}));fl.rotation.x=-Math.PI/2;ts.add(fl);root=new THREE.Group();ts.add(root);(function an(){requestAnimationFrame(an);if(tr){oc.update();tr.render(ts,cam)}})();return true}
 function objectMediaTexture(o){
  if(o.type==="u"){const cv=document.createElement("canvas");cv.width=1536;cv.height=768;const cx=cv.getContext("2d");if(o.media&&o.ready){try{cx.drawImage(o.media,0,0,cv.width,cv.height)}catch{}}else{const g=cx.createLinearGradient(0,0,cv.width,0);g.addColorStop(0,"#075d9b");g.addColorStop(.5,"#7b2850");g.addColorStop(1,"#d39529");cx.fillStyle=g;cx.fillRect(0,0,cv.width,cv.height)}const t=new THREE.CanvasTexture(cv);if(o.media?.tagName==="VIDEO"){const upd=()=>{if(!o.media||o.media.paused)return;try{cx.drawImage(o.media,0,0,cv.width,cv.height);t.needsUpdate=true}catch{};requestAnimationFrame(upd)};requestAnimationFrame(upd)}return t}
  if(o.media){const t=o.media.tagName==="VIDEO"?new THREE.VideoTexture(o.media):new THREE.Texture(o.media);t.needsUpdate=true;return t}return null
 }
-function build3(){
- init3();while(root.children.length)root.remove(root.children[0]);const displays=O.filter(o=>o.rw&&o.rh&&!o.mask);
+async function build3(){
+ if(!await init3())return false;while(root.children.length)root.remove(root.children[0]);const displays=O.filter(o=>o.rw&&o.rh&&!o.mask);
  displays.forEach((o,i)=>{const w=o.rw/1000,h=o.rh/1000,b=(o.base||100)/1000,g=new THREE.Group();g.position.x=(i-(displays.length-1)/2)*Math.max(1.8,w*1.15);g.rotation.y=-(o.rotation||0)*Math.PI/180;
   const tex=objectMediaTexture(o),mat=new THREE.MeshBasicMaterial({color:0xffffff,map:tex||null,side:THREE.DoubleSide,toneMapped:false});let mesh;
   if(o.type==="u"){const side=Math.max(.35,Math.min(w*.55,1.4));mesh=new THREE.Mesh(makeContinuousTripleGeometry(w,h,side),mat);mesh.position.y=b}
@@ -1742,7 +1805,15 @@ function build3(){
   g.add(mesh);addStructureFrame(g,w,h,Math.max(.1,o.d/1000),b);if(show3DStructure&&b>0){const bs=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.3,w+.12),b,.4),new THREE.MeshStandardMaterial({color:0x090909}));bs.position.y=b/2;g.add(bs)}root.add(g)
  });resize()
 }
-q("toggle3d").onclick=()=>{is3=!is3;q("stage").classList.toggle("is3d",is3);q("mode").textContent=is3?"3D Preview":"2D 實景編輯";if(is3)build3()};q("rec").onclick=()=>{if(!is3){is3=true;q("stage").classList.add("is3d");build3()}let s=q("tc").captureStream?.(30);if(!s||!window.MediaRecorder){alert("瀏覽器不支援錄影");return}let r=new MediaRecorder(s),a=[];r.ondataavailable=e=>e.data.size&&a.push(e.data);r.onstop=()=>dl(new Blob(a,{type:"video/webm"}),(cur?.name||"3D")+".webm");r.start();toast("錄製10秒3D成果");setTimeout(()=>r.stop(),10000)};
+q("toggle3d").onclick=async()=>{
+ if(!is3){
+  const ok=await build3();
+  if(!ok){is3=false;q("stage").classList.remove("is3d");q("mode").textContent="2D 實景編輯";return}
+  is3=true;q("stage").classList.add("is3d");q("mode").textContent="3D Preview"
+ }else{
+  is3=false;q("stage").classList.remove("is3d");q("mode").textContent="2D 實景編輯"
+ }
+};q("rec").onclick=async()=>{if(!is3){const ok=await build3();if(!ok)return;is3=true;q("stage").classList.add("is3d")}let s=q("tc").captureStream?.(30);if(!s||!window.MediaRecorder){alert("瀏覽器不支援錄影");return}let r=new MediaRecorder(s),a=[];r.ondataavailable=e=>e.data.size&&a.push(e.data);r.onstop=()=>dl(new Blob(a,{type:"video/webm"}),(cur?.name||"3D")+".webm");r.start();toast("錄製10秒3D成果");setTimeout(()=>r.stop(),10000)};
 q("import").onclick=()=>{let i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=()=>{let f=i.files[0],r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result),p=d.project||{name:"匯入專案"};p.id="P"+Date.now();p.m=Date.now();p.data={o:d.objects||[],a:d.assets||[],v:d.versions||[],groups:d.groups||{}};P.push(p);saveList();dash()}catch{alert("格式錯誤")}};r.readAsText(f)};i.click()};
 
 function enableStageDrop(){const st=q('stage');if(!st||st.dataset.dropReady)return;st.dataset.dropReady='1';st.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('application/x-xinyu')){e.preventDefault();st.classList.add('drop-ready')}});st.addEventListener('dragleave',e=>{if(!st.contains(e.relatedTarget))st.classList.remove('drop-ready')});st.addEventListener('drop',e=>{e.preventDefault();st.classList.remove('drop-ready');let data={};try{data=JSON.parse(e.dataTransfer.getData('application/x-xinyu')||'{}')}catch{}if(data.kind==='model'){addModelAt(data.name,e.clientX,e.clientY);return}if(data.kind==='asset'){const o=hit(pt(e));if(!o){toast('請把素材拖到 LED / LCD 上');return}sel=o.id;const a=A.find(v=>(v.runtimeId||v.id||v.name)===data.id)||A.find(v=>v.name===data.name);attachRuntimeAssetToObject(a,o);props();layers();draw()}})}
@@ -1764,8 +1835,50 @@ function installSceneQuickCreate(){
 }
 
 function installV32(){q('collapseDock')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('dock-collapsed');q('collapseDock').textContent=document.body.classList.contains('dock-collapsed')?'▶':'◀';setTimeout(resize,80)});q('collapseInspector')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('inspector-collapsed');q('collapseInspector').textContent=document.body.classList.contains('inspector-collapsed')?'◀':'▶';setTimeout(resize,80)});qa('.btabs button').forEach(btn=>btn.onclick=()=>bottom(btn.dataset.b));q('dockSearch')?.addEventListener('input',()=>bottom(document.querySelector('.btabs button.active')?.dataset.b||'ledmodels'));enableStageDrop();installWheelControls();installStageDelete();installTopMenus();installSceneQuickCreate();setRuntimeState("正常","ok");updateSelectionActions();updatePropertySceneInfo();updateFitBadge();syncSceneInputs();updateAudioControls();const oldUp=c.onpointerup;c.onpointerup=e=>{if(oldUp)oldUp.call(c,e);const o=selected();if(o&&autoAttachAssembly(o)){draw();props();scheduleHeavyRefresh();markChanged()}}}installV32();
-dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+function startupCoreAudit(){
+ const checks=[
+  ["Canvas",!!c&&!!x],
+  ["Dashboard",!!q("dashboard")],
+  ["New project button",!!q("new")],
+  ["Create button",!!q("create")],
+  ["Workspace stage",!!q("stage")],
+  ["Project list",Array.isArray(P)],
+  ["Model factory",typeof presetObject==="function"],
+  ["Workspace open",typeof open==="function"]
+ ];
+ const bad=checks.filter(x=>!x[1]);
+ const txt=q("startupText");
+ if(txt)txt.textContent=bad.length?`核心異常：${bad.map(x=>x[0]).join("、")}`:`核心已就緒｜${checks.length}/${checks.length} PASS｜3D採按需載入`;
+ if(q("startupBanner"))q("startupBanner").style.borderColor=bad.length?"#7b3939":"#34533e";
+ return {checks,bad}
+}
+function bootstrapApp(){
+ try{
+  dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();
+  startupCoreAudit();setRuntimeState("2D核心已就緒","ok");
+  if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("SW",e))
+  return true
+ }catch(e){
+  console.error("bootstrap failed",e);
+  const fatal=q("fatalBoot");fatal?.classList.remove("hidden");if(q("fatalBootText"))q("fatalBootText").textContent="啟動失敗："+e.message;
+  return false
+ }
+}
+q("retryStartup").onclick=()=>{q("fatalBoot")?.classList.add("hidden");bootstrapApp()};
+q("resetLocalData").onclick=()=>{
+ if(!confirm("要備份並清除目前本機專案索引嗎？這可修復舊版本損壞資料。"))return;
+ try{const raw=localStorage.getItem("XLS_PROJECTS");if(raw)localStorage.setItem("XLS_PROJECTS_MANUAL_BACKUP_"+Date.now(),raw);localStorage.removeItem("XLS_PROJECTS")}catch{}
+ P=[];cur=null;dash();startupCoreAudit();toast("本機專案索引已重建")
+};
+q("fatalReload").onclick=()=>location.reload();
+
+bootstrapApp();
 
 if(new URLSearchParams(location.search).get("selftest")==="1"){
  window.addEventListener("load",()=>setTimeout(()=>v20BrowserSelfTest(),600));
 }
+
+q("snapToggle").onclick=()=>{snapEnabled=!snapEnabled;q("snapToggle").textContent=`吸附：${snapEnabled?"開":"關"}`;updatePropertySceneInfo();draw()};
+
+q("gridToggle").onclick=()=>{gridEnabled=!gridEnabled;q("gridToggle").textContent=`格線：${gridEnabled?"開":"關"}`;updatePropertySceneInfo();draw()};
