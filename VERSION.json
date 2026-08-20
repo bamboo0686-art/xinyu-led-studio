@@ -1,13 +1,13 @@
 {
-  "version": "21.0.1",
-  "name": "Single-Bundle Startup Hotfix",
+  "version": "21.0.3",
+  "name": "Media Transform + Irregular Device Restoration",
   "architecture": "clean rebuild",
-  "release_state": "INTERNAL_ALPHA_STARTUP_HOTFIX_READY",
+  "release_state": "INTERNAL_ALPHA_MEDIA_IRREGULAR_RESTORED",
   "validation_score": 100,
   "visible_actions": 29,
   "registered_actions": 29,
   "missing_visible_actions": [],
-  "baseline": "21.0",
+  "baseline": "21.0.2",
   "startup_architecture": "single classic deferred app.js; core bundled",
   "core_mjs_required_at_runtime": false
 }

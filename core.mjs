@@ -6,7 +6,8 @@ export const DEVICE_PRESETS={
   lshape:{name:"L 型屏",w:2800,h:1900,type:"lshape",pitch:"P2.604"},
   curve:{name:"曲面屏",w:3200,h:1800,type:"curve",pitch:"P2.604"},
   ushape:{name:"ㄇ字型屏",w:3000,h:2000,type:"ushape",pitch:"P2.604"},
-  cylinder:{name:"圓柱屏",w:1800,h:2400,type:"cylinder",pitch:"P2.604"}
+  cylinder:{name:"圓柱屏",w:1800,h:2400,type:"cylinder",pitch:"P2.604"},
+  irregular:{name:"異形設備",w:2600,h:1800,type:"irregular",pitch:"P2.604",shape:"trapezoid"}
 };
 export const uid=(p="ID")=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
 export function createProject(name="未命名專案",client=""){
@@ -15,7 +16,7 @@ export function createProject(name="未命名專案",client=""){
 }
 export function createDevice(kind="standard",x=350,y=220){
   const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
-  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null};
+  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false};
 }
 export function deepClone(v){return JSON.parse(JSON.stringify(v))}
 export function pushHistory(history,state,max=60){history.push(deepClone(state));while(history.length>max)history.shift()}

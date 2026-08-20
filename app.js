@@ -8,7 +8,8 @@ const DEVICE_PRESETS={
   lshape:{name:"L 型屏",w:2800,h:1900,type:"lshape",pitch:"P2.604"},
   curve:{name:"曲面屏",w:3200,h:1800,type:"curve",pitch:"P2.604"},
   ushape:{name:"ㄇ字型屏",w:3000,h:2000,type:"ushape",pitch:"P2.604"},
-  cylinder:{name:"圓柱屏",w:1800,h:2400,type:"cylinder",pitch:"P2.604"}
+  cylinder:{name:"圓柱屏",w:1800,h:2400,type:"cylinder",pitch:"P2.604"},
+  irregular:{name:"異形設備",w:2600,h:1800,type:"irregular",pitch:"P2.604",shape:"trapezoid"}
 };
 const uid=(p="ID")=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
 function createProject(name="未命名專案",client=""){
@@ -17,7 +18,7 @@ function createProject(name="未命名專案",client=""){
 }
 function createDevice(kind="standard",x=350,y=220){
   const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
-  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null};
+  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false};
 }
 function deepClone(v){return JSON.parse(JSON.stringify(v))}
 function pushHistory(history,state,max=60){history.push(deepClone(state));while(history.length>max)history.shift()}
@@ -237,7 +238,7 @@ async function renderDevices(){
   for(const o of project?.objects||[]){
     const s=objectToScreen(o,SCREEN_SCALE);
     const el=document.createElement("div");el.className=`device ${o.type} ${o.id===selectedId?"selected":""}`;
-    el.dataset.id=o.id;el.style.left=`${o.x}px`;el.style.top=`${o.y}px`;el.style.width=`${s.width}px`;el.style.height=`${s.height}px`;el.style.transform=`rotate(${o.rotation||0}deg)`;
+    el.dataset.id=o.id;el.style.left=`${o.x}px`;el.style.top=`${o.y}px`;el.style.width=`${s.width}px`;el.style.height=`${s.height}px`;el.style.transform=`rotate(${o.rotation||0}deg)`;if(o.type==="irregular")el.style.setProperty("--irregular-clip",shapeClip(o));
     el.innerHTML=`<div class="device-screen"></div><div class="device-label">${escapeHTML(o.name)}</div><i class="rotate-stem"></i><i class="rotate-handle" data-handle="rotate"></i><i class="resize-handle" data-handle="resize"></i>`;
     el.addEventListener("pointerdown",onDevicePointerDown);
     layer.append(el);
@@ -247,9 +248,9 @@ async function renderDevices(){
         const url=URL.createObjectURL(rec.blob),screen=el.querySelector(".device-screen");
         if(rec.type.startsWith("video/")){
           const v=document.createElement("video");v.src=url;v.playsInline=true;v.muted=false;v.loop=false;v.addEventListener("loadedmetadata",()=>{if(o.id===selectedId){activeVideo=v;syncTimeline()}});
-          v.addEventListener("timeupdate",()=>{if(o.id===selectedId)syncTimeline()});screen.append(v);if(o.id===selectedId)activeVideo=v
+          v.addEventListener("timeupdate",()=>{if(o.id===selectedId)syncTimeline()});mediaStyle(o,v);v.playbackRate=Number(o.videoRate)||1;v.muted=!!o.videoMuted;screen.append(v);if(o.id===selectedId)activeVideo=v
         }else{
-          const im=document.createElement("img");im.src=url;im.onload=()=>URL.revokeObjectURL(url);screen.append(im)
+          const im=document.createElement("img");im.src=url;mediaStyle(o,im);im.onload=()=>URL.revokeObjectURL(url);screen.append(im)
         }
       }
     }
@@ -277,8 +278,94 @@ function onDevicePointerDown(e){
   const up=()=>{dragState=null;el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up);renderLayers();renderWorkflow()};
   el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)
 }
+
+const SHAPE_TEMPLATES={
+ trapezoid:"polygon(8% 15%,82% 0%,100% 100%,0% 88%)",
+ diamond:"polygon(50% 0%,100% 50%,50% 100%,0% 50%)",
+ hexagon:"polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)",
+ triangle:"polygon(50% 0%,100% 100%,0% 100%)",
+ octagon:"polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)",
+ custom:"polygon(0% 20%,70% 0%,100% 30%,90% 100%,20% 90%,0% 60%)"
+};
+function shapeClip(o){
+ if(!o||o.type!=="irregular")return "";
+ if(o.shapePoints)return `polygon(${o.shapePoints.split(",").map(p=>{const [x,y]=p.trim().split(/\s+/);return `${Number(x)||0}% ${Number(y)||0}%`}).join(",")})`;
+ return SHAPE_TEMPLATES[o.shape||"trapezoid"]||SHAPE_TEMPLATES.trapezoid
+}
+function normalizeMedia(o){
+ const d={mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false};
+ Object.entries(d).forEach(([k,v])=>{if(o[k]===undefined||o[k]===null)o[k]=v});return o
+}
+function mediaStyle(o,el){
+ normalizeMedia(o);
+ el.style.width=`${o.mediaW}%`;el.style.height=`${o.mediaH}%`;
+ el.style.objectFit=o.mediaFit||"cover";
+ el.style.transform=`translate(${o.mediaX}%,${o.mediaY}%) rotate(${o.mediaRotation}deg)`;
+ el.style.opacity=(o.mediaOpacity??100)/100;
+ el.style.filter=`brightness(${o.mediaBrightness??100}%) contrast(${o.mediaContrast??100}%) saturate(${o.mediaSaturation??100}%)`;
+}
+function updateMediaInspector(){
+ const o=selected(),has=!!o?.assetId;
+ q("inspectorMedia")?.classList.toggle("hidden",!has);
+ q("inspectorIrregular")?.classList.toggle("hidden",o?.type!=="irregular");
+ if(!o)return;normalizeMedia(o);
+ if(has){
+   q("mediaOffsetX").value=o.mediaX;q("mediaOffsetY").value=o.mediaY;q("mediaWidthPct").value=o.mediaW;q("mediaHeightPct").value=o.mediaH;
+   q("mediaRotation").value=o.mediaRotation;q("mediaFit").value=o.mediaFit;q("mediaOpacity").value=o.mediaOpacity;
+   q("mediaBrightness").value=o.mediaBrightness;q("mediaContrast").value=o.mediaContrast;q("mediaSaturation").value=o.mediaSaturation;
+   q("mediaOpacityOut").value=`${o.mediaOpacity}%`;q("mediaBrightnessOut").value=`${o.mediaBrightness}%`;q("mediaContrastOut").value=`${o.mediaContrast}%`;q("mediaSaturationOut").value=`${o.mediaSaturation}%`;
+   const asset=project?.assets?.find(a=>a.id===o.assetId),isVideo=asset?.type?.startsWith("video/");
+   q("videoOnlyControls")?.classList.toggle("hidden",!isVideo);
+   if(isVideo){q("videoRate").value=String(o.videoRate||1);q("videoMuted").value=String(!!o.videoMuted)}
+ }
+ if(o.type==="irregular")q("customShapePoints").value=o.shapePoints||""
+}
+function refreshSelectedMediaRuntime(){
+ const o=selected();if(!o)return;
+ const el=document.querySelector(`.device[data-id="${o.id}"] .device-screen img,.device[data-id="${o.id}"] .device-screen video`);
+ if(el)mediaStyle(o,el);
+ if(activeVideo&&o.assetId){
+   activeVideo.playbackRate=Number(o.videoRate)||1;
+   activeVideo.muted=!!o.videoMuted;
+ }
+}
+function bindMediaInspector(){
+ const binds={
+  mediaOffsetX:["mediaX",Number],mediaOffsetY:["mediaY",Number],mediaWidthPct:["mediaW",Number],mediaHeightPct:["mediaH",Number],
+  mediaRotation:["mediaRotation",Number],mediaFit:["mediaFit",String],mediaOpacity:["mediaOpacity",Number],
+  mediaBrightness:["mediaBrightness",Number],mediaContrast:["mediaContrast",Number],mediaSaturation:["mediaSaturation",Number],
+  videoRate:["videoRate",Number],videoMuted:["videoMuted",v=>v==="true"]
+ };
+ Object.entries(binds).forEach(([id,[key,conv]])=>{
+   q(id)?.addEventListener(id.startsWith("media")&&q(id).type==="range"?"input":"change",()=>{
+     const o=selected();if(!o)return; o[key]=conv(q(id).value);updateMediaInspector();refreshSelectedMediaRuntime();markDirty()
+   })
+ });
+ qa("[data-shape-template]").forEach(b=>b.onclick=()=>{const o=selected();if(!o||o.type!=="irregular")return;snapHistory();o.shape=b.dataset.shapeTemplate;o.shapePoints=null;renderAll();markDirty()});
+}
+function resetMediaTransform(){
+ const o=selected();if(!o?.assetId)return;snapHistory();
+ Object.assign(o,{mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false});
+ updateMediaInspector();refreshSelectedMediaRuntime();markDirty();toast("素材調整已重設")
+}
+function removeMedia(){
+ const o=selected();if(!o?.assetId)return;
+ if(!confirm("確定移除目前設備上的素材？素材庫檔案不會刪除。"))return;
+ snapHistory();o.assetId=null;activeVideo=null;renderAll();markDirty()
+}
+function seekVideo(delta){if(!activeVideo)return;activeVideo.currentTime=clamp((activeVideo.currentTime||0)+delta,0,Number.isFinite(activeVideo.duration)?activeVideo.duration:999999)}
+function applyCustomShape(){
+ const o=selected();if(!o||o.type!=="irregular")return;
+ const raw=q("customShapePoints").value.trim();
+ const pts=raw.split(",").map(x=>x.trim()).filter(Boolean);
+ if(pts.length<3){toast("異形至少需要 3 個頂點","error");return}
+ const ok=pts.every(p=>{const m=p.match(/^(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)$/);return !!m});
+ if(!ok){toast("格式錯誤。請使用：0 20, 70 0, 100 30 ...","error");return}
+ snapHistory();o.shape="custom";o.shapePoints=raw;renderAll();markDirty();toast("自訂異形已套用","success")
+}
+
 function renderInspector(){
-  const o=selected();q("inspectorEmpty").classList.toggle("hidden",!!o);q("inspectorDevice").classList.toggle("hidden",!o);if(!o)return;updateInspectorValues()
+  const o=selected();q("inspectorEmpty").classList.toggle("hidden",!!o);q("inspectorDevice").classList.toggle("hidden",!o);if(!o){q("inspectorMedia")?.classList.add("hidden");q("inspectorIrregular")?.classList.add("hidden");return}updateInspectorValues();updateMediaInspector()
 }
 function updateInspectorValues(){
   const o=selected();if(!o)return;
@@ -321,7 +408,7 @@ function updateActionState(){
   const has=!!selected(),p=!!project;
   setDisabled("undo",!history.length);setDisabled("redo",!future.length);setDisabled("save-project",!p);setDisabled("preview-3d",!project?.objects?.length);
   setDisabled("delete-selected",!has);setDisabled("duplicate-selected",!has);setDisabled("center-selected",!has);setDisabled("restore-deleted",!deletedStack.length);
-  ["video-play","video-pause"].forEach(a=>setDisabled(a,!activeVideo))
+  ["video-play","video-pause","video-back5","video-forward5"].forEach(a=>setDisabled(a,!activeVideo));["reset-media-transform","remove-media"].forEach(a=>setDisabled(a,!selected()?.assetId));setDisabled("apply-custom-shape",selected()?.type!=="irregular")
 }
 function setDisabled(action,disabled){qa(`[data-action="${action}"]`).forEach(b=>b.disabled=disabled)}
 function selectPanel(name){
@@ -356,6 +443,7 @@ async function executeAI(){
   if(/一境/.test(text)){addDevice("single")}
   else if(/三境/.test(text)){addDevice("triple")}
   else if(/精神堡壘/.test(text)){addDevice("tower")}
+  else if(/異形/.test(text)){addDevice("irregular")}
   else if(/曲面/.test(text)){addDevice("curve")}
   else if(/ㄇ|U型|U 型/.test(text)){addDevice("ushape")}
   else if(/新增|建立/.test(text)&&/LED|螢幕|屏/.test(text)){addDevice("standard")}
@@ -419,7 +507,7 @@ function registerActions(){
     "open-ai":openAI,"close-ai":closeAI,"delete-scene":deleteScene,"scene-fit":()=>{project.scene.scale=1;project.scene.rotation=0;renderSceneControls();markDirty()},
     "duplicate-selected":duplicateSelected,"delete-selected":deleteSelected,"restore-deleted":restoreDeleted,"center-selected":centerSelected,"focus-inspector":()=>q("inspector").scrollIntoView({behavior:"smooth"}),
     "trigger-scene-upload":()=>q("sceneFile").click(),"toggle-dock":toggleDock,"video-play":videoPlay,"video-pause":videoPause,
-    "ai-execute":executeAI,"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
+    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
   });
 }
 function wireActions(){
@@ -441,6 +529,13 @@ function handleRuntimeError(err,context="Runtime"){
   console.error(context,err);log(`${context}：${err.message}`,"error");toast(`${context} 發生錯誤：${err.message}`,"error")
 }
 
+
+function bindSelfTestUI(){
+  q("closeSelfTest").onclick=()=>q("selfTestModal").classList.add("hidden");
+  q("returnHomeFromTest").onclick=()=>{q("selfTestModal").classList.add("hidden");showDashboard()};
+  q("rerunSelfTest").onclick=()=>selfTest();
+}
+
 function bindStaticUI(){
   q("projectForm").addEventListener("submit",newProjectFromForm);
   q("sceneFile").addEventListener("change",e=>{const f=e.target.files?.[0];if(f)handleSceneFile(f);e.target.value=""});
@@ -451,7 +546,7 @@ function bindStaticUI(){
   q("videoTimeline").addEventListener("input",()=>{if(activeVideo)activeVideo.currentTime=Number(q("videoTimeline").value)});
   q("videoVolume").addEventListener("input",()=>{if(activeVideo)activeVideo.volume=Number(q("videoVolume").value)});
   q("videoLoop").addEventListener("change",()=>{if(activeVideo)activeVideo.loop=q("videoLoop").checked});
-  bindInspector();
+  bindInspector();bindMediaInspector();
   window.addEventListener("resize",fitStage);
   document.addEventListener("keydown",e=>{
     const tag=e.target.tagName?.toLowerCase();if(["input","textarea","select"].includes(tag))return;
@@ -465,10 +560,11 @@ function bindStaticUI(){
 
 async function selfTest(){
   const results=[],check=(name,ok,detail="")=>results.push({name,ok:!!ok,detail});
+  const savedProject=project,savedProjects=projects,savedSelected=selectedId,savedHistory=history,savedFuture=future,savedDeleted=deletedStack;
   try{
     const p=createProject("Self Test","");
     check("createProject",p.objects.length===0&&p.scene);
-    project=p;projects=[p];selectedId=null;
+    project=p;projects=[p];selectedId=null;history=[];future=[];deletedStack=[];
     addDevice("single");check("addDevice",project.objects.length===1);
     check("selectDevice",!!selected());
     centerSelected();check("centerSelected",selected().x>=0&&selected().y>=0);
@@ -478,22 +574,30 @@ async function selfTest(){
     check("runtimeButtonAudit",runtimeButtonAudit().pass,JSON.stringify(runtimeButtonAudit()));
     check("projectValidation",validateProject(project).ok);
   }catch(e){check("selfTestRuntime",false,e.message)}
-  const pass=results.filter(x=>x.ok).length;
-  document.body.innerHTML=`<div style="padding:30px;background:#0a0d12;color:#eee;font-family:monospace"><h1>V21.0.1 Self Test ${pass}/${results.length}</h1>${results.map(x=>`<p>${x.ok?"✅":"❌"} ${escapeHTML(x.name)} ${escapeHTML(x.detail||"")}</p>`).join("")}</div>`;
-  window.__XINYU_SELF_TEST__={pass,total:results.length,results}
+  finally{
+    project=savedProject;projects=savedProjects;selectedId=savedSelected;history=savedHistory;future=savedFuture;deletedStack=savedDeleted;
+  }
+  const pass=results.filter(x=>x.ok).length,box=q("selfTestResults");
+  box.innerHTML=`<div style="font-family:ui-monospace,monospace"><h3 style="margin-top:0">測試結果 ${pass}/${results.length}</h3>${results.map(x=>`<p style="margin:6px 0">${x.ok?"✅":"❌"} ${escapeHTML(x.name)} ${escapeHTML(x.detail||"")}</p>`).join("")}</div>`;
+  q("selfTestModal").classList.remove("hidden");
+  window.__XINYU_SELF_TEST__={pass,total:results.length,results};
+  return window.__XINYU_SELF_TEST__;
 }
 function deleteSelectedNoConfirmForTest(){const o=selected();if(!o)return;deletedStack.push(deepClone(o));project.objects=project.objects.filter(x=>x.id!==o.id);selectedId=null}
 
 async function boot(){
   try{
     setBoot("讀取專案資料");loadProjects();
-    setBoot("註冊操作");registerActions();wireActions();bindStaticUI();
+    setBoot("註冊操作");registerActions();wireActions();bindStaticUI();bindSelfTestUI();
     const audit=runtimeButtonAudit();if(!audit.pass)throw new Error("可見按鈕缺少 Action："+audit.missing.join(","));
     setBoot("啟動工作環境");
-    if(new URLSearchParams(location.search).get("selftest")==="1"){q("bootOverlay").remove();await selfTest();return}
+    if(new URLSearchParams(location.search).get("selftest")==="1"){
+      history.replaceState(null,"",location.pathname+location.hash);
+      setTimeout(()=>selfTest(),350);
+    }
     renderRecentProjects();window.__XINYU_BOOT_OK__=true;setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
     if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    log(`V21.0.1 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
+    log(`V21.0.3 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
   }catch(e){
     q("bootStatus").textContent="啟動失敗："+e.message;q("bootStatus").style.color="#ff8d94";console.error(e)
   }
