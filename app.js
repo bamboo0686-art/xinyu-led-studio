@@ -18,7 +18,7 @@ function createProject(name="未命名專案",client=""){
 }
 function createDevice(kind="standard",x=350,y=220){
   const p=DEVICE_PRESETS[kind]||DEVICE_PRESETS.standard;
-  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false};
+  return {id:uid("DEV"),name:p.name,type:p.type,w:p.w,h:p.h,x,y,rotation:0,pitch:p.pitch,brightness:100,assetId:null,shape:p.shape||null,shapePoints:null,mediaX:0,mediaY:0,mediaW:100,mediaH:100,mediaRotation:0,mediaFit:"cover",mediaOpacity:100,mediaBrightness:100,mediaContrast:100,mediaSaturation:100,videoRate:1,videoMuted:false,n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18};
 }
 function deepClone(v){return JSON.parse(JSON.stringify(v))}
 function pushHistory(history,state,max=60){history.push(deepClone(state));while(history.length>max)history.shift()}
@@ -233,13 +233,89 @@ async function applyAsset(assetId){
   snapHistory();o.assetId=assetId;await renderDevices();markDirty();renderWorkflow()
 }
 
+
+function ensureIrregularPoints(o){
+ if(o.type!=="irregular")return [];
+ if(o.shapePoints){
+   return o.shapePoints.split(",").map(p=>{
+     const [x,y]=p.trim().split(/\s+/).map(Number);return{x:Number.isFinite(x)?x:0,y:Number.isFinite(y)?y:0}
+   }).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y))
+ }
+ const presets={
+  trapezoid:[[8,15],[82,0],[100,100],[0,88]],
+  diamond:[[50,0],[100,50],[50,100],[0,50]],
+  hexagon:[[25,0],[75,0],[100,50],[75,100],[25,100],[0,50]],
+  triangle:[[50,0],[100,100],[0,100]],
+  octagon:[[30,0],[70,0],[100,30],[100,70],[70,100],[30,100],[0,70],[0,30]],
+  custom:[[0,20],[70,0],[100,30],[90,100],[20,90],[0,60]]
+ };
+ return (presets[o.shape||"trapezoid"]||presets.trapezoid).map(([x,y])=>({x,y}))
+}
+function writeIrregularPoints(o,pts){
+ o.shape="custom";o.shapePoints=pts.map(p=>`${Math.round(p.x*100)/100} ${Math.round(p.y*100)/100}`).join(", ");
+}
+function deviceAnchorHTML(o){
+ const corners=`<i class="device-anchor nw" data-anchor="nw"></i><i class="device-anchor ne" data-anchor="ne"></i><i class="device-anchor sw" data-anchor="sw"></i><i class="device-anchor se" data-anchor="se"></i>`;
+ const verts=o.type==="irregular"?ensureIrregularPoints(o).map((p,i)=>`<i class="vertex-anchor" data-vertex="${i}" style="left:${p.x}%;top:${p.y}%"></i>`).join(""):"";
+ return corners+verts
+}
+function normalizeN3D(o){
+ const d={n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18};
+ Object.entries(d).forEach(([k,v])=>{if(o[k]===undefined||o[k]===null)o[k]=v});return o
+}
+function updateNaked3DInspector(){
+ const o=selected(),asset=project?.assets?.find(a=>a.id===o?.assetId),isVideo=asset?.type?.startsWith("video/");
+ q("naked3dControls")?.classList.toggle("hidden",!isVideo);
+ if(!o||!isVideo)return;normalizeN3D(o);
+ ["Perspective","Depth","RotateY","RotateX","OriginX","OriginY","Scale","Vignette"].forEach(k=>{
+   const id="n3d"+k;if(q(id))q(id).value=o[id]
+ });
+ q("n3dPerspectiveOut").value=o.n3dPerspective;q("n3dDepthOut").value=o.n3dDepth;q("n3dScaleOut").value=`${o.n3dScale}%`;q("n3dVignetteOut").value=`${o.n3dVignette}%`;
+}
+async function buildNaked3DPreview(){
+ const o=selected();if(!o?.assetId)return toast("請先選取含影片的設備");
+ const asset=project.assets.find(a=>a.id===o.assetId);if(!asset?.type?.startsWith("video/"))return toast("裸眼3D預覽目前針對影片素材");
+ const rec=await getBlob(o.assetId);if(!rec)return toast("找不到影片素材","error");
+ normalizeN3D(o);
+ const host=q("naked3dMediaHost");host.innerHTML="";
+ const v=document.createElement("video");v.src=URL.createObjectURL(rec.blob);v.playsInline=true;v.loop=true;v.controls=false;v.muted=o.videoMuted;v.playbackRate=o.videoRate||1;
+ host.append(v);host.dataset.assetUrl=v.src;applyNaked3DPreview();q("naked3dModal").classList.remove("hidden");
+}
+function applyNaked3DPreview(){
+ const o=selected(),host=q("naked3dMediaHost");if(!o||!host)return;normalizeN3D(o);
+ const media=host.querySelector("video,img");
+ host.parentElement.style.perspective=`${o.n3dPerspective}px`;
+ host.parentElement.style.perspectiveOrigin=`${o.n3dOriginX}% ${o.n3dOriginY}%`;
+ host.style.transform=`rotateX(${o.n3dRotateX}deg) rotateY(${o.n3dRotateY}deg) translateZ(${o.n3dDepth}px) scale(${o.n3dScale/100})`;
+ host.style.boxShadow=`0 0 ${Math.max(0,o.n3dVignette*1.5)}px rgba(0,0,0,${Math.min(.85,o.n3dVignette/100+.12)})`;
+ if(media)media.style.transform=`translateZ(${o.n3dDepth}px)`;
+ q("n3dReadPerspective").textContent=`${o.n3dPerspective}px`;q("n3dReadDepth").textContent=`${o.n3dDepth}px`;q("n3dReadRotateY").textContent=`${o.n3dRotateY}°`;q("n3dReadRotateX").textContent=`${o.n3dRotateX}°`;q("n3dReadOrigin").textContent=`${o.n3dOriginX}% / ${o.n3dOriginY}%`;
+}
+function bindNaked3DControls(){
+ const ids={n3dPerspective:"n3dPerspective",n3dDepth:"n3dDepth",n3dRotateY:"n3dRotateY",n3dRotateX:"n3dRotateX",n3dOriginX:"n3dOriginX",n3dOriginY:"n3dOriginY",n3dScale:"n3dScale",n3dVignette:"n3dVignette"};
+ Object.entries(ids).forEach(([id,key])=>{
+   const el=q(id);if(!el)return;
+   const evt=el.type==="range"?"input":"change";
+   el.addEventListener(evt,()=>{const o=selected();if(!o)return;o[key]=Number(el.value);updateNaked3DInspector();applyNaked3DPreview();markDirty()})
+ })
+}
+function resetNaked3D(){
+ const o=selected();if(!o)return;snapHistory();
+ Object.assign(o,{n3dPerspective:900,n3dDepth:24,n3dRotateY:-12,n3dRotateX:4,n3dOriginX:50,n3dOriginY:50,n3dScale:100,n3dVignette:18});
+ updateNaked3DInspector();applyNaked3DPreview();markDirty()
+}
+function closeNaked3D(){
+ const host=q("naked3dMediaHost");const v=host?.querySelector("video");if(v){v.pause();if(v.src?.startsWith("blob:"))URL.revokeObjectURL(v.src)}if(host)host.innerHTML="";q("naked3dModal").classList.add("hidden")
+}
+function naked3dPlayPause(){const v=q("naked3dMediaHost")?.querySelector("video");if(!v)return;v.paused?v.play().catch(()=>{}):v.pause()}
+
 async function renderDevices(){
   const layer=q("deviceLayer");layer.innerHTML="";activeVideo=null;
   for(const o of project?.objects||[]){
     const s=objectToScreen(o,SCREEN_SCALE);
     const el=document.createElement("div");el.className=`device ${o.type} ${o.id===selectedId?"selected":""}`;
     el.dataset.id=o.id;el.style.left=`${o.x}px`;el.style.top=`${o.y}px`;el.style.width=`${s.width}px`;el.style.height=`${s.height}px`;el.style.transform=`rotate(${o.rotation||0}deg)`;if(o.type==="irregular")el.style.setProperty("--irregular-clip",shapeClip(o));
-    el.innerHTML=`<div class="device-screen"></div><div class="device-label">${escapeHTML(o.name)}</div><i class="rotate-stem"></i><i class="rotate-handle" data-handle="rotate"></i><i class="resize-handle" data-handle="resize"></i>`;
+    el.innerHTML=`<div class="device-screen"></div><div class="device-label">${escapeHTML(o.name)}</div><i class="rotate-stem"></i><i class="rotate-handle" data-handle="rotate"></i>${deviceAnchorHTML(o)}`;
     el.addEventListener("pointerdown",onDevicePointerDown);
     layer.append(el);
     if(o.assetId){
@@ -261,13 +337,28 @@ function onDevicePointerDown(e){
   e.preventDefault();e.stopPropagation();
   const el=e.currentTarget,id=el.dataset.id,o=project.objects.find(x=>x.id===id);if(!o)return;
   if(selectedId!==id){selectedId=id;renderDevices();renderWorkflow()}
-  const handle=e.target.dataset.handle||"move";snapHistory();
-  const start={x:e.clientX,y:e.clientY,ox:o.x,oy:o.y,w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,rot:o.rotation||0,handle,id};
+  const vertexIndex=e.target.dataset.vertex!==undefined?Number(e.target.dataset.vertex):null;const handle=e.target.dataset.anchor||e.target.dataset.handle||(vertexIndex!==null?"vertex":"move");snapHistory();
+  const start={x:e.clientX,y:e.clientY,ox:o.x,oy:o.y,w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,rot:o.rotation||0,handle,id,vertexIndex,points:o.type==="irregular"?ensureIrregularPoints(o):null};
   dragState=start;el.setPointerCapture(e.pointerId);
   const move=ev=>{
     if(!dragState)return;const dx=(ev.clientX-start.x)/stageZoom,dy=(ev.clientY-start.y)/stageZoom;
     if(handle==="move"){o.x=start.ox+dx;o.y=start.oy+dy;if(project.ui.snap){o.x=Math.round(o.x/10)*10;o.y=Math.round(o.y/10)*10}}
-    if(handle==="resize"){resizeDevice(o,Math.max(50,start.w+dx),Math.max(45,start.h+dy),SCREEN_SCALE)}
+    if(["nw","ne","sw","se"].includes(handle)){
+      let newW=start.w,newH=start.h,newX=start.ox,newY=start.oy;
+      if(handle.includes("e"))newW=Math.max(50,start.w+dx);
+      if(handle.includes("s"))newH=Math.max(45,start.h+dy);
+      if(handle.includes("w")){newW=Math.max(50,start.w-dx);newX=start.ox+(start.w-newW)}
+      if(handle.includes("n")){newH=Math.max(45,start.h-dy);newY=start.oy+(start.h-newH)}
+      resizeDevice(o,newW,newH,SCREEN_SCALE);o.x=newX;o.y=newY
+    }
+    if(handle==="vertex"&&o.type==="irregular"&&start.points?.[start.vertexIndex]){
+      const r=el.getBoundingClientRect(),pts=start.points.map(p=>({...p}));
+      pts[start.vertexIndex].x=clamp(((e.clientX-r.left)/Math.max(1,r.width))*100,0,100);
+      pts[start.vertexIndex].y=clamp(((e.clientY-r.top)/Math.max(1,r.height))*100,0,100);
+      writeIrregularPoints(o,pts);el.style.setProperty("--irregular-clip",shapeClip(o));
+      const va=el.querySelector(`[data-vertex="${start.vertexIndex}"]`);if(va){va.style.left=`${pts[start.vertexIndex].x}%`;va.style.top=`${pts[start.vertexIndex].y}%`}
+      q("customShapePoints")&&(q("customShapePoints").value=o.shapePoints||"")
+    }
     if(handle==="rotate"){
       const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
       o.rotation=Math.round(Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI+90)
@@ -365,7 +456,7 @@ function applyCustomShape(){
 }
 
 function renderInspector(){
-  const o=selected();q("inspectorEmpty").classList.toggle("hidden",!!o);q("inspectorDevice").classList.toggle("hidden",!o);if(!o){q("inspectorMedia")?.classList.add("hidden");q("inspectorIrregular")?.classList.add("hidden");return}updateInspectorValues();updateMediaInspector()
+  const o=selected();q("inspectorEmpty").classList.toggle("hidden",!!o);q("inspectorDevice").classList.toggle("hidden",!o);if(!o){q("inspectorMedia")?.classList.add("hidden");q("inspectorIrregular")?.classList.add("hidden");return}updateInspectorValues();updateMediaInspector();updateNaked3DInspector()
 }
 function updateInspectorValues(){
   const o=selected();if(!o)return;
@@ -408,7 +499,7 @@ function updateActionState(){
   const has=!!selected(),p=!!project;
   setDisabled("undo",!history.length);setDisabled("redo",!future.length);setDisabled("save-project",!p);setDisabled("preview-3d",!project?.objects?.length);
   setDisabled("delete-selected",!has);setDisabled("duplicate-selected",!has);setDisabled("center-selected",!has);setDisabled("restore-deleted",!deletedStack.length);
-  ["video-play","video-pause","video-back5","video-forward5"].forEach(a=>setDisabled(a,!activeVideo));["reset-media-transform","remove-media"].forEach(a=>setDisabled(a,!selected()?.assetId));setDisabled("apply-custom-shape",selected()?.type!=="irregular")
+  ["video-play","video-pause","video-back5","video-forward5"].forEach(a=>setDisabled(a,!activeVideo));["reset-media-transform","remove-media"].forEach(a=>setDisabled(a,!selected()?.assetId));setDisabled("apply-custom-shape",selected()?.type!=="irregular");const _aa=project?.assets?.find(x=>x.id===selected()?.assetId);setDisabled("open-naked3d-preview",!_aa?.type?.startsWith("video/"))
 }
 function setDisabled(action,disabled){qa(`[data-action="${action}"]`).forEach(b=>b.disabled=disabled)}
 function selectPanel(name){
@@ -507,7 +598,7 @@ function registerActions(){
     "open-ai":openAI,"close-ai":closeAI,"delete-scene":deleteScene,"scene-fit":()=>{project.scene.scale=1;project.scene.rotation=0;renderSceneControls();markDirty()},
     "duplicate-selected":duplicateSelected,"delete-selected":deleteSelected,"restore-deleted":restoreDeleted,"center-selected":centerSelected,"focus-inspector":()=>q("inspector").scrollIntoView({behavior:"smooth"}),
     "trigger-scene-upload":()=>q("sceneFile").click(),"toggle-dock":toggleDock,"video-play":videoPlay,"video-pause":videoPause,
-    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
+    "ai-execute":executeAI,"video-back5":()=>seekVideo(-5),"video-forward5":()=>seekVideo(5),"reset-media-transform":resetMediaTransform,"remove-media":removeMedia,"apply-custom-shape":applyCustomShape,"open-naked3d-preview":buildNaked3DPreview,"close-naked3d":closeNaked3D,"reset-naked3d":resetNaked3D,"naked3d-play-pause":naked3dPlayPause,"naked3d-fit":()=>{const o=selected();if(o){o.n3dScale=100;updateNaked3DInspector();applyNaked3DPreview()}},"close-3d":close3D,"close-intro":closeIntro,"close-project-modal":closeProjectModal
   });
 }
 function wireActions(){
@@ -546,7 +637,7 @@ function bindStaticUI(){
   q("videoTimeline").addEventListener("input",()=>{if(activeVideo)activeVideo.currentTime=Number(q("videoTimeline").value)});
   q("videoVolume").addEventListener("input",()=>{if(activeVideo)activeVideo.volume=Number(q("videoVolume").value)});
   q("videoLoop").addEventListener("change",()=>{if(activeVideo)activeVideo.loop=q("videoLoop").checked});
-  bindInspector();bindMediaInspector();
+  bindInspector();bindMediaInspector();bindNaked3DControls();
   window.addEventListener("resize",fitStage);
   document.addEventListener("keydown",e=>{
     const tag=e.target.tagName?.toLowerCase();if(["input","textarea","select"].includes(tag))return;
@@ -597,7 +688,7 @@ async function boot(){
     }
     renderRecentProjects();window.__XINYU_BOOT_OK__=true;setTimeout(()=>q("bootOverlay").classList.add("hidden"),250);
     if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
-    log(`V21.0.3 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
+    log(`V21.0.4 啟動完成｜可見 Action ${audit.total}/${audit.total}`);
   }catch(e){
     q("bootStatus").textContent="啟動失敗："+e.message;q("bootStatus").style.color="#ff8d94";console.error(e)
   }

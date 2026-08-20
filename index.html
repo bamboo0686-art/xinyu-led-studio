@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b0f14">
-  <title>Xinyu LED Studio V21.0.3</title>
+  <title>Xinyu LED Studio V21.0.4</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./icon.svg">
   <link rel="stylesheet" href="./styles.css">
@@ -320,6 +320,28 @@
               </div>
             </div>
 
+
+            <div id="naked3dControls" class="hidden">
+              <div class="separator"></div>
+              <div class="subsection-title"><span>NAKED-EYE 3D</span><h3>裸眼3D調整</h3></div>
+              <button class="btn primary full" data-action="open-naked3d-preview">開啟裸眼3D預覽</button>
+
+              <div class="form-row"><label>透視強度 <output id="n3dPerspectiveOut">900</output></label><input id="n3dPerspective" type="range" min="300" max="2000" step="10" value="900"></div>
+              <div class="form-row"><label>突出深度 <output id="n3dDepthOut">24</output></label><input id="n3dDepth" type="range" min="0" max="120" value="24"></div>
+              <div class="form-grid">
+                <div class="form-row"><label>水平視角</label><input id="n3dRotateY" type="number" min="-45" max="45" value="-12"></div>
+                <div class="form-row"><label>垂直視角</label><input id="n3dRotateX" type="number" min="-45" max="45" value="4"></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><label>視點 X %</label><input id="n3dOriginX" type="number" min="0" max="100" value="50"></div>
+                <div class="form-row"><label>視點 Y %</label><input id="n3dOriginY" type="number" min="0" max="100" value="50"></div>
+              </div>
+              <div class="form-row"><label>畫面縮放 <output id="n3dScaleOut">100%</output></label><input id="n3dScale" type="range" min="50" max="180" value="100"></div>
+              <div class="form-row"><label>邊框暗角 <output id="n3dVignetteOut">18%</output></label><input id="n3dVignette" type="range" min="0" max="70" value="18"></div>
+              <button class="btn full" data-action="reset-naked3d">重設裸眼3D參數</button>
+              <div class="hint-box">此處為視覺模擬與內容校正預覽。實際裸眼3D成片仍需依 LED 實體幾何、Sweet Spot 與原生解析度做最終校正。</div>
+            </div>
+
             <div class="separator"></div>
             <div class="action-stack">
               <button class="btn" data-action="reset-media-transform">重設素材調整</button>
@@ -381,11 +403,11 @@
         <button class="icon-btn" data-action="close-intro">×</button>
       </div>
       <div class="intro-body">
-        <p><b>Xinyu LED Studio V21.0.3</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
+        <p><b>Xinyu LED Studio V21.0.4</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
         <div class="intro-flow">
           <span>實景</span><i>→</i><span>設備</span><i>→</i><span>素材</span><i>→</i><span>調整</span><i>→</i><span>3D預覽／輸出</span>
         </div>
-        <p>V21.0.3 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
+        <p>V21.0.4 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
       </div>
     </div>
   </div>
@@ -426,7 +448,7 @@ setTimeout(function(){
 <div id="selfTestModal" class="modal hidden">
   <div class="intro-card">
     <div class="modal-head">
-      <div><span>DIAGNOSTICS</span><h2>V21.0.3 系統自我測試</h2></div>
+      <div><span>DIAGNOSTICS</span><h2>V21.0.4 系統自我測試</h2></div>
       <button class="icon-btn" id="closeSelfTest">×</button>
     </div>
     <div id="selfTestResults" class="intro-body"></div>
@@ -436,6 +458,38 @@ setTimeout(function(){
     </div>
   </div>
 </div>
+
+
+  <div id="naked3dModal" class="modal hidden">
+    <div class="naked3d-card">
+      <div class="modal-head">
+        <div><span>NAKED-EYE 3D PREVIEW</span><h2>裸眼3D內容預覽</h2></div>
+        <button class="icon-btn" data-action="close-naked3d">×</button>
+      </div>
+      <div class="naked3d-layout">
+        <div class="naked3d-stage-wrap">
+          <div id="naked3dStage" class="naked3d-stage">
+            <div class="naked3d-depth-plane plane-back"></div>
+            <div id="naked3dMediaHost" class="naked3d-media-host"></div>
+            <div class="naked3d-depth-plane plane-front"></div>
+          </div>
+          <div class="naked3d-stage-label">即時模擬預覽｜拖動右側參數即時更新</div>
+        </div>
+        <aside class="naked3d-side">
+          <h3>裸眼3D參數</h3>
+          <div class="n3d-readout"><span>透視</span><b id="n3dReadPerspective">900px</b></div>
+          <div class="n3d-readout"><span>突出深度</span><b id="n3dReadDepth">24px</b></div>
+          <div class="n3d-readout"><span>水平視角</span><b id="n3dReadRotateY">-12°</b></div>
+          <div class="n3d-readout"><span>垂直視角</span><b id="n3dReadRotateX">4°</b></div>
+          <div class="n3d-readout"><span>視點</span><b id="n3dReadOrigin">50% / 50%</b></div>
+          <div class="separator"></div>
+          <button class="btn primary full" data-action="naked3d-play-pause">播放／暫停</button>
+          <button class="btn full" data-action="naked3d-fit">適合預覽框</button>
+          <div class="hint-box">模擬的是內容視覺透視效果，不等同實體 LED 專案的最終離軸透視成片。</div>
+        </aside>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

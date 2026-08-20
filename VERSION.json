@@ -1,13 +1,13 @@
 {
-  "version": "21.0.3",
-  "name": "Media Transform + Irregular Device Restoration",
+  "version": "21.0.4",
+  "name": "Universal Anchor + Naked-Eye 3D Preview Edition",
   "architecture": "clean rebuild",
-  "release_state": "INTERNAL_ALPHA_MEDIA_IRREGULAR_RESTORED",
+  "release_state": "INTERNAL_ALPHA_ANCHOR_NAKED3D_READY",
   "validation_score": 100,
   "visible_actions": 29,
   "registered_actions": 29,
   "missing_visible_actions": [],
-  "baseline": "21.0.2",
+  "baseline": "21.0.3",
   "startup_architecture": "single classic deferred app.js; core bundled",
   "core_mjs_required_at_runtime": false
 }

@@ -144,3 +144,39 @@ input[type=range]{width:100%;accent-color:var(--gold)}
   transform-origin:center center;
   transition:filter .05s linear,opacity .05s linear;
 }
+
+/* === V21.0.4 Universal Anchor + Naked-Eye 3D === */
+.device-anchor{
+  position:absolute;width:14px;height:14px;border-radius:50%;
+  background:#e8f5ff;border:2px solid #168cff;box-shadow:0 0 0 2px #07101999;
+  z-index:8;display:none;touch-action:none
+}
+.device.selected .device-anchor{display:block}
+.device-anchor.nw{left:-8px;top:-8px;cursor:nwse-resize}
+.device-anchor.ne{right:-8px;top:-8px;cursor:nesw-resize}
+.device-anchor.sw{left:-8px;bottom:-8px;cursor:nesw-resize}
+.device-anchor.se{right:-8px;bottom:-8px;cursor:nwse-resize}
+
+.vertex-anchor{
+  position:absolute;width:13px;height:13px;border-radius:50%;
+  background:#fff;border:3px solid #00a8ff;box-shadow:0 0 0 2px #06101caa;
+  transform:translate(-50%,-50%);z-index:12;display:none;cursor:grab;touch-action:none
+}
+.device.selected.irregular .vertex-anchor{display:block}
+
+.naked3d-card{width:min(1180px,96vw);height:min(760px,92vh);display:grid;grid-template-rows:auto 1fr;border:1px solid #3b4654;border-radius:14px;background:#10151c;box-shadow:var(--shadow);overflow:hidden}
+.naked3d-layout{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 280px}
+.naked3d-stage-wrap{min-width:0;min-height:0;background:#05070a;position:relative;display:grid;place-items:center;overflow:hidden}
+.naked3d-stage{
+  width:min(78%,820px);aspect-ratio:16/9;position:relative;transform-style:preserve-3d;
+  background:#030507;border:1px solid #2b3948;box-shadow:0 25px 65px #000c;overflow:visible
+}
+.naked3d-media-host{position:absolute;inset:0;transform-style:preserve-3d;overflow:hidden;background:#030507}
+.naked3d-media-host img,.naked3d-media-host video{width:100%;height:100%;object-fit:cover;display:block;transform-origin:center center}
+.naked3d-depth-plane{position:absolute;inset:5%;border:1px solid #65a5e833;pointer-events:none;transform-style:preserve-3d}
+.plane-back{transform:translateZ(-30px);background:linear-gradient(135deg,#14223533,#03070b11)}
+.plane-front{transform:translateZ(30px);box-shadow:inset 0 0 90px #0008}
+.naked3d-stage-label{position:absolute;left:16px;bottom:12px;color:#718397;font-size:10px}
+.naked3d-side{border-left:1px solid var(--line);background:#11161d;padding:15px;overflow:auto}
+.naked3d-side h3{margin:0 0 12px;color:var(--gold2)}
+.n3d-readout{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #26313d;font-size:11px;color:#93a1af}.n3d-readout b{color:#e0e8f1}
