@@ -1,0 +1,10 @@
+{
+  "product": "Xinyu LED Studio",
+  "version": "10.0",
+  "edition": "正式完成版",
+  "developer": "心禹國際開發科技有限公司",
+  "build_date": "2026-08-20",
+  "baseline": "V4.1",
+  "architecture": "split HTML/CSS/JS + PWA + IndexedDB",
+  "release_gate": "built-in"
+}

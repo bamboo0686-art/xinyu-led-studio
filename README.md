@@ -1,55 +1,32 @@
-# Xinyu LED Studio V4.0｜實景建模渲染核心修正版
+# Xinyu LED Studio V10.0｜正式完成版
 
 開發單位：心禹國際開發科技有限公司
 
-## 本次真正找到的根因
+## V10.0 核心完成項目
+- V4.1 功能基線完整保留。
+- HTML / CSS / JavaScript 分離，降低單一 index.html 持續膨脹。
+- LED / LCD / STRUCTURE 正式分類。
+- 結構件不再套用 LED Pitch、像素、接收卡與 LED 功率公式。
+- LCD 使用獨立面板/箱體估算基礎。
+- 三相電流改為 I=P/(√3×V×PF)，單相為 I=P/(V×PF)。
+- 新增功率因數 PF。
+- 新增單接收卡像素容量設定，不再固定只能以 512×512 假設。
+- 保留實景、模型、圖片、影片、音訊、裸眼3D預覽、3D預覽、BOM、Mapping、CAD、錄製、AI輔助、IndexedDB、PWA。
+- 新增 V10.0 Release Gate。
+- 新增瀏覽器內建 Self Test，可使用 `?selftest=1` 執行。
 
-V3.9 的 LED 建立流程本身已經能把模型寫入 `O` 場景陣列，
-但 Canvas 的 `paint()` 在繪製沒有圖片／影片素材的 LED 時會呼叫：
+## 正式版本驗收原則
+V10.0 軟體內建 Release Gate。程式包的靜態/結構/語法驗證通過，不代表所有瀏覽器、所有影片編碼、所有 GPU 與現場 LED 控制硬體均已認證。真正對外部署前仍應在目標 Windows/Chrome/Edge 電腦完成實機 E2E。
 
-`ledPattern()`
+## 主要操作
+1. 上傳實景。
+2. 點擊、拖曳或快速建立 LED。
+3. 調整尺寸、Pitch、位置、透視、亮度、內容。
+4. 可在同一場景建立多個 LED / LCD / 結構模型。
+5. 上傳圖片、影片、音效並播放。
+6. 使用 3D / 裸眼3D預覽。
+7. 使用工程計算、BOM、Mapping、CAD 與輸出。
+8. 專案頁可執行「系統功能健檢」及「V10.0 Release Gate」。
 
-這個函式在先前版本重構時遺失，因此瀏覽器實際會出現：
-
-`ReferenceError: ledPattern is not defined`
-
-結果是：
-1. LED 資料已建立；
-2. Canvas 開始重繪；
-3. 繪製 LED 時發生 ReferenceError；
-4. 整次 renderNow() 中斷；
-5. 使用者在實景畫面中完全看不到 LED。
-
-因此看起來就像「LED 建立失敗」。
-
-## V4.0 修正
-
-### LED Pattern 渲染器恢復
-重新建立快取式 LED 點陣 Pattern，不再使用大量逐點迴圈，也不會找不到函式。
-
-### 單一模型錯誤隔離
-新增 `safePaint()`。
-任何一個 LED／LCD／遮罩物件發生錯誤時：
-- 只隔離該模型；
-- 其他模型與背景仍繼續顯示；
-- 不允許單一模型讓整張實景 Canvas 停止繪製。
-
-### 建立後同步驗證
-`createModelSafe()` 現在會立即：
-- 寫入場景；
-- 同步 renderNow()；
-- 檢查場景陣列數量；
-- 檢查 ID；
-- 檢查 x / y / w / h；
-- 確認尺寸有效；
-- 再更新屬性與工程資料。
-
-## 建立 LED 的方式
-1. 點擊「心禹工作台」LED 模型卡片。
-2. 拖曳 LED 模型到實景。
-3. 使用「快速建立 LED」。
-4. 雙擊實景空白處建立常規 LED。
-
-## 升級後
-請部署 V4.0 後執行 Ctrl + F5。
-如果曾使用 V3.9，建議清除該網站舊 Service Worker／網站快取一次。
+## 建議影片
+MP4 H.264 + AAC 或 WebM VP8/VP9 + Opus。

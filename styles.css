@@ -1,0 +1,323 @@
+
+:root{--bg:#0a0b0e;--p:#14171c;--p2:#0f1115;--line:#30343d;--gold:#d6b45f;--txt:#f4f4f5;--muted:#9a9ea7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;overflow:hidden}
+button,input,select,textarea{font:inherit}.top{height:54px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--line);background:#090a0d;gap:8px}.brand{font-weight:900}.brand small{display:block;color:#888;font-size:10px;font-weight:500}.top button{border:0;background:transparent;color:#ddd;padding:7px 9px;border-radius:7px}.top button:hover{background:#22262d}.top .save{margin-left:auto;background:var(--gold);color:#17120a;font-weight:800}
+.app{height:calc(100vh - 54px);display:grid;grid-template-columns:74px 1fr 310px;grid-template-rows:1fr 185px}.tools{grid-row:1/3;border-right:1px solid var(--line);background:#101217;padding:7px}.tool{width:100%;background:transparent;border:0;color:#bbb;border-radius:8px;padding:8px 3px;margin-bottom:4px;font-size:10px}.tool b{display:block;font-size:21px}.tool:hover,.tool.active{background:#292d35;color:#fff}
+.stage{position:relative;background:#202329;overflow:hidden}.rulerx{height:22px;position:absolute;left:26px;right:0;top:0;background:#111319;border-bottom:1px solid #393d45}.rulery{width:26px;position:absolute;left:0;top:22px;bottom:0;background:#111319;border-right:1px solid #393d45}
+#c{position:absolute;left:26px;top:22px;width:calc(100% - 26px);height:calc(100% - 22px);touch-action:none;background:#25282e}.quick{position:absolute;top:31px;left:36px;display:flex;gap:4px;background:#0c0e12cc;border:1px solid var(--line);padding:4px;border-radius:8px}.quick button{background:#22262e;border:1px solid #373c46;color:#ddd;border-radius:6px;padding:5px 7px;font-size:10px}
+.mode{position:absolute;right:10px;top:31px;background:#0c0e12dd;border:1px solid var(--line);padding:5px 9px;border-radius:999px;color:#f3d88c;font-size:10px}
+#three{display:none;position:absolute;left:26px;top:22px;right:0;bottom:0}.is3d #three{display:block}.is3d #c{display:none}#tc{width:100%;height:100%;display:block}
+.right{grid-row:1/3;border-left:1px solid var(--line);background:#101217;padding:9px;overflow:auto}.tabs{display:flex;gap:4px;position:sticky;top:0;background:#101217;padding-bottom:6px;z-index:2}.tabs button{flex:1;background:#20242a;border:1px solid var(--line);color:#aaa;border-radius:7px;padding:6px;font-size:10px}.tabs button.active{color:#fff;background:#2a2518;border-color:#7d6831}.panel{background:#15181e;border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:8px}.panel h3{margin:0 0 7px;color:#efd48a;font-size:12px}.field{margin-bottom:6px}.field label{display:block;color:#a8abb2;font-size:10px;margin-bottom:3px}.field input,.field select,.field textarea{width:100%;background:#0e1014;border:1px solid var(--line);border-radius:6px;color:#fff;padding:6px;min-height:32px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:5px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.row{display:flex;gap:5px}.row>*{flex:1}.btn{background:#242830;border:1px solid #373b45;color:#fff;border-radius:6px;padding:6px}.btn.gold{background:var(--gold);color:#17120a;font-weight:800}.btn.red{background:#652929}.bottom{grid-column:2/3;background:#0f1115;border-top:1px solid var(--line);display:grid;grid-template-rows:32px 1fr}.btabs{display:flex;gap:3px;padding:3px 5px}.btabs button{border:0;background:transparent;color:#999;border-radius:5px;padding:4px 9px;font-size:10px}.btabs button.active{background:#252932;color:#fff}.bcontent{display:flex;gap:6px;padding:6px;overflow:auto}.card{width:112px;min-width:112px;border:1px solid #30343d;border-radius:8px;background:#181b21;padding:5px}.thumb{height:70px;background:linear-gradient(135deg,#2c3140,#181a1f);border-radius:5px;display:grid;place-items:center;color:#777;font-size:24px}.card small{display:block;margin-top:4px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dashboard{position:fixed;inset:54px 0 0;background:#0b0d11;z-index:30;padding:20px;overflow:auto}.dashhead{display:flex;align-items:center}.dashhead .a{margin-left:auto}.projects{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:15px}.proj{background:#15181e;border:1px solid #30343d;border-radius:10px;overflow:hidden}.cover{height:115px;background:linear-gradient(135deg,#202b3c,#2d1d20);display:grid;place-items:center;font-size:36px;color:#687080}.pbody{padding:9px}.pbody h3{margin:0 0 5px;font-size:13px}.meta{font-size:10px;color:#8c9099;line-height:1.5}.status{display:inline-block;background:#23362a;color:#a9dfb8;padding:2px 6px;border-radius:999px;font-size:9px;margin-top:5px}
+.modal{position:fixed;inset:0;background:#000b;display:none;place-items:center;z-index:50}.modal.show{display:grid}.dialog{width:min(520px,92vw);background:#16191f;border:1px solid #3a3e47;border-radius:12px;padding:13px}.hidden{display:none!important}.toast{position:fixed;right:15px;bottom:15px;background:#11151b;border:1px solid #3a3e47;padding:8px 10px;border-radius:8px;font-size:11px;opacity:0;transition:.2s;z-index:70}.toast.show{opacity:1}
+@media(max-width:900px){.app{grid-template-columns:60px 1fr}.right{position:fixed;right:0;top:54px;bottom:0;width:290px;z-index:20}.bottom{grid-column:2/3}}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.seg button{background:#20242b;border:1px solid #333842;color:#aaa;border-radius:6px;padding:6px;font-size:10px}.seg button.active{background:#263653;color:#fff;border-color:#5d8dff}.help{padding:6px;border:1px dashed #4c5565;border-radius:7px;color:#9da8ba;font-size:10px;line-height:1.45;margin:5px 0}
+.snapline{position:absolute;pointer-events:none;z-index:7;background:#5d8dffcc;display:none}.snapline.v{width:1px;top:22px;bottom:0}.snapline.h{height:1px;left:26px;right:0}
+.layerTools{display:flex;gap:4px;position:sticky;left:0;background:#0f1115;padding:3px 0;min-width:100%}.layerTools button{border:1px solid #343944;background:#232730;color:#ddd;border-radius:5px;padding:4px 7px;font-size:9px}
+.contentEditHint{font-size:9px;color:#8992a2;border:1px dashed #3c4657;padding:6px;border-radius:6px;margin-top:5px}
+.maskBadge{display:inline-block;background:#4b344d;color:#f1c7ef;border-radius:999px;padding:2px 5px;font-size:8px;margin-left:4px}
+
+
+.unitbar{position:absolute;right:12px;bottom:10px;z-index:9;display:flex;gap:5px;background:#0d1015dd;border:1px solid #30343d;padding:5px;border-radius:8px}.unitbar button{border:1px solid #373c46;background:#20242b;color:#aaa;border-radius:6px;padding:4px 7px;font-size:10px}.unitbar button.active{background:#2a3a58;color:#fff;border-color:#5d8dff}
+.guide{position:absolute;pointer-events:none;z-index:7;background:#5d8dff99}.guide.v{width:1px;top:22px;bottom:0}.guide.h{height:1px;left:26px;right:0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}.compareBox{border:1px solid #30343d;border-radius:8px;background:#0f1116;padding:6px}.compareBox canvas{width:100%;aspect-ratio:4/3;background:#22252a;border-radius:5px;display:block}.compareBox small{display:block;color:#aaa;margin-top:4px}
+.cropHint{font-size:9px;color:#838894;line-height:1.4;margin-top:4px}.alignGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.alignGrid button{background:#22262e;border:1px solid #343944;color:#ddd;border-radius:6px;padding:5px;font-size:9px}
+.pdfPage{position:fixed;left:-99999px;top:0;width:794px;background:#fff;color:#111;padding:36px;font-family:"Noto Sans TC",sans-serif}.pdfPage h1{font-size:26px;margin:0 0 8px}.pdfPage .gold{color:#9a741e}.pdfPage table{width:100%;border-collapse:collapse;margin-top:14px}.pdfPage td,.pdfPage th{border:1px solid #bbb;padding:7px;font-size:12px}.pdfPage img{max-width:100%;margin-top:12px}
+
+
+.sceneTabs{display:flex;gap:4px;align-items:center;overflow:auto}.sceneTabs button{border:1px solid #343944;background:#20242b;color:#aaa;border-radius:6px;padding:5px 8px;font-size:10px;white-space:nowrap}.sceneTabs button.active{background:#2a3a58;color:#fff;border-color:#5d8dff}
+.autosave{font-size:9px;color:#7eb990;margin-left:6px}
+.guideLine{position:absolute;z-index:8;pointer-events:auto;background:#5d8dff;opacity:.8}.guideLine.v{width:1px;top:22px;bottom:0;cursor:ew-resize}.guideLine.h{height:1px;left:26px;right:0;cursor:ns-resize}
+.maskCursor{position:absolute;width:30px;height:30px;border:1px solid #fff;border-radius:50%;pointer-events:none;z-index:12;display:none;transform:translate(-50%,-50%);box-shadow:0 0 0 1px #000}
+.bomTable{width:100%;border-collapse:collapse;font-size:10px}.bomTable td,.bomTable th{border:1px solid #343944;padding:5px;text-align:left}.bomTable th{color:#f0d894;background:#171b22}
+.groupBox{border:1px dashed #f0d89455;background:#f0d8940d;border-radius:7px;padding:6px;margin-top:6px}
+
+
+.health{border-radius:8px;padding:7px;margin-bottom:6px;font-size:10px;line-height:1.5}.health.ok{background:#173323;border:1px solid #2f6b46;color:#b7ecc8}.health.warn{background:#3a3016;border:1px solid #766323;color:#f2dc96}.health.bad{background:#3d1c1c;border:1px solid #7b3939;color:#f2b3b3}
+.metricGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.metric{background:#0d1015;border:1px solid #30343d;border-radius:7px;padding:6px}.metric b{display:block;color:#f1d68c;font-size:12px}.metric small{color:#8e939e;font-size:9px}
+.guideCtl{position:absolute;z-index:11;background:#5d8dff;opacity:.85}.guideCtl.v{width:2px;top:22px;bottom:0;cursor:ew-resize}.guideCtl.h{height:2px;left:26px;right:0;cursor:ns-resize}.guideCtl::after{content:"";position:absolute;background:#d9e4ff;border:1px solid #5d8dff}.guideCtl.v::after{width:8px;height:8px;left:-4px;top:2px;border-radius:50%}.guideCtl.h::after{width:8px;height:8px;left:2px;top:-4px;border-radius:50%}
+.checklist{margin:0;padding-left:16px;color:#aeb2bb;font-size:10px;line-height:1.6}
+
+
+.modeSwitch{display:grid;grid-template-columns:1fr 1fr;gap:4px}.modeSwitch button{border:1px solid #373c46;background:#20242b;color:#aaa;border-radius:6px;padding:6px;font-size:10px}.modeSwitch button.active{background:#614d1a;color:#fff0b3;border-color:#d6b45f}
+.mapLegend{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:9px;color:#9ca1ab}.mapLegend span{display:flex;align-items:center;gap:3px}.swatch{width:9px;height:9px;border-radius:2px;display:inline-block}
+.lockedBanner{padding:7px;border:1px solid #8a6a26;background:#3a2f15;color:#f4dfa0;border-radius:7px;font-size:10px;margin-bottom:7px}
+.engWarn{padding:6px;border-radius:6px;font-size:9px;margin-top:5px}.engWarn.ok{background:#173323;color:#b9eec8;border:1px solid #2f6b46}.engWarn.warn{background:#3a3016;color:#f0d98e;border:1px solid #776326}.engWarn.bad{background:#401d1d;color:#efb2b2;border:1px solid #7e3939}
+.mappingTable{width:100%;border-collapse:collapse;font-size:9px;margin-top:6px}.mappingTable td,.mappingTable th{border:1px solid #343944;padding:4px}.mappingTable th{color:#f0d894;background:#171b22}
+
+
+.aiPanel{background:linear-gradient(145deg,#111722,#151421);border:1px solid #38445d}.aiPanel h3{color:#b8cfff}.aiBadge{display:inline-block;padding:2px 6px;border-radius:999px;background:#223a63;color:#b9d0ff;font-size:9px;margin-left:4px}.aiResult{padding:7px;border:1px solid #34425a;border-radius:7px;background:#0d121b;color:#aebbd0;font-size:10px;line-height:1.55;max-height:180px;overflow:auto}.aiProgress{height:5px;background:#202733;border-radius:99px;overflow:hidden;margin-top:5px}.aiProgress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5d8dff,#6fe1ff);transition:.25s}
+.view3dbar{position:absolute;left:38px;top:65px;z-index:13;display:none;gap:5px;background:#0b0e13dd;border:1px solid #303843;padding:5px;border-radius:8px}.is3d .view3dbar{display:flex}.view3dbar button{border:1px solid #39404a;background:#222831;color:#ddd;border-radius:6px;padding:5px 7px;font-size:9px}
+.faceMap{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.faceMap>div{border:1px solid #303944;background:#0c1016;border-radius:7px;padding:5px;text-align:center}.faceMap canvas{width:100%;aspect-ratio:1/1;background:#121720;border-radius:4px;display:block}.faceMap small{font-size:9px;color:#aaa}
+.cadOptions{display:grid;grid-template-columns:1fr 1fr;gap:5px}.cadOptions label{font-size:9px;color:#aaa;display:flex;align-items:center;gap:4px}
+.aiOverlay{position:absolute;inset:22px 0 0 26px;pointer-events:none;z-index:10}.aiBox{position:absolute;border:2px solid #6fe1ff;background:#6fe1ff17;color:#dff8ff;font-size:9px;padding:2px}.aiBox.wall{border-color:#5d8dff}.aiBox.door{border-color:#e9b85d}.aiBox.window{border-color:#66d49a}.aiBox.column{border-color:#df6d9e}
+.repairPreview{width:100%;aspect-ratio:16/9;background:#1b1f26;border:1px solid #303944;border-radius:6px;object-fit:contain}
+.statusPill{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:99px;font-size:9px;background:#183321;color:#afe5bf}.statusPill.warn{background:#3a3016;color:#efd78e}
+
+
+/* === V3.1 千幕工作台與人性化操作強化版 === */
+.app{height:calc(100vh - 54px)!important;display:grid!important;grid-template-columns:68px 320px minmax(520px,1fr) 360px!important;grid-template-rows:1fr!important}
+.tools{grid-column:1/2!important;grid-row:1/2!important}
+.stage{grid-column:3/4!important;grid-row:1/2!important;position:relative;background:radial-gradient(circle at top,#313743 0%,#23272e 36%,#171a1f 100%)!important;overflow:hidden}
+.right{grid-column:4/5!important;grid-row:1/2!important;border-left:1px solid var(--line)!important;background:#101217!important;padding:10px!important;overflow:auto!important}
+.bottom{grid-column:2/3!important;grid-row:1/2!important;border-top:0!important;border-right:1px solid var(--line)!important;background:#0f1115!important;display:grid!important;grid-template-rows:auto auto 1fr!important;min-width:0!important}
+.quick{left:50%!important;transform:translateX(-50%)!important;top:12px!important;flex-wrap:wrap!important;max-width:min(860px,calc(100% - 80px))!important;justify-content:center!important;box-shadow:0 12px 24px #0006}
+.mode{right:16px!important;top:12px!important;box-shadow:0 10px 24px #0005}
+.rulerx,.rulery{background:#0d1015!important}
+#c{background:#25282e!important}
+.dockHead{padding:12px 12px 0;border-bottom:1px solid #262b33;background:linear-gradient(180deg,#11151b,#0f1115)}
+.dockTitle{font-size:14px;font-weight:900;color:#f0d894;margin-bottom:4px;letter-spacing:.5px}
+.dockSub{font-size:10px;line-height:1.5;color:#9ca3ae;margin-bottom:8px}
+.dockSearch{width:100%;background:#0d1015;border:1px solid #303743;color:#fff;border-radius:8px;padding:8px 10px;margin-bottom:10px}
+.btabs{display:flex!important;flex-wrap:wrap!important;gap:6px!important;padding:9px 10px!important;border-bottom:1px solid #262b33!important;background:#0f1115}
+.btabs button{flex:0 0 auto!important;border:1px solid #343944!important;background:#171b22!important;color:#a8afbb!important;border-radius:999px!important;padding:6px 10px!important;font-size:10px!important}
+.btabs button.active{background:#2b2417!important;color:#fff!important;border-color:#8e7537!important;box-shadow:inset 0 0 0 1px #b6923c44}
+.bcontent{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-content:start!important;gap:8px!important;padding:10px!important;overflow:auto!important}
+.card{width:auto!important;min-width:0!important;border:1px solid #30343d!important;border-radius:10px!important;background:linear-gradient(180deg,#181c22,#13161b)!important;padding:8px!important;cursor:pointer!important;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-1px)!important;border-color:#8e7537!important;box-shadow:0 10px 18px #0004}
+.thumb{height:84px!important;background:linear-gradient(135deg,#313846,#181b21)!important;border-radius:8px!important;display:grid!important;place-items:center!important;color:#d7dde8!important;font-size:28px!important;overflow:hidden}
+.card strong{display:block;margin-top:7px;font-size:12px;color:#fff;line-height:1.3}
+.card small{display:block;margin-top:4px;color:#9aa2ae!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.45!important}
+.dockSectionLabel{grid-column:1/-1;color:#f0d894;font-size:11px;font-weight:800;margin-top:2px;padding:3px 2px;border-bottom:1px dashed #3b414c}
+.stage::after{content:"編輯工作區";position:absolute;left:40px;top:34px;color:#7f8794;font-size:11px;letter-spacing:1px;pointer-events:none;z-index:1}
+.stage.emptyTip::before{content:"請先上傳實景照片，或從左側模型庫新增 LED / LCD / 底座。";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:10px 14px;border-radius:999px;background:#0d1015cc;border:1px solid #343944;color:#d6dde7;font-size:12px;pointer-events:none;z-index:1}
+.tabs{position:sticky!important;top:0!important;background:#101217!important;padding-bottom:8px!important}
+.panel{box-shadow:0 6px 16px #0002}
+@media (max-width:1400px){.app{grid-template-columns:60px 290px minmax(420px,1fr) 330px!important}.bcontent{grid-template-columns:1fr!important}}
+@media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
+
+
+/* === V10.0 拖曳組裝與場景工作流強化 === */
+.dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
+body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
+body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
+.card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
+
+
+/* === V10.0 流暢度與播放核心修正版 === */
+.playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
+.playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
+.playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
+.wheelHelp{margin-top:6px;color:#778291;font-size:9px;line-height:1.5}
+.stage{will-change:auto;contain:layout paint}
+#c{image-rendering:auto}
+.quick button{user-select:none}
+.stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
+
+
+/* === V10.0 影音播放與工作區輸出強化版 === */
+.audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
+.audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
+.audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
+.sceneSizeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.recState{margin-top:6px;padding:6px 8px;border-radius:7px;border:1px solid #303944;background:#0d1117;color:#9ba4b1;font-size:9px}
+.recState.recording{border-color:#7c3b3b;background:#331919;color:#f4bcbc;animation:pulseRec 1.3s infinite}
+@keyframes pulseRec{50%{opacity:.72}}
+.levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
+
+
+/* === V10.0 操作核心與影音輸出修正版 === */
+.selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
+.selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
+.selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
+.topActionMenu{position:fixed;z-index:500;top:48px;min-width:190px;padding:6px;background:#11151beF;border:1px solid #3b424d;border-radius:9px;box-shadow:0 16px 38px #0009}
+.topActionMenu button{display:block;width:100%;text-align:left;border:0;background:transparent;color:#e5e8ee;padding:8px 10px;border-radius:6px}
+.topActionMenu button:hover{background:#272d36}
+
+.top{overflow-x:auto;overflow-y:hidden;white-space:nowrap}
+.top::-webkit-scrollbar{height:3px}
+.stage .quick{display:none!important}
+
+
+/* === V10.0 穩定核心與播放引擎重構版 === */
+.runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
+.runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
+.runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
+.performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
+
+
+/* === V10.0 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+#propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+#propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
+#propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
+.naked3DGlow{filter:drop-shadow(0 0 12px rgba(90,150,255,.45))}
+.stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
+
+
+/* === V10.0 模型建立修復＋工作台整合版 === */
+.dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
+.dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
+.dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
+.dockMiniLabel{font-size:9px;color:#8f98a6;margin:7px 0 4px}
+.dockGrid2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.dockGrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+.dockWorkspace button{border:1px solid #363d48;background:#1d222a;color:#e7eaf0;border-radius:7px;padding:7px 6px;font-size:10px;cursor:pointer}
+.dockWorkspace button:hover{border-color:#91783b;background:#28251d}
+.dockWorkspace button:active{transform:translateY(1px)}
+.dockWorkspace .dockPrimary{background:#69541f;border-color:#b08d38;color:#fff3c7;font-weight:800}
+.dockWide{width:100%;margin-bottom:5px}
+.dockInfoGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.dockInfoGrid>div{background:#12161c;border:1px solid #2f3540;border-radius:7px;padding:6px}
+.dockInfoGrid span{display:block;color:#828b98;font-size:8px}.dockInfoGrid strong{display:block;color:#e7ebf2;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dockUnit{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+.dockUnit button.active{background:#263653!important;border-color:#5d8dff!important;color:#fff!important}
+.dockCheck{display:flex;align-items:center;gap:6px;color:#aab1bc;font-size:9px;padding:4px 0}
+.dockInfoText{font-size:9px;color:#8993a1;margin-top:5px;line-height:1.4}
+#tab-prop>.panel:first-child{margin-top:0}
+
+
+/* === V10.0 實景 LED 建模核心修復版 === */
+.dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
+.dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
+.dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
+
+
+/* === V10.0 功能健檢與穩定性修正版 === */
+.auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
+.btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
+
+
+body{font-family:Arial,"Noto Sans TC",sans-serif;padding:28px;color:#111}h1{margin-bottom:4px}.gold{color:#9a741e;font-weight:bold}img{max-width:100%;margin:12px 0}table{width:100%;border-collapse:collapse}td,th{border:1px solid #aaa;padding:6px;font-size:11px}
+.health{border-radius:8px;padding:7px;margin-bottom:6px;font-size:10px;line-height:1.5}.health.ok{background:#173323;border:1px solid #2f6b46;color:#b7ecc8}.health.warn{background:#3a3016;border:1px solid #766323;color:#f2dc96}.health.bad{background:#3d1c1c;border:1px solid #7b3939;color:#f2b3b3}
+.metricGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.metric{background:#0d1015;border:1px solid #30343d;border-radius:7px;padding:6px}.metric b{display:block;color:#f1d68c;font-size:12px}.metric small{color:#8e939e;font-size:9px}
+.guideCtl{position:absolute;z-index:11;background:#5d8dff;opacity:.85}.guideCtl.v{width:2px;top:22px;bottom:0;cursor:ew-resize}.guideCtl.h{height:2px;left:26px;right:0;cursor:ns-resize}.guideCtl::after{content:"";position:absolute;background:#d9e4ff;border:1px solid #5d8dff}.guideCtl.v::after{width:8px;height:8px;left:-4px;top:2px;border-radius:50%}.guideCtl.h::after{width:8px;height:8px;left:2px;top:-4px;border-radius:50%}
+.checklist{margin:0;padding-left:16px;color:#aeb2bb;font-size:10px;line-height:1.6}
+
+
+.modeSwitch{display:grid;grid-template-columns:1fr 1fr;gap:4px}.modeSwitch button{border:1px solid #373c46;background:#20242b;color:#aaa;border-radius:6px;padding:6px;font-size:10px}.modeSwitch button.active{background:#614d1a;color:#fff0b3;border-color:#d6b45f}
+.mapLegend{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;font-size:9px;color:#9ca1ab}.mapLegend span{display:flex;align-items:center;gap:3px}.swatch{width:9px;height:9px;border-radius:2px;display:inline-block}
+.lockedBanner{padding:7px;border:1px solid #8a6a26;background:#3a2f15;color:#f4dfa0;border-radius:7px;font-size:10px;margin-bottom:7px}
+.engWarn{padding:6px;border-radius:6px;font-size:9px;margin-top:5px}.engWarn.ok{background:#173323;color:#b9eec8;border:1px solid #2f6b46}.engWarn.warn{background:#3a3016;color:#f0d98e;border:1px solid #776326}.engWarn.bad{background:#401d1d;color:#efb2b2;border:1px solid #7e3939}
+.mappingTable{width:100%;border-collapse:collapse;font-size:9px;margin-top:6px}.mappingTable td,.mappingTable th{border:1px solid #343944;padding:4px}.mappingTable th{color:#f0d894;background:#171b22}
+
+
+.aiPanel{background:linear-gradient(145deg,#111722,#151421);border:1px solid #38445d}.aiPanel h3{color:#b8cfff}.aiBadge{display:inline-block;padding:2px 6px;border-radius:999px;background:#223a63;color:#b9d0ff;font-size:9px;margin-left:4px}.aiResult{padding:7px;border:1px solid #34425a;border-radius:7px;background:#0d121b;color:#aebbd0;font-size:10px;line-height:1.55;max-height:180px;overflow:auto}.aiProgress{height:5px;background:#202733;border-radius:99px;overflow:hidden;margin-top:5px}.aiProgress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5d8dff,#6fe1ff);transition:.25s}
+.view3dbar{position:absolute;left:38px;top:65px;z-index:13;display:none;gap:5px;background:#0b0e13dd;border:1px solid #303843;padding:5px;border-radius:8px}.is3d .view3dbar{display:flex}.view3dbar button{border:1px solid #39404a;background:#222831;color:#ddd;border-radius:6px;padding:5px 7px;font-size:9px}
+.faceMap{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.faceMap>div{border:1px solid #303944;background:#0c1016;border-radius:7px;padding:5px;text-align:center}.faceMap canvas{width:100%;aspect-ratio:1/1;background:#121720;border-radius:4px;display:block}.faceMap small{font-size:9px;color:#aaa}
+.cadOptions{display:grid;grid-template-columns:1fr 1fr;gap:5px}.cadOptions label{font-size:9px;color:#aaa;display:flex;align-items:center;gap:4px}
+.aiOverlay{position:absolute;inset:22px 0 0 26px;pointer-events:none;z-index:10}.aiBox{position:absolute;border:2px solid #6fe1ff;background:#6fe1ff17;color:#dff8ff;font-size:9px;padding:2px}.aiBox.wall{border-color:#5d8dff}.aiBox.door{border-color:#e9b85d}.aiBox.window{border-color:#66d49a}.aiBox.column{border-color:#df6d9e}
+.repairPreview{width:100%;aspect-ratio:16/9;background:#1b1f26;border:1px solid #303944;border-radius:6px;object-fit:contain}
+.statusPill{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border-radius:99px;font-size:9px;background:#183321;color:#afe5bf}.statusPill.warn{background:#3a3016;color:#efd78e}
+
+
+/* === V3.1 千幕工作台與人性化操作強化版 === */
+.app{height:calc(100vh - 54px)!important;display:grid!important;grid-template-columns:68px 320px minmax(520px,1fr) 360px!important;grid-template-rows:1fr!important}
+.tools{grid-column:1/2!important;grid-row:1/2!important}
+.stage{grid-column:3/4!important;grid-row:1/2!important;position:relative;background:radial-gradient(circle at top,#313743 0%,#23272e 36%,#171a1f 100%)!important;overflow:hidden}
+.right{grid-column:4/5!important;grid-row:1/2!important;border-left:1px solid var(--line)!important;background:#101217!important;padding:10px!important;overflow:auto!important}
+.bottom{grid-column:2/3!important;grid-row:1/2!important;border-top:0!important;border-right:1px solid var(--line)!important;background:#0f1115!important;display:grid!important;grid-template-rows:auto auto 1fr!important;min-width:0!important}
+.quick{left:50%!important;transform:translateX(-50%)!important;top:12px!important;flex-wrap:wrap!important;max-width:min(860px,calc(100% - 80px))!important;justify-content:center!important;box-shadow:0 12px 24px #0006}
+.mode{right:16px!important;top:12px!important;box-shadow:0 10px 24px #0005}
+.rulerx,.rulery{background:#0d1015!important}
+#c{background:#25282e!important}
+.dockHead{padding:12px 12px 0;border-bottom:1px solid #262b33;background:linear-gradient(180deg,#11151b,#0f1115)}
+.dockTitle{font-size:14px;font-weight:900;color:#f0d894;margin-bottom:4px;letter-spacing:.5px}
+.dockSub{font-size:10px;line-height:1.5;color:#9ca3ae;margin-bottom:8px}
+.dockSearch{width:100%;background:#0d1015;border:1px solid #303743;color:#fff;border-radius:8px;padding:8px 10px;margin-bottom:10px}
+.btabs{display:flex!important;flex-wrap:wrap!important;gap:6px!important;padding:9px 10px!important;border-bottom:1px solid #262b33!important;background:#0f1115}
+.btabs button{flex:0 0 auto!important;border:1px solid #343944!important;background:#171b22!important;color:#a8afbb!important;border-radius:999px!important;padding:6px 10px!important;font-size:10px!important}
+.btabs button.active{background:#2b2417!important;color:#fff!important;border-color:#8e7537!important;box-shadow:inset 0 0 0 1px #b6923c44}
+.bcontent{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-content:start!important;gap:8px!important;padding:10px!important;overflow:auto!important}
+.card{width:auto!important;min-width:0!important;border:1px solid #30343d!important;border-radius:10px!important;background:linear-gradient(180deg,#181c22,#13161b)!important;padding:8px!important;cursor:pointer!important;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-1px)!important;border-color:#8e7537!important;box-shadow:0 10px 18px #0004}
+.thumb{height:84px!important;background:linear-gradient(135deg,#313846,#181b21)!important;border-radius:8px!important;display:grid!important;place-items:center!important;color:#d7dde8!important;font-size:28px!important;overflow:hidden}
+.card strong{display:block;margin-top:7px;font-size:12px;color:#fff;line-height:1.3}
+.card small{display:block;margin-top:4px;color:#9aa2ae!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.45!important}
+.dockSectionLabel{grid-column:1/-1;color:#f0d894;font-size:11px;font-weight:800;margin-top:2px;padding:3px 2px;border-bottom:1px dashed #3b414c}
+.stage::after{content:"編輯工作區";position:absolute;left:40px;top:34px;color:#7f8794;font-size:11px;letter-spacing:1px;pointer-events:none;z-index:1}
+.stage.emptyTip::before{content:"請先上傳實景照片，或從左側模型庫新增 LED / LCD / 底座。";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:10px 14px;border-radius:999px;background:#0d1015cc;border:1px solid #343944;color:#d6dde7;font-size:12px;pointer-events:none;z-index:1}
+.tabs{position:sticky!important;top:0!important;background:#101217!important;padding-bottom:8px!important}
+.panel{box-shadow:0 6px 16px #0002}
+@media (max-width:1400px){.app{grid-template-columns:60px 290px minmax(420px,1fr) 330px!important}.bcontent{grid-template-columns:1fr!important}}
+@media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
+
+
+/* === V10.0 拖曳組裝與場景工作流強化 === */
+.dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
+body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
+body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
+.card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
+
+
+/* === V10.0 流暢度與播放核心修正版 === */
+.playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
+.playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
+.playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
+.wheelHelp{margin-top:6px;color:#778291;font-size:9px;line-height:1.5}
+.stage{will-change:auto;contain:layout paint}
+#c{image-rendering:auto}
+.quick button{user-select:none}
+.stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
+
+
+/* === V10.0 影音播放與工作區輸出強化版 === */
+.audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
+.audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
+.audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
+.sceneSizeGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.recState{margin-top:6px;padding:6px 8px;border-radius:7px;border:1px solid #303944;background:#0d1117;color:#9ba4b1;font-size:9px}
+.recState.recording{border-color:#7c3b3b;background:#331919;color:#f4bcbc;animation:pulseRec 1.3s infinite}
+@keyframes pulseRec{50%{opacity:.72}}
+.levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
+
+
+/* === V10.0 操作核心與影音輸出修正版 === */
+.selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
+.selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
+.selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
+.topActionMenu{position:fixed;z-index:500;top:48px;min-width:190px;padding:6px;background:#11151beF;border:1px solid #3b424d;border-radius:9px;box-shadow:0 16px 38px #0009}
+.topActionMenu button{display:block;width:100%;text-align:left;border:0;background:transparent;color:#e5e8ee;padding:8px 10px;border-radius:6px}
+.topActionMenu button:hover{background:#272d36}
+
+.top{overflow-x:auto;overflow-y:hidden;white-space:nowrap}
+.top::-webkit-scrollbar{height:3px}
+.stage .quick{display:none!important}
+
+
+/* === V10.0 穩定核心與播放引擎重構版 === */
+.runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
+.runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
+.runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
+.performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
+
+
+/* === V10.0 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+#propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+#propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
+#propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
+.naked3DGlow{filter:drop-shadow(0 0 12px rgba(90,150,255,.45))}
+.stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
+
+
+/* === V10.0 模型建立修復＋工作台整合版 === */
+.dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
+.dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
+.dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
+.dockMiniLabel{font-size:9px;color:#8f98a6;margin:7px 0 4px}
+.dockGrid2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.dockGrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+.dockWorkspace button{border:1px solid #363d48;background:#1d222a;color:#e7eaf0;border-radius:7px;padding:7px 6px;font-size:10px;cursor:pointer}
+.dockWorkspace button:hover{border-color:#91783b;background:#28251d}
+.dockWorkspace button:active{transform:translateY(1px)}
+.dockWorkspace .dockPrimary{background:#69541f;border-color:#b08d38;color:#fff3c7;font-weight:800}
+.dockWide{width:100%;margin-bottom:5px}
+.dockInfoGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.dockInfoGrid>div{background:#12161c;border:1px solid #2f3540;border-radius:7px;padding:6px}
+.dockInfoGrid span{display:block;color:#828b98;font-size:8px}.dockInfoGrid strong{display:block;color:#e7ebf2;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dockUnit{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:5px}
+.dockUnit button.active{background:#263653!important;border-color:#5d8dff!important;color:#fff!important}
+.dockCheck{display:flex;align-items:center;gap:6px;color:#aab1bc;font-size:9px;padding:4px 0}
+.dockInfoText{font-size:9px;color:#8993a1;margin-top:5px;line-height:1.4}
+#tab-prop>.panel:first-child{margin-top:0}
+
+
+/* === V10.0 實景 LED 建模核心修復版 === */
+.dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
+.dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
+.dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
+
+
+/* === V10.0 功能健檢與穩定性修正版 === */
+.auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
+.btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
+
