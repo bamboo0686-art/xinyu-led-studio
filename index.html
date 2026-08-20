@@ -1,331 +1,337 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Xinyu LED Studio V20.8.1</title><meta name="theme-color" content="#0a0b0e"><link rel="manifest" href="./manifest.json"><link rel="icon" href="./icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="./styles.css"></head><body>
-<header class="top"><div class="brand">Xinyu LED Studio<small>心禹國際 LED 智慧視覺編輯器 V20.8.1｜Professional Engineering & 3D Edition｜開發單位：心禹國際開發科技有限公司</small></div><button id="home">專案</button><button id="editMenu">編輯</button><button id="viewMenu">檢視</button><button id="goExport">匯出</button><button id="settingsMenu">設定</button><button id="undo">復原</button><button id="redo">重做</button><button id="snapToggle">吸附：開</button><button id="gridToggle">格線：開</button><button id="toggle3d">3D Preview</button><span id="runtimeState" class="runtimeState">核心：正常</span><span id="autosaveState" class="autosave">自動儲存：待命</span><button id="proposalMode" class="active">提案模式</button><button id="constructionMode">施工模式</button><button id="uiOverview">完整介面：100%</button><button id="save" class="save">儲存專案</button></header>
-<div class="app"><aside class="tools"><div class="toolRailName"><b>心禹工具軌</b><small>Xinyu Tool Rail</small></div>
-<button class="tool active" data-tool="select"><b>➤</b>選取</button><button class="tool" data-tool="pan"><b>✋</b>平移</button><button class="tool" data-tool="rect"><b>▭</b>LED</button><button class="tool" data-tool="poly"><b>⬡</b>異形</button><button class="tool" data-tool="curve"><b>◠</b>曲面</button><button class="tool" data-tool="l"><b>⌞</b>L型</button><button class="tool" data-tool="u"><b>ㄇ</b>ㄇ型</button><button class="tool" data-tool="lcd"><b>▦</b>LCD</button><button class="tool" data-tool="text"><b>T</b>文字</button><button class="tool" data-tool="dim"><b>↔</b>尺寸</button><button class="tool" data-tool="mask"><b>◩</b>遮罩</button><button class="tool" data-tool="ai"><b>AI</b>智慧</button></aside>
-<main id="stage" class="stage"><div class="rulerx"></div><div class="rulery"></div><canvas id="c"></canvas><div id="three"><canvas id="tc"></canvas></div>
-<div id="aiOverlay" class="aiOverlay"></div>
-<div class="view3dbar">
-<button id="viewFront">正面</button><button id="viewLeft">左側</button><button id="viewRight">右側</button><button id="viewTop">俯視</button><button id="viewFree">自由</button><button id="toggle3DGrid">3D格線</button><button id="toggle3DStructure">結構</button>
-</div><div id="snapV" class="snapline v"></div><div id="snapH" class="snapline h"></div><div id="mode" class="mode">2D 實景編輯</div><div id="sceneTabs" class="sceneTabs" style="position:absolute;left:36px;bottom:10px;z-index:9;background:#0d1015dd;border:1px solid #30343d;padding:4px;border-radius:8px"></div><div id="maskCursor" class="maskCursor"></div><div id="stageFitBadge" class="stageFitBadge">場景：尚未載入</div><div id="assemblyTag" class="assemblyTag">已自動吸附組裝</div><div id="guideV" class="guide v hidden"></div><div id="guideH" class="guide h hidden"></div></main>
-<aside class="right"><div class="tabs"><button id="collapseInspector" class="inspectorCollapse" title="收合屬性面板">▶</button><button class="active" data-tab="prop">屬性</button><button data-tab="project">專案</button><button data-tab="out">輸出</button></div>
-<div id="tab-prop" data-role-tags="manager,designer,engineer">
-<section class="panel"><h3>物件屬性</h3><div id="none" class="meta">請選取LED／LCD／文字／遮罩物件</div><div id="pf" class="hidden">
-<div class="field"><label>名稱</label><input id="pn"></div><div class="g2"><div class="field"><label>寬度 mm</label><input id="pw" type="number"></div><div class="field"><label>高度 mm</label><input id="ph" type="number"></div></div><div class="g2"><div class="field"><label>深度 mm</label><input id="pd" type="number"></div><div class="field"><label>面積 ㎡</label><input id="pa" disabled></div></div>
-<div class="g2"><div class="field"><label>模型角度 °</label><input id="modelRotate" type="number" min="-360" max="360" value="0"></div><div class="field"><label>畫布尺寸 px</label><input id="modelCanvasSize" disabled value="-"></div></div>
-<div class="field"><label>模型角度 <span id="modelRotateVal">0°</span></label><input id="modelRotateSlider" type="range" min="-180" max="180" value="0"></div>
-<div class="help">工作區直接操作：選取設備後，右下藍色控制點可縮放，頂部圓形控制點可旋轉；Delete 可刪除。</div><div class="g2"><button id="resetTransform" class="btn">重設位置／角度</button><button id="restoreDeleted" class="btn">還原最後刪除</button></div>
-
-<div class="g2"><div class="field"><label>Pixel Pitch</label><select id="pp"><option>P0.9</option><option>P1.25</option><option>P1.5</option><option>P1.86</option><option>P2</option><option>P2.5</option><option selected>P2.604</option><option>P2.64</option><option>P3</option><option>P3.91</option><option>P4</option><option>P5</option><option>P6</option><option>P8</option><option>P10</option></select></div><div class="field"><label>環境</label><select id="pe"><option>室內</option><option>半戶外</option><option selected>戶外</option></select></div></div>
-<div class="field"><label>安裝方式</label><select id="pm"><option>壁掛</option><option>落地</option><option>吊掛</option><option>鋼構</option><option>柱式</option><option>活動式</option><option>自訂</option></select></div><div class="panel"><h3>幾何／透視編輯</h3><div class="seg"><button id="geomNormal" class="active">一般</button><button id="geomPerspective">四點透視</button><button id="geomAnchor">錨點</button></div><div class="help">四點透視：拖曳四個角點貼合牆面。錨點：拖曳節點；雙擊邊線新增節點；Alt＋點擊節點刪除。</div><div class="field"><label>曲面彎曲強度 <span id="curveVal">0%</span></label><input id="curvePower" type="range" min="0" max="100" value="0"></div></div>
-<div class="field"><label>亮度 <span id="bv">100%</span></label><input id="bright" type="range" min="20" max="250" value="100"></div><div class="field"><label>透明度 <span id="ov">100%</span></label><input id="opacity" type="range" min="5" max="100" value="100"></div>
-<div class="g2"><div class="field"><label>離地高度 mm</label><input id="ground" type="number"></div><div class="field"><label>底座高度 mm</label><input id="base" type="number"></div></div>
-<div class="panel" style="margin-top:7px"><h3>模型管理</h3>
-<div class="g2"><button id="dup" class="btn">複製選取模型</button><button id="del" class="btn red">刪除選取模型</button></div>
-<div class="g2" style="margin-top:5px"><button id="addSameModel" class="btn">＋ 新增同型模型</button><button id="centerSelected" class="btn">置中選取模型</button></div>
-<div class="meta" style="margin-top:5px">同一場景可同時放置多個 LED／LCD／底座；每個模型可獨立尺寸、Pitch、內容與播放狀態。</div>
-</div>
-<div class="panel" style="margin-top:7px"><h3>群組整體操作</h3>
-<div class="groupBox"><div class="g3"><button id="groupMove" class="btn">群組移動</button><button id="groupScaleUp" class="btn">放大10%</button><button id="groupScaleDown" class="btn">縮小10%</button></div><div class="g2" style="margin-top:5px"><button id="groupRotateL" class="btn">左轉5°</button><button id="groupRotateR" class="btn">右轉5°</button></div></div></div><div class="panel" style="margin-top:7px"><h3>工程對齊／分布</h3>
-<div class="alignGrid"><button id="alLeft">靠左</button><button id="alCenter">水平置中</button><button id="alRight">靠右</button><button id="alTop">靠上</button><button id="alMiddle">垂直置中</button><button id="alBottom">靠下</button><button id="distH">水平等距</button><button id="distV">垂直等距</button><button id="autoDim">自動尺寸</button></div></div></div></section>
-<section class="panel"><h3>顯示內容</h3><div class="field"><input id="content" type="file" accept="image/*,video/*"></div><div class="field"><label>填充模式</label><select id="fit"><option>填滿</option><option>適應</option><option>拉伸</option><option>置中</option><option>平鋪</option><option>裁切</option><option>保持比例</option></select></div>
-<div class="panel"><h3>內容裁切框</h3><div class="g2"><div class="field"><label>裁切X%</label><input id="cropX" type="number" min="0" max="99" value="0"></div><div class="field"><label>裁切Y%</label><input id="cropY" type="number" min="0" max="99" value="0"></div></div><div class="g2"><div class="field"><label>裁切寬%</label><input id="cropW" type="number" min="1" max="100" value="100"></div><div class="field"><label>裁切高%</label><input id="cropH" type="number" min="1" max="100" value="100"></div></div><button id="resetCrop" class="btn" style="width:100%">重設裁切</button><div class="cropHint">裁切框會直接影響LED內的圖片／影片顯示，不改變原始素材。</div></div><div class="g2"><div class="field"><label>內容縮放%</label><input id="contentScale" type="number" min="10" max="500" value="100"></div><div class="field"><label>內容旋轉°</label><input id="contentRotate" type="number" min="-360" max="360" value="0"></div></div>
-<div class="g2"><div class="field"><label>影片／圖片寬度%</label><input id="contentWidth" type="number" min="10" max="500" value="100"></div><div class="field"><label>影片／圖片高度%</label><input id="contentHeight" type="number" min="10" max="500" value="100"></div></div>
-<div class="g2"><div class="field"><label>內容X%</label><input id="contentX" type="number" min="-100" max="100" value="0"></div><div class="field"><label>內容Y%</label><input id="contentY" type="number" min="-100" max="100" value="0"></div></div><div class="row"><button id="contentEdit" class="btn">滑鼠編輯內容</button><button id="contentReset" class="btn">重設內容</button></div><div class="contentEditHint">內容編輯：在LED內拖曳可移動素材；滑鼠滾輪縮放；Shift＋滾輪旋轉。按Esc離開。</div><div class="row"><button id="play" class="btn green">▶ 播放</button><button id="pause" class="btn">⏸ 暫停</button><button id="removeMedia" class="btn red">刪除影片／圖片</button><button id="resetMediaTransform" class="btn">重設素材位置</button></div>
-<div id="playStatus" class="playStatus">尚未載入可播放影片</div>
-<div class="timelinePanel">
- <div class="timelineHead"><strong>影片 Timeline 時間軸</strong><span id="timelineClock">00:00.000 / 00:00.000</span></div>
- <input id="videoTimeline" type="range" min="0" max="1000" value="0" step="1">
- <div class="timelineActions"><button id="seekBack5">－5秒</button><button id="timelinePlay">播放／暫停</button><button id="seekForward5">＋5秒</button><input id="timelineTime" type="number" min="0" step="0.01" value="0"><button id="seekExact">跳至秒數</button></div>
-</div>
-<section class="panel" style="margin-top:7px"><h3>裸眼 3D 播放預覽</h3>
-<div class="field"><label><input id="naked3DEnabled" type="checkbox"> 啟用裸眼3D視差／破框預覽</label></div>
-<div class="field"><label>3D 深度強度 <span id="naked3DDepthVal">35%</span></label><input id="naked3DDepth" type="range" min="0" max="100" value="35"></div>
-<div class="field"><label>播放動態</label><select id="naked3DMotion"><option value="parallax">視差推拉</option><option value="float">懸浮破框</option><option value="depth">景深呼吸</option></select></div>
-<div class="meta">此功能為編輯器「裸眼3D效果預覽」，以視差、縮放及破框模擬檢視內容動態；正式裸眼3D成片仍需依實際L/ㄇ字型屏幕觀看點製作。</div>
-</section>
-<section class="panel audioPanel" style="margin-top:7px"><h3>音效／背景音樂</h3>
-<div class="field"><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg"></div>
-<div class="g2"><button id="audioPlay" class="btn green">▶ 播放音效</button><button id="audioPause" class="btn">⏸ 暫停</button></div>
-<div class="field" style="margin-top:6px"><label>音量 <span id="audioVolVal">80%</span></label><input id="audioVolume" type="range" min="0" max="100" value="80"></div>
-<div class="g2"><label class="field"><span>循環播放</span><input id="audioLoop" type="checkbox" checked></label><label class="field"><span>靜音</span><input id="audioMute" type="checkbox"></label></div>
-<label class="field"><span>播放 LED 影片原音</span><input id="videoAudioEnabled" type="checkbox" checked></label>
-<div id="audioState" class="audioState">尚未載入音效</div><div class="levelMeter"><i id="audioMeter"></i></div>
-</section><div class="wheelHelp">滑鼠滾輪：縮放場景｜Shift＋滾輪：水平移動｜Alt＋滾輪：調整選取內容縮放｜中鍵拖曳：平移畫布</div></section>
-<section class="panel"><h3>工程自動計算 V3.0</h3>
-<div class="g2"><div class="field"><label>模組寬 mm</label><input id="moduleW" type="number" min="50" max="1000" value="320"></div><div class="field"><label>模組高 mm</label><input id="moduleH" type="number" min="50" max="1000" value="160"></div></div>
-<div class="g2"><div class="field"><label>箱體寬 mm</label><input id="cabinetW" type="number" min="100" max="3000" value="640"></div><div class="field"><label>箱體高 mm</label><input id="cabinetH" type="number" min="100" max="3000" value="480"></div></div>
-<div class="g2"><div class="field"><label>單電源負載 W</label><input id="psuW" type="number" min="50" max="5000" value="300"></div><div class="field"><label>備品比例 %</label><input id="spareRate" type="number" min="0" max="100" value="10"></div></div>
-<div class="g2"><div class="field"><label>最大功耗 W/㎡</label><input id="maxPowerDensity" type="number" min="50" max="2000" value="800"></div><div class="field"><label>平均功耗%</label><input id="avgPowerRate" type="number" min="10" max="100" value="40"></div></div>
-<div class="g2"><div class="field"><label>單回路安全功率 W</label><input id="circuitW" type="number" min="500" max="20000" value="3000"></div><div class="field"><label>單網口像素上限</label><input id="pixelsPerPort" type="number" min="10000" max="5000000" value="650000"></div></div>
-<div class="g2"><div class="field"><label>供電方式</label><select id="phaseMode"><option value="single">單相</option><option value="three">三相</option></select></div><div class="field"><label>系統電壓 V</label><input id="systemVoltage" type="number" min="100" max="500" value="220"></div></div>
-<div class="g2">
- <div class="field"><label>功率因數 PF</label><input id="powerFactor" type="number" min="0.5" max="1" step="0.01" value="0.90"></div>
- <div class="field"><label>單接收卡像素容量</label><input id="receiverPixelCapacity" type="number" min="10000" max="4000000" step="1000" value="262144"></div>
-</div>
-<div class="g2"><div class="field"><label>功率安全係數</label><input id="powerSafety" type="number" min="1" max="2" step="0.05" value="1.20"></div><div class="field"><label>電流安全係數</label><input id="currentSafety" type="number" min="1" max="2" step="0.05" value="1.25"></div></div>
-<div id="engCalc" class="meta">選取LED後顯示完整工程估算。</div>
-<div class="g2" style="margin-top:6px"><button id="toggleModuleGrid" class="btn">模組分割線</button><button id="toggleCabinetGrid" class="btn">箱體分割線</button></div>
-<div class="g2" style="margin-top:5px"><button id="togglePortMap" class="btn">網口 Mapping</button><button id="togglePowerMap" class="btn">配電分區</button></div>
-<div class="mapLegend"><span><i class="swatch" style="background:#5d8dff"></i>模組</span><span><i class="swatch" style="background:#d6b45f"></i>箱體</span><span><i class="swatch" style="background:#4ecb7a"></i>網口</span><span><i class="swatch" style="background:#e36b6b"></i>配電</span></div></section>
-<section class="panel"><h3>視覺效果</h3><div class="field"><label>對比</label><input id="contrast" type="range" min="50" max="180" value="100"></div><div class="field"><label>飽和度</label><input id="sat" type="range" min="0" max="200" value="100"></div><div class="field"><label>Gamma（即時預覽）</label><input id="gamma" type="range" min="50" max="180" value="100"></div><div class="field"><label>發光</label><input id="glow" type="range" min="0" max="100" value="30"></div></section>
-<section class="panel"><h3>遮罩筆刷</h3>
-<div class="g2"><div class="field"><label>筆刷大小 px</label><input id="maskBrushSize" type="number" min="5" max="200" value="30"></div><div class="field"><label>模式</label><select id="maskBrushMode"><option value="paint">塗抹遮罩</option><option value="erase">橡皮擦</option></select></div></div>
-<button id="newMaskLayer" class="btn" style="width:100%">新增遮罩圖層</button></section>
-<section class="panel aiPanel"><h3>AI 視覺工作區 <span class="aiBadge">V3.0</span></h3>
-<div class="g2"><button id="aiAnalyze" class="btn">AI場景辨識</button><button id="aiPerspective" class="btn">AI透視貼合</button></div>
-<div class="g2" style="margin-top:5px"><button id="aiMask" class="btn">AI遮罩</button><button id="aiRepair" class="btn">AI修補</button></div>
-<div class="field" style="margin-top:6px"><label>AI模式</label><select id="aiMode"><option value="local">本機輔助分析</option><option value="remote">外部AI模型服務</option></select></div>
-<div class="field"><label>AI模型服務URL（選填）</label><input id="aiEndpoint" placeholder="https://your-ai-endpoint/..."></div>
-<div class="field"><label>自然語言指令</label><textarea id="aiPrompt" rows="3" placeholder="例如：在正中央牆面放置一面 4m × 2m P2.604 LED"></textarea></div>
-<button id="aiCommand" class="btn gold" style="width:100%">執行 AI 指令</button>
-<div class="aiProgress"><i id="aiProgressBar"></i></div>
-<div id="aiResult" class="aiResult" style="margin-top:6px">AI尚未分析場景。</div>
-</section></div>
-<div id="tab-project" class="hidden">
-<section class="panel rolePanel">
-  <h3>Role-Based Adaptive UI｜角色式智慧介面</h3>
-  <div class="field">
-    <label>目前角色</label>
-    <select id="roleMode">
-      <option value="manager">管理者</option>
-      <option value="sales">業務</option>
-      <option value="designer">設計</option>
-      <option value="engineer">工程</option>
-    </select>
-  </div>
-  <div class="g2">
-    <button id="applyRoleUI" class="btn gold">套用角色介面</button>
-    <button id="resetRoleUI" class="btn">顯示全部功能</button>
-  </div>
-  <div id="roleState" class="health ok">目前：管理者｜完整功能</div>
-</section>
-
-<section class="panel optimizerPanel">
-  <h3>AI Engineering Optimizer｜AI工程優化器</h3>
-  <div class="g2">
-    <div class="field"><label>用途</label>
-      <select id="optUsage">
-        <option value="outdoor_ad">戶外廣告</option>
-        <option value="indoor">室內展示</option>
-        <option value="stage">舞台活動</option>
-        <option value="temple">宮廟／活動</option>
-        <option value="wayfinding">資訊導引</option>
-      </select>
-    </div>
-    <div class="field"><label>環境</label>
-      <select id="optEnv"><option value="outdoor">戶外</option><option value="indoor">室內</option></select>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f14">
+  <title>Xinyu LED Studio V21.0</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon.svg">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="bootOverlay" class="boot-overlay">
+    <div class="boot-card">
+      <div class="brand-mark">心禹</div>
+      <h1>Xinyu LED Studio</h1>
+      <p>正在啟動專業視覺工作環境…</p>
+      <div class="boot-line"><i></i></div>
+      <small id="bootStatus">初始化核心</small>
     </div>
   </div>
-  <div class="g2">
-    <div class="field"><label>最短觀看距離 m</label><input id="optViewMin" type="number" min="0.5" max="100" step="0.1" value="3"></div>
-    <div class="field"><label>舒適觀看距離 m</label><input id="optViewComfort" type="number" min="1" max="200" step="0.1" value="6"></div>
-  </div>
-  <div class="g2">
-    <div class="field"><label>目標亮度 nits</label><input id="optBrightness" type="number" min="500" max="10000" step="100" value="5500"></div>
-    <div class="field"><label>預留係數</label><input id="optReserve" type="number" min="1" max="2" step="0.05" value="1.20"></div>
-  </div>
-  <div class="g2">
-    <button id="runEngineeringOptimizer" class="btn gold">AI分析目前設備</button>
-    <button id="applyEngineeringRecommendation" class="btn">套用建議到選取設備</button>
-  </div>
-  <div class="g2">
-    <button id="exportEngineeringOptimization" class="btn">匯出優化報告</button>
-    <button id="compareEngineeringPlan" class="btn">比較目前／建議方案</button>
-  </div>
-  <div id="optimizerState" class="health warn">尚未分析</div>
-  <div id="optimizerResult" class="optimizerResult"></div>
-</section>
 
-<section class="panel selfHealPanel">
-  <h3>AI Agent 自我修復與替代路徑</h3>
-  <div class="g2">
-    <label class="toggleLabel"><input id="agentSelfHeal" type="checkbox" checked> 自我修復</label>
-    <label class="toggleLabel"><input id="agentAutoFallback" type="checkbox" checked> 自動替代路徑</label>
-  </div>
-  <div class="g2">
-    <label class="toggleLabel"><input id="agentSkipNonCritical" type="checkbox" checked> 非關鍵步驟可跳過</label>
-    <label class="toggleLabel"><input id="agentAutoRetry" type="checkbox" checked> 自動重試</label>
-  </div>
-  <div class="g2">
-    <div class="field"><label>最大重試次數</label><input id="agentRetryMax" type="number" min="0" max="5" value="2"></div>
-    <div class="field"><label>重試等待 ms</label><input id="agentRetryDelay" type="number" min="0" max="5000" step="100" value="500"></div>
-  </div>
-  <div id="agentRecoveryState" class="health warn">尚未執行修復決策</div>
-</section>
+  <!-- Dashboard -->
+  <main id="dashboard" class="dashboard">
+    <header class="dash-header">
+      <div>
+        <div class="eyebrow">XINYU INTERNATIONAL DEVELOPMENT & TECHNOLOGY</div>
+        <h1>Xinyu LED Studio</h1>
+        <p>LED 實景視覺設計・設備配置・素材播放・2D / 3D 預覽</p>
+      </div>
+      <div class="dash-actions">
+        <button class="btn ghost" data-action="system-intro">系統介紹</button>
+        <button class="btn primary" data-action="new-project">＋ 建立新專案</button>
+      </div>
+    </header>
 
-<section class="panel contextualPanel">
-  <h3>情境式操作導航</h3>
-  <div id="contextualNextAction" class="nextActionCard">系統正在判斷下一步…</div>
-  <div class="g2">
-    <button id="runNextBestAction" class="btn gold">執行最佳下一步</button>
-    <button id="explainNextAction" class="btn">為什麼？</button>
-  </div>
-  <div id="contextualExplanation" class="meta"></div>
-</section>
+    <section class="hero-grid">
+      <article class="hero-card">
+        <span class="hero-kicker">快速開始</span>
+        <h2>從現場照片開始設計</h2>
+        <p>建立專案後依序完成：實景 → 設備 → 素材 → 調整 → 預覽／輸出。</p>
+        <div class="hero-actions">
+          <button class="btn primary large" data-action="new-project">＋ 新專案</button>
+          <button class="btn large" data-action="open-last-project">開啟最近專案</button>
+        </div>
+      </article>
+      <article class="ai-card">
+        <div class="ai-orb">AI</div>
+        <div>
+          <span class="hero-kicker">Xinyu AI</span>
+          <h3>進入專案後可直接下指令</h3>
+          <p>例如：「新增一境光幕屏」、「設備置中」、「切換 3D 預覽」。</p>
+        </div>
+      </article>
+    </section>
 
-<section class="panel agentPanel">
-  <h3>AI Agent 自主工作模式</h3>
-  <div class="agentModeRow">
-    <button id="agentModeToggle" class="btn gold">AI Agent：關</button>
-    <select id="agentAutonomyLevel">
-      <option value="assist">L1 輔助｜建議為主</option>
-      <option value="semi">L2 半自動｜低風險自動執行</option>
-      <option value="auto">L3 受控自主｜可自動完成多步驟</option>
-    </select>
-  </div>
-  <textarea id="agentGoalInput" rows="4" placeholder="例如：幫我建立一面 4000×2000mm P2.604 LED，置中，套用目前素材，建立3D預覽並產生BOM。"></textarea>
-  <div class="g2">
-    <button id="agentPlan" class="btn">產生執行計畫</button>
-    <button id="agentRun" class="btn gold">開始自主執行</button>
-  </div>
-  <div class="g2">
-    <button id="agentPause" class="btn">暫停</button>
-    <button id="agentCancel" class="btn red">取消任務</button>
-  </div>
-  <div id="agentStatus" class="agentStatus">尚未建立 AI Agent 任務</div>
-  <div id="agentPlanView" class="agentPlanView"></div>
-</section>
+    <section class="dash-section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">RECENT PROJECTS</span>
+          <h2>最近專案</h2>
+        </div>
+        <button class="btn ghost" data-action="clear-projects">清除專案資料</button>
+      </div>
+      <div id="recentProjects" class="project-grid"></div>
+    </section>
 
-<section class="panel">
-  <h3>AI Agent 安全與驗證</h3>
-  <div class="g2">
-    <button id="agentValidate" class="btn">驗證目前 Agent</button>
-    <button id="agentExportLog" class="btn">匯出 Agent Log</button>
+    <section class="dash-section feature-strip">
+      <div><b>01</b><span>上傳實景</span></div>
+      <div><b>02</b><span>建立 LED</span></div>
+      <div><b>03</b><span>套用素材</span></div>
+      <div><b>04</b><span>拖曳／縮放／旋轉</span></div>
+      <div><b>05</b><span>3D 預覽與輸出</span></div>
+    </section>
+  </main>
+
+  <!-- Studio shell -->
+  <div id="studio" class="studio hidden">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="brand-button" data-action="back-dashboard">心禹</button>
+        <div class="project-title-wrap">
+          <strong id="projectTitle">未命名專案</strong>
+          <small id="saveState">已儲存</small>
+        </div>
+      </div>
+      <nav class="top-actions" aria-label="主要操作">
+        <button class="tool-btn" data-action="undo" title="復原 Ctrl+Z">↶ 復原</button>
+        <button class="tool-btn" data-action="redo" title="重做 Ctrl+Shift+Z">↷ 重做</button>
+        <button class="tool-btn" data-action="fit-stage">適合畫面</button>
+        <button class="tool-btn" data-action="toggle-grid">格線</button>
+        <button class="tool-btn" data-action="toggle-snap">吸附</button>
+        <button class="tool-btn" data-action="preview-3d">3D 預覽</button>
+        <button class="tool-btn primary" data-action="save-project">儲存</button>
+      </nav>
+      <div class="top-right">
+        <button class="icon-btn" data-action="open-ai" title="Xinyu AI">AI</button>
+        <button class="icon-btn" data-action="system-intro" title="系統介紹">?</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- left rail -->
+      <aside class="left-rail">
+        <button class="rail-btn active" data-panel="scene"><span>▧</span>場景</button>
+        <button class="rail-btn" data-panel="devices"><span>▣</span>設備</button>
+        <button class="rail-btn" data-panel="media"><span>▶</span>素材</button>
+        <button class="rail-btn" data-panel="layers"><span>☷</span>圖層</button>
+      </aside>
+
+      <!-- left panel -->
+      <aside class="left-panel">
+        <section class="side-panel active" data-panel-content="scene">
+          <div class="panel-title"><div><span>SCENE</span><h2>場景</h2></div></div>
+          <div class="action-stack">
+            <label class="upload-button primary">
+              <input id="sceneFile" type="file" accept="image/*">
+              ＋ 上傳／更換實景
+            </label>
+            <button class="btn" data-action="scene-fit">適合完整場景</button>
+            <button class="btn danger" data-action="delete-scene">刪除實景</button>
+          </div>
+          <div class="control-group">
+            <label>場景旋轉 <output id="sceneRotationOut">0°</output></label>
+            <input id="sceneRotation" type="range" min="-180" max="180" value="0">
+          </div>
+          <div class="control-group">
+            <label>場景縮放 <output id="sceneScaleOut">100%</output></label>
+            <input id="sceneScale" type="range" min="25" max="250" value="100">
+          </div>
+          <div class="hint-box">先上傳現場照片，再建立 LED 設備。所有物件可直接在中央工作區拖曳。</div>
+        </section>
+
+        <section class="side-panel" data-panel-content="devices">
+          <div class="panel-title"><div><span>DEVICES</span><h2>顯示設備</h2></div></div>
+          <div class="preset-grid">
+            <button class="preset" data-create-device="standard"><b>一般 LED</b><small>自由尺寸</small></button>
+            <button class="preset" data-create-device="single"><b>一境光幕屏</b><small>單面直立</small></button>
+            <button class="preset" data-create-device="triple"><b>三境光幕屏</b><small>三面 ㄇ 字型</small></button>
+            <button class="preset" data-create-device="tower"><b>三面精神堡壘</b><small>高 4m</small></button>
+            <button class="preset" data-create-device="lshape"><b>L 型屏</b><small>90°轉角</small></button>
+            <button class="preset" data-create-device="curve"><b>曲面屏</b><small>弧形顯示</small></button>
+            <button class="preset" data-create-device="ushape"><b>ㄇ字型屏</b><small>三面連體</small></button>
+            <button class="preset" data-create-device="cylinder"><b>圓柱屏</b><small>包柱效果</small></button>
+          </div>
+          <div class="separator"></div>
+          <div class="action-stack">
+            <button class="btn" data-action="duplicate-selected">複製選取設備</button>
+            <button class="btn danger" data-action="delete-selected">刪除選取設備</button>
+            <button class="btn" data-action="restore-deleted">還原刪除</button>
+          </div>
+        </section>
+
+        <section class="side-panel" data-panel-content="media">
+          <div class="panel-title"><div><span>MEDIA</span><h2>素材</h2></div></div>
+          <label class="upload-button primary">
+            <input id="mediaFile" type="file" accept="image/*,video/*">
+            ＋ 上傳圖片／影片
+          </label>
+          <div id="mediaLibrary" class="media-list"></div>
+          <div class="hint-box">選取一個 LED 設備後，點素材即可套用。大型影片保存於瀏覽器 IndexedDB。</div>
+        </section>
+
+        <section class="side-panel" data-panel-content="layers">
+          <div class="panel-title"><div><span>LAYERS</span><h2>圖層</h2></div></div>
+          <div id="layerList" class="layer-list"></div>
+        </section>
+      </aside>
+
+      <!-- center -->
+      <main class="center-column">
+        <div class="workflow-strip">
+          <button class="flow active" data-panel-jump="scene"><b>1</b><span>實景</span></button>
+          <button class="flow" data-panel-jump="devices"><b>2</b><span>設備</span></button>
+          <button class="flow" data-panel-jump="media"><b>3</b><span>素材</span></button>
+          <button class="flow" data-action="focus-inspector"><b>4</b><span>調整</span></button>
+          <button class="flow" data-action="preview-3d"><b>5</b><span>預覽</span></button>
+          <div id="nextHint" class="next-hint">建議：先上傳實景。</div>
+        </div>
+
+        <div id="stageShell" class="stage-shell">
+          <div id="stageViewport" class="stage-viewport">
+            <div id="stageWorld" class="stage-world">
+              <div id="gridLayer" class="grid-layer"></div>
+              <img id="sceneImage" class="scene-image hidden" alt="">
+              <div id="deviceLayer" class="device-layer"></div>
+              <div id="emptyStage" class="empty-stage">
+                <div class="empty-icon">▧</div>
+                <h3>上傳現場照片開始</h3>
+                <p>或直接新增 LED 設備建立空白提案。</p>
+                <div>
+                  <button class="btn primary" data-action="trigger-scene-upload">上傳實景</button>
+                  <button class="btn" data-create-device="standard">新增 LED</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stage-status">
+            <span id="zoomLabel">100%</span>
+            <span id="selectionStatus">未選取設備</span>
+            <span id="objectCount">設備 0</span>
+          </div>
+        </div>
+
+        <section id="bottomDock" class="bottom-dock">
+          <div class="dock-tabs">
+            <button class="dock-tab active" data-dock="timeline">時間軸</button>
+            <button class="dock-tab" data-dock="log">訊息</button>
+            <button class="dock-collapse" data-action="toggle-dock">⌄</button>
+          </div>
+          <div class="dock-content active" data-dock-content="timeline">
+            <div class="timeline-controls">
+              <button class="mini-btn" data-action="video-play">▶</button>
+              <button class="mini-btn" data-action="video-pause">Ⅱ</button>
+              <span id="timeCurrent">00:00</span>
+              <input id="videoTimeline" type="range" min="0" max="100" value="0">
+              <span id="timeDuration">00:00</span>
+              <label>音量 <input id="videoVolume" type="range" min="0" max="1" step="0.05" value="1"></label>
+              <label class="checkbox"><input id="videoLoop" type="checkbox"> 循環</label>
+            </div>
+          </div>
+          <div class="dock-content" data-dock-content="log">
+            <div id="logView" class="log-view"></div>
+          </div>
+        </section>
+      </main>
+
+      <!-- inspector -->
+      <aside id="inspector" class="inspector">
+        <div class="panel-title inspector-head">
+          <div><span>PROPERTIES</span><h2>屬性</h2></div>
+        </div>
+        <div id="inspectorEmpty" class="inspector-empty">
+          <div>◎</div>
+          <h3>請選取物件</h3>
+          <p>選取場景中的 LED 設備後，這裡只顯示該物件需要的設定。</p>
+        </div>
+        <div id="inspectorDevice" class="hidden">
+          <div class="form-row">
+            <label>設備名稱</label>
+            <input id="propName" type="text">
+          </div>
+          <div class="form-grid">
+            <div class="form-row"><label>寬度 mm</label><input id="propWidth" type="number" min="100"></div>
+            <div class="form-row"><label>高度 mm</label><input id="propHeight" type="number" min="100"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-row"><label>X</label><input id="propX" type="number"></div>
+            <div class="form-row"><label>Y</label><input id="propY" type="number"></div>
+          </div>
+          <div class="form-row"><label>旋轉 °</label><input id="propRotation" type="number" min="-360" max="360"></div>
+          <div class="form-row">
+            <label>Pixel Pitch</label>
+            <select id="propPitch">
+              <option>P1.25</option><option>P1.56</option><option>P1.86</option>
+              <option>P2</option><option>P2.5</option><option selected>P2.604</option>
+              <option>P2.976</option><option>P3.91</option><option>P4</option>
+              <option>P5</option><option>P6</option><option>P8</option><option>P10</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>亮度 <output id="propBrightnessOut">100%</output></label>
+            <input id="propBrightness" type="range" min="10" max="150" value="100">
+          </div>
+          <div class="separator"></div>
+          <div class="action-stack">
+            <button class="btn" data-action="center-selected">設備置中</button>
+            <button class="btn" data-action="duplicate-selected">複製設備</button>
+            <button class="btn danger" data-action="delete-selected">刪除設備</button>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
-  <div id="agentSafetyState" class="health warn">尚未驗證</div>
-</section>
 
-<section class="panel aiOpsPanel">
-  <h3>AI 智慧操作中樞</h3>
-  <div class="aiState" id="aiOpsState">AI 狀態：待命</div>
-  <textarea id="aiCommandInput" rows="3" placeholder="例如：建立一面 3000×2000 的 P2.604 LED 並置中；把目前影片跳到 10 秒；刪除目前素材；切換到 3D 預覽"></textarea>
-  <div class="g2">
-    <button id="aiAnalyzeContext" class="btn gold">AI 分析目前工作區</button>
-    <button id="aiExecuteCommand" class="btn">執行 AI 指令</button>
+  <!-- AI drawer -->
+  <aside id="aiDrawer" class="ai-drawer hidden">
+    <div class="drawer-head">
+      <div><span>XINYU AI</span><h2>AI 工作助理</h2></div>
+      <button class="icon-btn" data-action="close-ai">×</button>
+    </div>
+    <p id="aiContext">等待分析目前工作區。</p>
+    <textarea id="aiInput" rows="5" placeholder="例如：新增一境光幕屏並置中"></textarea>
+    <button class="btn primary full" data-action="ai-execute">執行指令</button>
+    <div id="aiSuggestions" class="suggestion-list"></div>
+  </aside>
+
+  <!-- 3D modal -->
+  <div id="previewModal" class="modal hidden">
+    <div class="preview-card">
+      <div class="modal-head">
+        <div><span>3D PREVIEW</span><h2>設備 3D 預覽</h2></div>
+        <button class="icon-btn" data-action="close-3d">×</button>
+      </div>
+      <div id="preview3dHost" class="preview-host"></div>
+      <div id="preview3dState" class="modal-foot">載入 3D 引擎後顯示。</div>
+    </div>
   </div>
-  <div id="aiNextActions" class="aiNextActions">尚未分析</div>
-</section>
 
-<section class="panel">
-  <h3>Fixture／Mock 自動 E2E 測試中心</h3>
-  <div id="mockE2EState" class="health warn">尚未執行自動化 Fixture／Mock 測試</div>
-  <div class="g2">
-    <button id="runMockE2E" class="btn gold">執行 Mock E2E</button>
-    <button id="resetMockFixtures" class="btn">重建測試 Fixture</button>
+  <!-- System intro modal -->
+  <div id="introModal" class="modal hidden">
+    <div class="intro-card">
+      <div class="modal-head">
+        <div><span>ABOUT</span><h2>系統介紹</h2></div>
+        <button class="icon-btn" data-action="close-intro">×</button>
+      </div>
+      <div class="intro-body">
+        <p><b>Xinyu LED Studio V21.0</b> 是心禹國際開發科技有限公司的 LED 實景視覺設計與預覽工作平台。</p>
+        <div class="intro-flow">
+          <span>實景</span><i>→</i><span>設備</span><i>→</i><span>素材</span><i>→</i><span>調整</span><i>→</i><span>3D預覽／輸出</span>
+        </div>
+        <p>V21.0 重新建立產品級 UI/UX：主畫布最大化、功能分區、屬性上下文顯示、時間軸獨立、AI 功能集中，不再把研發測試工具塞進主要操作介面。</p>
+      </div>
+    </div>
   </div>
-  <div class="g2">
-    <button id="exportMockE2E" class="btn">匯出 Mock E2E 報告</button>
-    <button id="toggleTestMode" class="btn">測試模式：關</button>
+
+  <!-- New project modal -->
+  <div id="projectModal" class="modal hidden">
+    <form id="projectForm" class="project-form">
+      <div class="modal-head">
+        <div><span>NEW PROJECT</span><h2>建立新專案</h2></div>
+        <button type="button" class="icon-btn" data-action="close-project-modal">×</button>
+      </div>
+      <label>專案名稱<input id="newProjectName" required placeholder="例如：關廟 LED 提案"></label>
+      <label>客戶／案場<input id="newProjectClient" placeholder="選填"></label>
+      <div class="modal-actions">
+        <button type="button" class="btn" data-action="close-project-modal">取消</button>
+        <button type="submit" class="btn primary">建立並進入工作區</button>
+      </div>
+    </form>
   </div>
-  <div class="meta">自動測試：檔案上傳、影片、Timeline、下載、錄影、3D、刪除／還原、Undo／Redo、場景儲存。</div>
-</section>
-<section class="panel commandPanel"><h3>快速操作中心</h3><div class="commandGrid"><button id="cmdNewLed" class="cmd primary">＋ 新增 LED</button><button id="cmdDuplicate" class="cmd">複製選取</button><button id="cmdDelete" class="cmd danger">刪除選取</button><button id="cmdUndo" class="cmd">復原</button><button id="cmdRedo" class="cmd">重做</button><button id="cmdCenter" class="cmd">置中選取</button><button id="cmdFit" class="cmd">完整顯示</button><button id="cmd3D" class="cmd">3D 預覽</button></div><div class="commandState" id="commandState">目前未選取物件</div></section>
-<section class="panel"><h3>系統功能健檢 V20.8.1</h3>
-<div id="systemAuditResult" class="health warn">尚未執行系統健檢</div>
-<button id="runSystemAudit" class="btn gold" style="width:100%">執行完整功能健檢</button><div id="buttonAuditResult" class="health warn" style="margin-top:7px">按鈕功能尚未檢查</div><button id="runButtonAudit" class="btn" style="width:100%;margin-top:5px">檢查所有按鈕是否有實際功能</button>
-<div class="meta" style="margin-top:6px">檢查：建模核心、序列化、專案儲存、素材資料庫、Canvas、影片、錄製、3D、PWA 與必要介面。</div>
-</section>
 
-<section class="panel actionMonitorPanel"><h3>Action Guard＋執行結果監控</h3>
-<div class="actionHealthGrid"><div><small>可立即執行</small><b id="actionReadyCount">0</b></div><div><small>條件不足</small><b id="actionBlockedCount">0</b></div><div><small>最近成功</small><b id="actionSuccessCount">0</b></div><div><small>最近失敗</small><b id="actionFailCount">0</b></div></div>
-<div id="actionMonitorStatus" class="health warn">尚未建立按鈕情境狀態</div>
-<div class="g2"><button id="refreshActionGuards" class="btn gold">重新檢查可用功能</button><button id="clearActionLog" class="btn">清除動作紀錄</button></div>
-<div class="actionLog" id="actionLog"><div class="meta">尚無操作紀錄</div></div>
-</section>
-<section class="panel"><h3>Button Action Registry＋E2E 測試中心</h3>
-<div id="registrySummary" class="health warn">Button Registry 尚未執行</div>
-<div class="g2"><button id="runRegistryContract" class="btn gold">執行 Button Contract</button><button id="runSafeE2E" class="btn">執行安全型 E2E</button></div>
-<div class="g2"><button id="downloadRegistry" class="btn">匯出 Button Registry</button><button id="downloadE2EMatrix" class="btn">匯出 E2E Matrix</button></div>
-<div id="e2eRuntimeResult" class="health warn" style="margin-top:6px">尚未執行瀏覽器 E2E</div>
-<div class="meta" style="margin-top:5px">AUTO_SAFE 可由系統自動點擊；檔案選擇、下載、刪除、錄影、全螢幕及需特定媒體條件者列入人工驗收。</div>
-</section>
-<section class="panel"><h3>V20.8.1 Release Gate</h3>
-<div id="releaseGateResult" class="health warn">尚未執行 V20.8.1 發布閘門</div>
-<div class="g2"><button id="runReleaseGate" class="btn gold">執行 Release Gate</button><button id="exportReleaseReport" class="btn">匯出驗收報告</button></div>
-<div class="meta" style="margin-top:6px">Release Gate 會檢查建模、LED/LCD/結構分類、工程公式、安全序列化、Canvas、IndexedDB、媒體API、3D依賴與必要介面。正式瀏覽器互動仍以實機 E2E 為最後一道驗收。</div>
-</section>
-<section class="panel"><h3>編輯工作區／場景尺寸</h3>
-<div class="sceneSizeGrid">
- <div class="field"><label>場景寬度 px</label><input id="sceneW" type="number" min="100" max="12000" value="1600"></div>
- <div class="field"><label>場景高度 px</label><input id="sceneH" type="number" min="100" max="12000" value="900"></div>
-</div>
-<div class="field"><label><input id="sceneLockRatio" type="checkbox" checked> 鎖定原始比例</label></div>
-<div class="g2"><button id="applySceneSize" class="btn gold">套用場景大小</button><button id="fitSceneBtn" class="btn">完整顯示場景</button></div>
-<div class="g2" style="margin-top:5px"><button id="sceneOriginal" class="btn">原始比例尺寸</button><button id="scenePresetHD" class="btn">1920×1080</button></div>
-<div class="meta" style="margin-top:5px">場景尺寸只影響編輯工作區座標與輸出畫布，不會修改原始照片檔案。</div>
-</section>
-<section class="panel"><h3>專案健康檢查</h3>
-<div id="healthScore" class="health warn">尚未執行檢查</div>
-<div id="healthList"></div>
-<button id="runHealth" class="btn gold" style="width:100%;margin-top:6px">執行專案健檢</button>
-<div class="g2" style="margin-top:6px"><button id="lockEngineering" class="btn">鎖定工程版本</button><button id="unlockEngineering" class="btn red">解除鎖定</button></div>
-<div id="lockBanner" class="lockedBanner hidden">🔒 工程版本已鎖定：避免誤改尺寸、Pitch、工程參數與Mapping。</div></section><section class="panel"><h3>專案資訊</h3><div class="field"><label>專案名稱</label><input id="jname"></div><div class="field"><label>客戶名稱</label><input id="client"></div><div class="field"><label>地址</label><input id="addr"></div><div class="g2"><div class="field"><label>業務人員</label><input id="sales"></div><div class="field"><label>工程人員</label><input id="eng"></div></div><div class="field"><label>狀態</label><select id="status"><option>草稿</option><option>提案</option><option>確認</option><option>施工</option><option>完成</option><option>封存</option></select></div><div class="field"><label>備註</label><textarea id="note" rows="4"></textarea></div></section>
-<section class="panel"><h3>多場景頁面</h3>
-<div class="row"><button id="addScene" class="btn gold">＋新增場景</button><button id="dupScene" class="btn">複製場景</button></div><div class="row" style="margin-top:5px"><button id="renameScene" class="btn">重新命名</button><button id="delScene" class="btn red">刪除場景</button></div></section>
-<section class="panel"><h3>參考物尺度校正</h3><div class="field"><label>已知距離 cm</label><input id="known" type="number" value="90"></div><div class="row"><button id="scaleBtn" class="btn gold">選兩點校正</button><button id="scaleClear" class="btn">清除</button></div></section></div>
-<div id="tab-out" class="hidden"><section class="panel"><h3>輸出中心</h3><div class="row"><button id="png" class="btn gold">PNG效果圖</button><button id="jpg" class="btn">JPG效果圖</button></div><div class="row" style="margin-top:5px"><button id="json" class="btn">專案JSON</button><button id="report" class="btn">專案報告</button></div><div class="row" style="margin-top:5px"><button id="dxf" class="btn">DXF工程框線</button><button id="rec" class="btn">錄製3D</button></div>
-<section class="panel"><h3>編輯工作區播放畫面輸出</h3>
-<div class="g2">
- <div class="field"><label>影像格式</label><select id="workspaceVideoFormat"><option value="auto">自動（優先 MP4）</option><option value="mp4">MP4（瀏覽器支援時）</option><option value="webm">WebM</option></select></div>
- <div class="field"><label>自動錄製秒數</label><select id="workspaceVideoDuration"><option value="0">手動停止</option><option value="10">10 秒</option><option value="30">30 秒</option><option value="60">60 秒</option></select></div>
-</div>
-<div class="field"><label><input id="recordAutoPlay" type="checkbox" checked> 錄製時自動播放工作區全部影片與音效</label></div>
-<div class="g2"><button id="recordWorkspace" class="btn gold">● 開始錄製工作區</button><button id="stopWorkspaceRecord" class="btn red" disabled>■ 停止並輸出</button></div>
-<div id="workspaceRecState" class="recState">可輸出：場景圖片＋LED/LCD圖片＋影片畫面＋音效／背景音樂。</div>
-</section>
-<div class="row" style="margin-top:5px"><button id="captureA" class="btn">擷取方案A</button><button id="captureB" class="btn">擷取方案B</button></div>
-<button id="pdfProposal" class="btn gold" style="width:100%;margin-top:5px">PDF客戶提案</button>
-<div class="compare" style="margin-top:7px"><div class="compareBox"><canvas id="cmpA" width="480" height="360"></canvas><small>方案 A</small></div><div class="compareBox"><canvas id="cmpB" width="480" height="360"></canvas><small>方案 B</small></div></div></section><section class="panel"><h3>V2.0 高階 3D／三面同步映射</h3>
-<div class="field"><label>3D品質</label><select id="quality3D"><option value="performance">效能</option><option value="balanced" selected>平衡</option><option value="quality">高品質</option></select></div>
-<div class="field"><label>三面內容模式</label><select id="tripleMapMode"><option value="continuous">單一連續畫布</option><option value="same">三面同步相同內容</option><option value="independent">三面獨立內容</option></select></div>
-<div class="faceMap"><div><canvas id="faceLeft" width="160" height="160"></canvas><small>Left</small></div><div><canvas id="faceFront" width="160" height="160"></canvas><small>Front</small></div><div><canvas id="faceRight" width="160" height="160"></canvas><small>Right</small></div></div>
-<button id="refreshTripleMap" class="btn" style="width:100%;margin-top:6px">重新產生三面 Mapping 預覽</button>
-</section>
-<section class="panel"><h3>CAD 工程輸出 V2.0</h3>
-<div class="cadOptions">
-<label><input id="cadOutline" type="checkbox" checked> LED外框</label>
-<label><input id="cadModules" type="checkbox" checked> 模組線</label>
-<label><input id="cadCabinets" type="checkbox" checked> 箱體線</label>
-<label><input id="cadCenter" type="checkbox" checked> 中心線</label>
-<label><input id="cadDimensions" type="checkbox" checked> 尺寸文字</label>
-<label><input id="cadMapping" type="checkbox" checked> Mapping編號</label>
-</div>
-<div class="g2" style="margin-top:6px"><button id="exportDXFAdvanced" class="btn gold">DXF工程圖</button><button id="exportSVGEngineering" class="btn">SVG工程圖</button></div>
-</section><section class="panel"><h3>工程摘要</h3><div id="sum" class="meta">尚無LED物件</div></section><section class="panel"><h3>工程BOM／容量估算 V3.0</h3><div id="bomWrap"></div><button id="exportBOM" class="btn" style="width:100%;margin-top:6px">匯出BOM CSV</button><div id="mappingWrap"></div><button id="exportMapping" class="btn" style="width:100%;margin-top:6px">匯出 Mapping CSV</button></section></div></aside>
-<section class="bottom"><div class="dockHead"><div class="dockTitle">心禹工作台 <button id="collapseDock" class="dockCollapse" title="收合模型庫">◀</button></div><div class="dockSub">參考千幕云繪的工作邏輯，整合 LED／LCD／底座／場景／素材，讓業務與工程都更順手。</div>
-<div class="workflowBar"><button class="flowStep active" id="flowScene" data-flow="scene"><span>1</span><b>實景</b><small>上傳／調整</small></button><button class="flowStep" id="flowDevice" data-flow="device"><span>2</span><b>設備</b><small>建立／尺寸</small></button><button class="flowStep" id="flowMedia" data-flow="media"><span>3</span><b>素材</b><small>圖片／影片</small></button><button class="flowStep" id="flowAdjust" data-flow="adjust"><span>4</span><b>調整</b><small>位置／角度</small></button><button class="flowStep" id="flowOutput" data-flow="output"><span>5</span><b>預覽輸出</b><small>3D／錄製</small></button></div><div class="smartHint" id="smartHint"><i id="contextHealthDot"></i><b>操作建議：</b><span>先上傳實景圖，再建立 LED 設備。</span></div><div class="dockWorkspace">
- <div class="dockMiniTitle">工作區控制</div>
- <div class="dockGrid2"><button id="bgBtn">上傳實景</button><button id="fs">全螢幕</button></div>
-<div class="dockGrid2"><button id="bgReplace">新增／更換實景</button><button id="bgDelete">刪除實景</button></div>
-<div class="dockMiniLabel">實景角度 <span id="bgRotateVal">0°</span></div>
-<input id="bgRotate" class="dockRange" type="range" min="-180" max="180" step="1" value="0">
-<div class="dockMiniLabel">實景縮放 <span id="bgScaleVal">100%</span></div>
-<input id="bgScale" class="dockRange" type="range" min="20" max="300" step="1" value="100">
+  <div id="toastHost" class="toast-host"></div>
 
- <div class="dockGrid3"><button id="zout">－</button><button id="z100">100%</button><button id="zin">＋</button></div>
- <button id="zfit" class="dockWide">適合完整場景</button>
- <div class="dockGrid2"><button id="addVGuide">＋垂直線</button><button id="addHGuide">＋水平線</button></div>
- <button id="clearGuides" class="dockWide">清除參考線</button>
-
- <div class="dockMiniTitle mt">場景／座標資訊</div>
- <div class="dockInfoGrid">
-   <div><span>場景尺寸</span><strong id="sceneInfoSize">-</strong></div>
-   <div><span>目前縮放</span><strong id="sceneInfoZoom">100%</strong></div>
- </div>
- <div class="dockMiniLabel">工程單位</div>
- <div id="propertyUnits" class="dockUnit"><button data-punit="mm" class="active">mm</button><button data-punit="cm">cm</button><button data-punit="m">m</button></div>
- <div class="dockGrid2"><button id="propSnapToggle">吸附：開</button><button id="propGridToggle">格線：開</button></div>
- <label class="dockCheck"><input id="autoAssemblyToggle" type="checkbox" checked> 自動吸附組裝</label>
- <div id="multiModelInfo" class="dockInfoText">目前場景：0 個 LED／LCD／結構模型</div><div id="modelCreateState" class="dockCreateState">建模核心：待命｜點擊模型、拖曳模型、快速建立，或雙擊實景空白處皆可建立</div>
-
- <div class="dockMiniTitle mt">快速建立 LED</div>
- <div class="dockGrid2"><button id="quickCreateLED" class="dockPrimary">＋ 常規 LED</button><button id="quickCreateSingle">＋ 一境光幕屏</button></div>
- <div class="dockGrid2"><button id="quickCreateTriple">＋ 三境光幕屏</button><button id="quickCreateTower">＋ 精神堡壘</button></div>
-</div>
-<input id="dockSearch" class="dockSearch" placeholder="搜尋模型、素材、底座、場景類型…"></div><div class="btabs"><button data-b="ledmodels" class="active">LED 模型</button><button data-b="lcdmodels">LCD 屏幕</button><button data-b="ledbases">LED 底座</button><button data-b="assets">素材</button><button data-b="scenes">場景</button><button data-b="layers">圖層</button><button data-b="versions">版本</button></div><div id="bc" class="bcontent"></div></section></div>
-<div id="dashboard" class="dashboard">
-<div id="startupBanner" class="startupBanner"><strong>V20.8.1 核心啟動檢查</strong><span id="startupText">初始化中…</span><button id="retryStartup" class="btn">重新初始化</button><button id="resetLocalData" class="btn red">修復本機專案資料</button></div>
-<div class="dashhead"><div><h2>我的專案</h2><div class="meta">設計 → 模擬 → 工程 → 提案</div></div><div class="a"><button id="import" class="btn">匯入專案</button> <button id="new" class="btn gold">＋ 建立新專案</button></div></div><div id="projects" class="projects"></div></div>
-<div id="modal" class="modal"><div class="dialog"><h3>建立新專案</h3><div class="g2"><div class="field"><label>專案名稱</label><input id="nn" value="新LED專案"></div><div class="field"><label>客戶名稱</label><input id="nc"></div></div><div class="field"><label>地址</label><input id="na"></div><div class="g2"><div class="field"><label>業務</label><input id="ns"></div><div class="field"><label>工程</label><input id="ne"></div></div><div class="field"><label>LED類型</label><select id="nt"><option>平面 LED</option><option>弧形 LED</option><option>曲面 LED</option><option>圓柱 LED</option><option>包柱 LED</option><option>L 型 LED</option><option>ㄇ字型 LED</option><option>三面 LED</option><option>異形 LED</option><option>LCD 拼接</option><option>自訂</option></select></div><div class="field"><label>備註</label><textarea id="nno"></textarea></div><div class="row"><button id="cancel" class="btn">取消</button><button id="create" class="btn gold">建立</button></div></div></div><div id="topActionMenu" class="topActionMenu hidden"></div><div id="toast" class="toast"></div>
-<script type="module" src="./app.js"></script><section id="pdfPage" class="pdfPage"><h1>Xinyu LED Studio</h1><div class="gold">心禹國際 LED 專案提案</div><div id="pdfMeta"></div><img id="pdfImg"><div id="pdfTable"></div></section><pre id="v10TestResult" style="display:none"></pre><div id="fatalBoot" class="fatalBoot hidden"><h2>Xinyu LED Studio 啟動修復</h2><p id="fatalBootText"></p><button id="fatalReload">重新載入</button></div><div class="appStatusBar"><span id="statusMode">模式：2D實景編輯</span><span id="statusSelection">未選取物件</span><span id="statusObjects">物件 0</span><span id="statusMedia">素材 0</span><span class="statusSpacer"></span><button id="statusUndo">↶ 復原</button><button id="statusRedo">↷ 重做</button><button id="showShortcuts">快捷鍵</button></div><div id="shortcutModal" class="shortcutModal hidden"><div class="shortcutCard"><h3>快捷鍵</h3><div class="shortcutGrid"><b>Delete</b><span>刪除選取</span><b>Ctrl/Cmd + Z</b><span>復原</span><b>Ctrl/Cmd + Shift + Z</b><span>重做</span><b>Ctrl/Cmd + D</b><span>複製</span><b>Ctrl/Cmd + S</b><span>儲存專案</span><b>F</b><span>完整顯示實景</span><b>Esc</b><span>取消選取</span><b>Space</b><span>播放／暫停影片</span></div><button id="closeShortcuts" class="btn gold">關閉</button></div></div></body></html>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
