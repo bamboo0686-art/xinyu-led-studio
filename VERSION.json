@@ -1,11 +1,11 @@
 {
   "product": "Xinyu LED Studio",
-  "version": "20.8",
-  "edition": "AI Engineering Optimizer + Role-Based Adaptive UI",
+  "version": "20.8.1",
+  "edition": "Critical Runtime Hotfix",
   "developer": "心禹國際開發科技有限公司",
   "build_date": "2026-08-20",
-  "baseline": "V20.7",
-  "release_state": "PRODUCTION_CANDIDATE",
+  "baseline": "V20.8",
+  "release_state": "HOTFIX_RUNTIME_SMOKE_PASS",
   "validation_score": 100,
   "leftmost_sidebar": "心禹工具軌（Xinyu Tool Rail）",
   "second_sidebar": "心禹工作台（Xinyu Workbench）",
@@ -28,5 +28,6 @@
     "designer",
     "engineer"
   ],
-  "engineering_optimizer": true
+  "engineering_optimizer": true,
+  "runtime_boot_smoke_test": "PASS"
 }
