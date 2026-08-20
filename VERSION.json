@@ -1,10 +1,12 @@
 {
   "product": "Xinyu LED Studio",
-  "version": "10.0",
-  "edition": "正式完成版",
+  "version": "20.0",
+  "edition": "Professional Engineering & 3D Edition",
   "developer": "心禹國際開發科技有限公司",
   "build_date": "2026-08-20",
-  "baseline": "V4.1",
-  "architecture": "split HTML/CSS/JS + PWA + IndexedDB",
-  "release_gate": "built-in"
+  "baseline": "V10.0",
+  "release_state": "PRODUCTION_CANDIDATE",
+  "validation_score": 91,
+  "leftmost_sidebar": "心禹工具軌（Xinyu Tool Rail）",
+  "second_sidebar": "心禹工作台（Xinyu Workbench）"
 }
