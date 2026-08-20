@@ -1,5 +1,5 @@
-const C='xinyu-led-studio-v20-1';
-const A=['./styles.css','./manifest.json','./icon.svg','./README.md','./VERSION.json','./RELEASE_REPORT.md'];
+const C='xinyu-led-studio-v20-8';
+const A=['./styles.css','./manifest.json','./icon.svg','./README.md','./VERSION.json','./RELEASE_REPORT.md','./BUTTON_ACTION_REGISTRY.json','./E2E_TEST_MATRIX.json'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{

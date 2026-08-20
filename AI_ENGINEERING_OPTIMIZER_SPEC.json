@@ -1,0 +1,29 @@
+{
+  "version": "20.8",
+  "inputs": [
+    "usage",
+    "environment",
+    "min_view_distance",
+    "comfortable_view_distance",
+    "target_brightness",
+    "reserve_factor",
+    "width",
+    "height",
+    "current_pitch"
+  ],
+  "outputs": [
+    "recommended_pitch",
+    "resolution",
+    "brightness",
+    "receiver_cards",
+    "network_ports",
+    "max_power",
+    "risk_notes",
+    "engineering_score"
+  ],
+  "viewing_rules": {
+    "min_distance": "approximately pitch(mm) x 1m",
+    "comfortable_distance": "approximately pitch(mm) x 2.4m"
+  },
+  "scope": "advisory engineering optimization; not a substitute for final stamped electrical/structural design"
+}

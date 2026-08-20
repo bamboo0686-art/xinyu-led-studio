@@ -1,0 +1,46 @@
+{
+  "version": "20.6",
+  "autonomy_levels": {
+    "assist": "只規劃/建議，不自動執行",
+    "semi": "自動執行低風險",
+    "auto": "自動執行低/中風險，高風險人工"
+  },
+  "actions": {
+    "ensure-project": {
+      "risk": "low"
+    },
+    "create-led": {
+      "risk": "low"
+    },
+    "center-selected": {
+      "risk": "low"
+    },
+    "apply-first-asset": {
+      "risk": "medium"
+    },
+    "seek-video": {
+      "risk": "low"
+    },
+    "open-3d": {
+      "risk": "medium"
+    },
+    "build-bom": {
+      "risk": "low"
+    },
+    "system-health": {
+      "risk": "low"
+    },
+    "save-project": {
+      "risk": "low"
+    },
+    "delete-selected": {
+      "risk": "high"
+    },
+    "remove-media": {
+      "risk": "high"
+    },
+    "delete-background": {
+      "risk": "high"
+    }
+  }
+}

@@ -87,14 +87,14 @@ button,input,select,textarea{font:inherit}.top{height:54px;display:flex;align-it
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V20.1 拖曳組裝與場景工作流強化 === */
+/* === V20.8 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V20.1 流暢度與播放核心修正版 === */
+/* === V20.8 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -105,7 +105,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
 
 
-/* === V20.1 影音播放與工作區輸出強化版 === */
+/* === V20.8 影音播放與工作區輸出強化版 === */
 .audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
 .audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
 .audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
@@ -116,7 +116,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 
-/* === V20.1 操作核心與影音輸出修正版 === */
+/* === V20.8 操作核心與影音輸出修正版 === */
 .selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
 .selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
 .selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
@@ -129,14 +129,14 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .quick{display:none!important}
 
 
-/* === V20.1 穩定核心與播放引擎重構版 === */
+/* === V20.8 穩定核心與播放引擎重構版 === */
 .runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
 .runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
 .runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
 .performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
 
 
-/* === V20.1 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+/* === V20.8 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
 #propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 #propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
 #propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
@@ -144,7 +144,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
 
 
-/* === V20.1 模型建立修復＋工作台整合版 === */
+/* === V20.8 模型建立修復＋工作台整合版 === */
 .dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
 .dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
 .dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
@@ -166,13 +166,13 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #tab-prop>.panel:first-child{margin-top:0}
 
 
-/* === V20.1 實景 LED 建模核心修復版 === */
+/* === V20.8 實景 LED 建模核心修復版 === */
 .dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
 .dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
 .dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
 
 
-/* === V20.1 功能健檢與穩定性修正版 === */
+/* === V20.8 功能健檢與穩定性修正版 === */
 .auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
 .btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
 
@@ -232,14 +232,14 @@ body{font-family:Arial,"Noto Sans TC",sans-serif;padding:28px;color:#111}h1{marg
 @media (max-width:980px){.app{grid-template-columns:60px 1fr!important}.bottom{position:fixed!important;left:60px!important;top:54px!important;bottom:0!important;width:280px!important;z-index:20!important}.stage{grid-column:2/3!important}.right{position:fixed!important;right:0!important;top:54px!important;bottom:0!important;width:300px!important;z-index:21!important}.quick{left:calc(50% + 30px)!important;max-width:calc(100% - 110px)!important}.bcontent{grid-template-columns:1fr!important}}
 
 
-/* === V20.1 拖曳組裝與場景工作流強化 === */
+/* === V20.8 拖曳組裝與場景工作流強化 === */
 .dockCollapse,.inspectorCollapse{border:1px solid #39404a!important;background:#191d24!important;color:#cbd2dc!important;border-radius:6px!important;padding:3px 7px!important;font-size:10px!important;cursor:pointer}.dockTitle{display:flex;align-items:center;justify-content:space-between;gap:6px}.inspectorCollapse{flex:0 0 30px!important}
 body.dock-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 340px!important}body.dock-collapsed .bottom{overflow:hidden!important}body.dock-collapsed .dockHead .dockSub,body.dock-collapsed .dockSearch,body.dock-collapsed .btabs,body.dock-collapsed .bcontent{display:none!important}body.dock-collapsed .dockHead{padding:10px 6px!important}body.dock-collapsed .dockTitle{writing-mode:vertical-rl;min-height:145px;justify-content:flex-start;font-size:11px!important}body.dock-collapsed .dockCollapse{writing-mode:horizontal-tb!important;margin-top:7px}
 body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr) 48px!important}body.inspector-collapsed .right{overflow:hidden!important;padding:8px 5px!important}body.inspector-collapsed .right>.tabs button:not(#collapseInspector),body.inspector-collapsed .right>[id^="tab-"]{display:none!important}body.inspector-collapsed .tabs{display:block!important}body.dock-collapsed.inspector-collapsed .app{grid-template-columns:68px 48px minmax(520px,1fr) 48px!important}
 .card[draggable="true"]{cursor:grab!important}.card[draggable="true"]:active{cursor:grabbing!important}.card.dragging{opacity:.45!important;transform:scale(.97)!important}.stage.drop-ready{box-shadow:inset 0 0 0 3px #d6b45f!important}.stage.drop-ready::before{content:"放開滑鼠即可放置到這裡";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:19;background:#0c1017e8;border:1px solid #d6b45f;color:#f3dc96;border-radius:999px;padding:10px 16px;font-size:12px;pointer-events:none}.assemblyTag{position:absolute;z-index:14;pointer-events:none;background:#173323;border:1px solid #4ecb7a;color:#c4f2d1;border-radius:999px;padding:4px 8px;font-size:9px;opacity:0;transition:.2s}.assemblyTag.show{opacity:1}.workflowTip{grid-column:1/-1;border:1px solid #324155;background:#111924;border-radius:8px;padding:8px;color:#aebed4;font-size:10px;line-height:1.55}.workflowTip b{color:#f0d894}.card .dragHint{display:block;margin-top:5px;color:#748094;font-size:8px}.sceneActionRow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:2px}.sceneActionRow button{background:#202630;border:1px solid #35404e;color:#d8dee8;border-radius:7px;padding:7px;font-size:10px}.stageToolbarStatus{position:absolute;left:42px;bottom:12px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:6px 9px;color:#9ba6b4;font-size:9px;pointer-events:none}
 
 
-/* === V20.1 流暢度與播放核心修正版 === */
+/* === V20.8 流暢度與播放核心修正版 === */
 .playStatus{margin-top:6px;padding:6px 8px;border:1px solid #303944;border-radius:7px;background:#0d1117;color:#8f99a8;font-size:9px;line-height:1.45}
 .playStatus.playing{border-color:#2f6b46;background:#14281b;color:#b7eac5}
 .playStatus.error{border-color:#7b3939;background:#321919;color:#efb7b7}
@@ -250,7 +250,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stageFitBadge{position:absolute;right:16px;bottom:48px;z-index:9;background:#0c1016dd;border:1px solid #303843;border-radius:8px;padding:5px 8px;color:#95a0ad;font-size:9px;pointer-events:none}
 
 
-/* === V20.1 影音播放與工作區輸出強化版 === */
+/* === V20.8 影音播放與工作區輸出強化版 === */
 .audioPanel{border:1px solid #354055;background:linear-gradient(145deg,#101620,#13151c)}
 .audioState{font-size:9px;color:#92a0b3;padding:6px;border-radius:7px;background:#0d1117;border:1px solid #303944;line-height:1.45}
 .audioState.playing{border-color:#356b49;color:#b9e9c6;background:#15261b}
@@ -261,7 +261,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .levelMeter{height:6px;border-radius:99px;background:#202632;overflow:hidden;margin-top:6px}.levelMeter i{display:block;width:0;height:100%;background:linear-gradient(90deg,#52c777,#f1d47f);transition:.08s}
 
 
-/* === V20.1 操作核心與影音輸出修正版 === */
+/* === V20.8 操作核心與影音輸出修正版 === */
 .selectionActions{position:absolute;z-index:16;right:18px;bottom:88px;display:flex;gap:6px;padding:6px;background:#0b0e13e8;border:1px solid #343b46;border-radius:9px;box-shadow:0 10px 24px #0008}
 .selectionActions button{border:1px solid #3a424d;background:#222831;color:#fff;border-radius:6px;padding:6px 10px;font-size:10px}
 .selectionActions button:last-child{background:#642929;border-color:#8b3a3a}
@@ -274,14 +274,14 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .quick{display:none!important}
 
 
-/* === V20.1 穩定核心與播放引擎重構版 === */
+/* === V20.8 穩定核心與播放引擎重構版 === */
 .runtimeState{font-size:9px;color:#9bd2aa;background:#14301d;border:1px solid #2d6741;border-radius:999px;padding:3px 7px;margin-left:5px}
 .runtimeState.warn{color:#efd58a;background:#352d16;border-color:#746129}
 .runtimeState.bad{color:#f0b3b3;background:#381919;border-color:#7c3636}
 .performanceHint{font-size:9px;color:#7f8997;line-height:1.45;margin-top:5px}
 
 
-/* === V20.1 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
+/* === V20.8 屬性整合＋多模型＋裸眼3D＋媒體生命週期修正版 === */
 #propertyUnits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 #propertyUnits button{border:1px solid #343944;background:#20242b;color:#aab0ba;border-radius:6px;padding:7px}
 #propertyUnits button.active{background:#263653;color:#fff;border-color:#5d8dff}
@@ -289,7 +289,7 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 .stage .selectionActions,.stage .unitbar,.stageToolbarStatus{display:none!important}
 
 
-/* === V20.1 模型建立修復＋工作台整合版 === */
+/* === V20.8 模型建立修復＋工作台整合版 === */
 .dockWorkspace{margin:10px 0 10px;padding:10px;background:#0b0e13;border:1px solid #2e3540;border-radius:10px}
 .dockMiniTitle{font-size:11px;font-weight:900;color:#f0d894;margin-bottom:7px}
 .dockMiniTitle.mt{margin-top:10px;padding-top:9px;border-top:1px solid #282e37}
@@ -311,18 +311,18 @@ body.inspector-collapsed .app{grid-template-columns:68px 320px minmax(520px,1fr)
 #tab-prop>.panel:first-child{margin-top:0}
 
 
-/* === V20.1 實景 LED 建模核心修復版 === */
+/* === V20.8 實景 LED 建模核心修復版 === */
 .dockCreateState{margin-top:6px;padding:6px 8px;border:1px solid #31583f;background:#12271a;color:#a9ddb8;border-radius:7px;font-size:9px}
 .dockCreateState.warn{border-color:#755f28;background:#332a14;color:#ecd58b}
 .dockCreateState.bad{border-color:#783636;background:#351919;color:#efb6b6}
 
 
-/* === V20.1 功能健檢與穩定性修正版 === */
+/* === V20.8 功能健檢與穩定性修正版 === */
 .auditList{margin:6px 0 0;padding-left:16px;font-size:9px;line-height:1.65;color:#aeb6c2}
 .btn.activeMode{background:#2d4267!important;border-color:#6b99e8!important}
 
 
-/* === V20.1 Professional Engineering & 3D Edition === */
+/* === V20.8 Professional Engineering & 3D Edition === */
 html,body{min-height:100%;overflow:auto!important}
 body{min-width:1180px}
 .top{position:sticky!important;top:0;z-index:200;height:auto!important;min-height:54px;flex-wrap:wrap}
@@ -343,8 +343,79 @@ body.ui90{zoom:.90} body.ui80{zoom:.80}
  .tools,.bottom,.right{min-height:760px;max-height:760px}
 }
 
-/* === V20.1 Workspace Startup Stability === */
+/* === V20.8 Workspace Startup Stability === */
 .startupBanner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:9px 11px;border:1px solid #34533e;background:#12241a;border-radius:9px;color:#c9e7d1;font-size:10px}
 .startupBanner strong{color:#f0d894}.startupBanner span{flex:1;min-width:220px}
 .fatalBoot{position:fixed;inset:0;z-index:9999;background:#090b0ef5;color:#fff;display:grid;place-content:center;text-align:center;padding:30px}
 .fatalBoot.hidden{display:none}.fatalBoot button{margin:10px auto;border:1px solid #66552b;background:#d2ae52;color:#111;padding:9px 16px;border-radius:8px}
+
+/* V20.8 */
+button{transition:.12s ease;cursor:pointer}button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}button:disabled{opacity:.34;cursor:not-allowed!important}.workflowBar{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:7px 0 8px}.flowStep{display:grid;grid-template-columns:22px 1fr;grid-template-rows:auto auto;column-gap:5px;text-align:left;padding:7px 6px;border:1px solid #303947;background:#121820;color:#ccd3dc;border-radius:8px}.flowStep span{grid-row:1/3;align-self:center;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#262f3a}.flowStep b{font-size:9px}.flowStep small{font-size:7px;color:#7d8794}.flowStep.active{border-color:#bd9c4e;background:#2a2415}.flowStep.active span{background:#d9b85f;color:#111}.smartHint{border:1px solid #37465a;background:#111a26;border-radius:8px;padding:7px 8px;font-size:9px;color:#aebdce;margin-bottom:8px}.commandGrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.cmd{min-height:34px;border:1px solid #35404d;border-radius:7px;background:#1a212a;color:#e5e9ef;font-size:9px}.cmd.primary{background:linear-gradient(180deg,#e5c66e,#b98f35);color:#13100a}.cmd.danger{background:#4b2023;border-color:#8e4448;color:#ffd7d7}.commandState{font-size:9px;color:#8f9aaa;margin-top:7px;border-top:1px solid #2d333c;padding-top:6px}.appStatusBar{position:fixed;left:0;right:0;bottom:0;z-index:400;height:28px;background:#090c10ef;border-top:1px solid #2e3640;display:flex;align-items:center;gap:12px;padding:0 10px;color:#8e99a8;font-size:9px}.appStatusBar button{height:22px;padding:0 8px;border:1px solid #343d49;background:#151b22;color:#cbd2db;border-radius:5px;font-size:8px}.statusSpacer{flex:1}body{padding-bottom:28px}.shortcutModal{position:fixed;inset:0;background:#05070abd;z-index:9900;display:grid;place-items:center}.shortcutModal.hidden{display:none}.shortcutCard{width:min(520px,90vw);background:#11161d;border:1px solid #4d5662;border-radius:12px;padding:18px}.shortcutGrid{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;font-size:11px;margin-bottom:14px}.shortcutGrid b{color:#8eb8f3}.shortcutGrid span{color:#c4cbd3}button.actionMissing{outline:1px dashed #df6868!important;background:#35191c!important}button.actionReady::after{content:"";display:inline-block;width:5px;height:5px;background:#5bc27c;border-radius:50%;margin-left:5px}
+
+/* V20.8 Button Registry + E2E */
+#registrySummary,#e2eRuntimeResult{line-height:1.5}.panel button[id^="download"]{border-color:#53667e;background:#182331}.panel button#runRegistryContract{font-weight:700}
+
+/* === V20.8 Adaptive UX / Action Guard / Runtime Verification === */
+.actionHealthGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:7px}
+.actionHealthGrid>div{border:1px solid #303a46;background:#0d1218;border-radius:8px;padding:7px;text-align:center}
+.actionHealthGrid small{display:block;color:#7f8997;font-size:7px}.actionHealthGrid b{display:block;color:#efd47f;font-size:16px;margin-top:2px}
+.actionLog{max-height:180px;overflow:auto;margin-top:7px;border:1px solid #2e3742;border-radius:8px;background:#090d12;padding:5px}
+.actionLogItem{display:grid;grid-template-columns:54px 1fr auto;gap:6px;align-items:start;border-bottom:1px solid #202731;padding:5px 3px;font-size:8px}.actionLogItem:last-child{border-bottom:0}
+.actionLogItem time{color:#687586}.actionLogItem b{color:#cbd5df;font-weight:500}.actionLogItem em{font-style:normal;border-radius:9px;padding:1px 5px;font-size:7px}
+.actionLogItem.ok em{background:#173421;color:#8fe0a9}.actionLogItem.blocked em{background:#382f15;color:#ecd27a}.actionLogItem.fail em{background:#3a181b;color:#f0a3a7}
+button.guardBlocked{opacity:.38!important;filter:grayscale(.35)!important;cursor:not-allowed!important}
+button.guardBlocked:hover{transform:none!important;filter:grayscale(.35)!important}
+button.guardReady{box-shadow:inset 0 0 0 1px #5ac47a12}
+button.guardBusy{pointer-events:none!important;position:relative;color:transparent!important}
+button.guardBusy::before{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px;border:2px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:guardSpin .7s linear infinite}
+@keyframes guardSpin{to{transform:rotate(360deg)}}
+.smartHint i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#6c7886;margin-right:5px}.smartHint i.ok{background:#5bc27c}.smartHint i.warn{background:#d3aa4f}.smartHint i.bad{background:#dd6868}
+.flowStep.flowDone{border-color:#315b40}.flowStep.flowDone span{background:#254b32;color:#9ce0ae}.flowStep.flowBlocked{opacity:.48}
+.guardReason{font-size:8px;color:#e2c46e;margin-top:3px}
+
+/* === V20.8 AI Adaptive E2E Automation Edition === */
+.aiOpsPanel{border-color:#4c3d6e;background:linear-gradient(180deg,#161327,#11161d)}
+.aiOpsPanel h3{color:#cab7ff}
+.aiState{font-size:9px;color:#9eabbd;margin-bottom:7px}
+#aiCommandInput{width:100%;box-sizing:border-box;resize:vertical;background:#0b0f15;border:1px solid #374253;border-radius:8px;color:#eef2f6;padding:8px;font-size:10px;line-height:1.45}
+.aiNextActions{margin-top:7px;padding:8px;border:1px solid #34475e;background:#0d151f;border-radius:8px;color:#b8c7d9;font-size:9px;line-height:1.5}
+.aiNextActions button{margin:3px 4px 0 0;padding:5px 7px;border-radius:6px;border:1px solid #44556c;background:#182434;color:#d9e7fa;font-size:8px}
+body.testMode::before{content:"TEST MODE";position:fixed;top:58px;right:10px;z-index:9900;background:#7d4b12;color:#fff;padding:5px 8px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.08em}
+.mockPass{color:#72d18e}.mockFail{color:#f07777}.mockSkip{color:#e6c36d}
+
+/* === V20.8 AI Agent Autonomous Workflow Edition === */
+.agentPanel{border-color:#3b5b7a;background:linear-gradient(180deg,#101b27,#11161d)}
+.agentPanel h3{color:#94c5ff}
+.agentModeRow{display:grid;grid-template-columns:1fr 1.2fr;gap:6px;margin-bottom:7px}
+.agentModeRow select,#agentGoalInput{width:100%;box-sizing:border-box;background:#0b1118;color:#edf3fb;border:1px solid #34465a;border-radius:7px;padding:7px;font-size:9px}
+.agentStatus{margin-top:7px;padding:7px 8px;border:1px solid #31465d;background:#0d151f;border-radius:8px;font-size:9px;color:#b8c8da}
+.agentPlanView{margin-top:7px;display:grid;gap:5px}
+.agentStep{border:1px solid #2f3945;background:#111820;border-radius:7px;padding:7px;font-size:9px;color:#b8c1ce}
+.agentStep.running{border-color:#567ba5;background:#12253a}.agentStep.pass{border-color:#356d4b;background:#11261a}.agentStep.fail{border-color:#7c3c42;background:#2a1518}.agentStep.wait{opacity:.65}
+.agentStepHead{display:flex;justify-content:space-between;gap:8px}.agentStepHead b{color:#d8e7fb}.agentStep small{color:#7f8b99}
+.agentRisk{display:inline-flex;padding:2px 5px;border-radius:999px;font-size:7px;border:1px solid #3a4654}.agentRisk.low{color:#83d89d}.agentRisk.medium{color:#e4c46f}.agentRisk.high{color:#f08585}
+
+/* === V20.8 Self-Healing AI Agent + Contextual UX === */
+.selfHealPanel{border-color:#3c5f4c;background:linear-gradient(180deg,#112019,#11161d)}
+.selfHealPanel h3{color:#91d1a6}
+.contextualPanel{border-color:#5b4e36;background:linear-gradient(180deg,#211b10,#11161d)}
+.contextualPanel h3{color:#e2c777}
+.toggleLabel{display:flex;align-items:center;gap:6px;font-size:9px;color:#c3ccd6;border:1px solid #303a46;padding:7px;border-radius:7px;background:#111820}
+.nextActionCard{border:1px solid #5e5135;background:#1c180f;border-radius:8px;padding:10px;color:#ebd99b;font-size:10px;line-height:1.45;margin-bottom:7px}
+button.nextBest{box-shadow:0 0 0 1px #d9b85f,0 0 18px #d9b85f33!important;border-color:#d9b85f!important}
+button.contextBlocked{opacity:.28!important;filter:grayscale(.6)!important}
+.actionReason{position:fixed;z-index:9998;max-width:280px;background:#10151c;color:#dce3eb;border:1px solid #3c4857;border-radius:8px;padding:8px;font-size:9px;box-shadow:0 10px 30px #0008;pointer-events:none}
+
+/* === V20.8 AI Engineering Optimizer + Role-Based Adaptive UI === */
+.rolePanel{border-color:#5d476f;background:linear-gradient(180deg,#1d1526,#11161d)}
+.rolePanel h3{color:#d3aff0}
+.optimizerPanel{border-color:#496477;background:linear-gradient(180deg,#10202a,#11161d)}
+.optimizerPanel h3{color:#9bd4ef}
+.optimizerResult{margin-top:8px;display:grid;gap:6px}
+.optCard{border:1px solid #334657;background:#0e171f;border-radius:8px;padding:8px;font-size:9px;color:#b9c8d7}
+.optCard b{color:#9bd4ef}.optGood{color:#77d596}.optWarn{color:#e7c66c}.optBad{color:#ed8181}
+.role-hidden{display:none!important}
+.role-dimmed{opacity:.42!important;pointer-events:none!important}
+body[data-role="sales"] .engineeringOnly,
+body[data-role="designer"] .managerOnly,
+body[data-role="engineer"] .salesOnly{display:none!important}

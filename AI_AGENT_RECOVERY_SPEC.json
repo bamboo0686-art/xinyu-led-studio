@@ -1,0 +1,38 @@
+{
+  "version": "20.7",
+  "decisions": [
+    "retry-pass",
+    "fallback-pass",
+    "skip",
+    "stop"
+  ],
+  "high_risk_requires_human": true,
+  "policies": {
+    "open-3d": {
+      "critical": false,
+      "retryable": true,
+      "fallback": [
+        "build-bom",
+        "save-project"
+      ]
+    },
+    "apply-first-asset": {
+      "critical": false,
+      "retryable": false,
+      "fallback": [
+        "save-project"
+      ]
+    },
+    "build-bom": {
+      "critical": false,
+      "retryable": true,
+      "fallback": [
+        "system-health"
+      ]
+    },
+    "save-project": {
+      "critical": true,
+      "retryable": true
+    }
+  }
+}
