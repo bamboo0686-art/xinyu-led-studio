@@ -1,1 +1,10 @@
-{"version":"20.8.3","name":"Xinyu LED Studio","channel":"stable","title":"工作區放大與版面重整修正版"}
+{
+  "version": "20.8.3.1",
+  "display_version": "V20.8.3.1",
+  "name": "Xinyu LED Studio",
+  "title": "工作區放大＋版面重整＋部署快取修正版",
+  "release_state": "DEPLOYMENT_CACHE_FIX_READY",
+  "cache_bust": true,
+  "service_worker_cache": "xinyu-led-studio-v20-8-3-1",
+  "expected_visible_badge": "BUILD V20.8.3.1"
+}

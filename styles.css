@@ -571,3 +571,17 @@ body.workbench-max .app{grid-template-rows:minmax(150px,1fr) minmax(360px,var(--
   .right{position:fixed!important;right:0;top:54px;bottom:var(--status-h)!important;width:min(320px,90vw)!important;z-index:800!important}
   .bottom{grid-column:2!important;grid-template-columns:220px minmax(0,1fr)!important}
 }
+
+/* === V20.8.3.1 Deploy Cache Bust / Verified Layout === */
+:root{--xinyu-build:20.8.3.1;}
+.deployedBuildBadge{
+ display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:999px;
+ border:1px solid #705d2d;background:#211b10;color:#e8cc79;font-size:9px;font-weight:800;white-space:nowrap
+}
+.deployVersionState{margin-left:6px;color:#8fb8e8;font-size:9px}
+body::after{
+ content:"V20.8.3.1";
+ position:fixed;right:8px;bottom:32px;z-index:998;
+ padding:3px 7px;border-radius:5px;background:#080b0fbb;color:#7f8a98;
+ border:1px solid #29313b;font-size:8px;pointer-events:none
+}

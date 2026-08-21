@@ -1,13 +1,54 @@
-const C='xinyu-led-studio-v20-8-2-2';
-const A=['./styles.css','./manifest.json','./icon.svg','./README.md','./VERSION.json','./RELEASE_REPORT.md','./BUTTON_ACTION_REGISTRY.json','./E2E_TEST_MATRIX.json'];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{
- if(e.request.method!=='GET')return;
- const u=new URL(e.request.url);
- if(u.pathname.endsWith('/app.js')||u.pathname.endsWith('/index.html')||u.pathname.endsWith('/')){
-  e.respondWith(fetch(e.request,{cache:'no-store'}).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp)).catch(()=>{});return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))));
-  return
- }
- e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{const cp=resp.clone();caches.open(C).then(c=>c.put(e.request,cp)).catch(()=>{});return resp})))
+const C='xinyu-led-studio-v20-8-3-1';
+const CORE=['./','./index.html','./styles.css?v=20.8.3.1','./app.js?v=20.8.3.1','./manifest.json?v=20.8.3.1','./icon.svg?v=20.8.3.1'];
+
+self.addEventListener('install',event=>{
+  event.waitUntil((async()=>{
+    const cache=await caches.open(C);
+    for(const url of CORE){try{await cache.add(new Request(url,{cache:'reload'}))}catch(e){console.warn('precache',url,e)}}
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil((async()=>{
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(k=>k!==C && (k.startsWith('xinyu-led-studio-')||k.includes('xinyu'))).map(k=>caches.delete(k)));
+    await self.clients.claim();
+  })());
+});
+
+function isCore(url){
+  const p=url.pathname;
+  return p.endsWith('/app.js')||p.endsWith('/styles.css')||p.endsWith('/index.html')||
+         p.endsWith('/manifest.json')||p.endsWith('/icon.svg')||p.endsWith('/xinyu-led-studio/');
+}
+
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET')return;
+  const url=new URL(event.request.url);
+  if(isCore(url)){
+    event.respondWith((async()=>{
+      try{
+        const response=await fetch(event.request,{cache:'no-store'});
+        if(response && response.ok){
+          const cache=await caches.open(C);
+          cache.put(event.request,response.clone()).catch(()=>{});
+        }
+        return response;
+      }catch(e){
+        return (await caches.match(event.request)) || (await caches.match('./index.html')) || Response.error();
+      }
+    })());
+    return;
+  }
+  event.respondWith((async()=>{
+    const cached=await caches.match(event.request);
+    if(cached)return cached;
+    const response=await fetch(event.request);
+    if(response && response.ok){
+      const cache=await caches.open(C);
+      cache.put(event.request,response.clone()).catch(()=>{});
+    }
+    return response;
+  })());
 });

@@ -2593,7 +2593,11 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
  try{
   dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();
   startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);
-  if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("SW",e))
+  if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("./sw.js?v=20.8.3.1",{updateViaCache:"none"})
+   .then(async reg=>{try{await reg.update()}catch{}})
+   .catch(e=>console.warn("SW",e))
+}
   return true
  }catch(e){
   console.error("bootstrap failed",e);
@@ -2705,3 +2709,22 @@ window.addEventListener("load",()=>setTimeout(()=>{ensureLandscapeEditingScene("
 window.addEventListener("resize",()=>setTimeout(()=>ensureLandscapeEditingScene("resize"),120));
 const _oldDash = typeof dash === 'function' ? dash : null;
 if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTimeout(()=>ensureLandscapeEditingScene("dashboard-open"),120); return r; } }
+
+
+/* === V20.8.3.1 deployment verification === */
+const XINYU_DEPLOY_BUILD="V20.8.3.1";
+function verifyDeployedBuild(){
+ try{
+   const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
+   const badge=q("deployedBuildBadge"), state=q("deployVersionState");
+   if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
+   const ok=cssBuild==="20.8.3.1";
+   if(state){
+     state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
+     state.style.color=ok?"#7ed29a":"#ef8a8a";
+   }
+   if(q("startupText")&&ok)q("startupText").textContent=`${XINYU_DEPLOY_BUILD} 已載入｜工作區版面更新有效`;
+   return ok;
+ }catch(e){console.warn("verifyDeployedBuild",e);return false}
+}
+window.addEventListener("load",()=>setTimeout(verifyDeployedBuild,180));
