@@ -588,7 +588,7 @@ body::after{
 
 
 /* === V20.8.4 left dock + square workspace === */
-:root{--xinyu-build:20.8.4;--tool-w:72px;--left-dock-w:330px;--inspector-w:300px;}
+:root{--xinyu-build:20.8.4.1;--tool-w:72px;--left-dock-w:330px;--inspector-w:300px;}
 .app{
   grid-template-columns:var(--tool-w) var(--left-dock-w) minmax(0,1fr) var(--inspector-w)!important;
   grid-template-rows:minmax(0,1fr)!important;
@@ -635,3 +635,16 @@ body::after{
 .tools .tool b{margin-bottom:2px}
 @media (max-width:1500px){:root{--left-dock-w:300px;--inspector-w:280px}}
 @media (max-width:1280px){:root{--left-dock-w:280px;--inspector-w:0px} .app{grid-template-columns:var(--tool-w) var(--left-dock-w) minmax(0,1fr)!important} .right{position:fixed!important;right:0;top:54px;bottom:var(--status-h)!important;width:min(320px,92vw)!important;z-index:850!important}}
+
+/* V20.8.4.1 Model/Asset Library Runtime Repair */
+.libraryRuntimeState{margin-top:7px;padding:6px 8px;border:1px solid #35506d;background:#101a25;color:#9fc4ed;border-radius:7px;font-size:9px}
+.libraryRuntimeState.ok{border-color:#346345;background:#11251a;color:#92d9a8}
+.libraryRuntimeState.bad{border-color:#794044;background:#2b1719;color:#ef9696}
+.libraryQuick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.libraryQuick button{border:1px solid #394552;background:#19212a;color:#dbe3ed;border-radius:8px;padding:7px;font-size:9px}
+#leftLibraryPage .dockSearch{margin:8px 0 0!important}
+#leftLibraryPage .btabs button{cursor:pointer!important;pointer-events:auto!important;opacity:1!important}
+#leftLibraryPage .card{cursor:pointer!important;pointer-events:auto!important;position:relative;z-index:2}
+#leftLibraryPage .bcontent{position:relative;z-index:1}
+body.dock-collapsed #leftLibraryPage .btabs,body.dock-collapsed #leftLibraryPage .bcontent{display:flex!important}
+body.dock-collapsed #leftLibraryPage .libraryHead{display:block!important}

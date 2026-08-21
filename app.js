@@ -1836,7 +1836,7 @@ function installSceneQuickCreate(){
  });
 }
 
-function installV32(){q('collapseDock')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('dock-collapsed');q('collapseDock').textContent=document.body.classList.contains('dock-collapsed')?'▶':'◀';setTimeout(resize,80)});q('collapseInspector')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('inspector-collapsed');q('collapseInspector').textContent=document.body.classList.contains('inspector-collapsed')?'◀':'▶';setTimeout(resize,80)});qa('.btabs button').forEach(btn=>btn.onclick=()=>bottom(btn.dataset.b));q('dockSearch')?.addEventListener('input',()=>bottom(document.querySelector('.btabs button.active')?.dataset.b||'ledmodels'));enableStageDrop();installWheelControls();installStageDelete();installTopMenus();installSceneQuickCreate();setRuntimeState("正常","ok");updateSelectionActions();updatePropertySceneInfo();updateFitBadge();syncSceneInputs();updateAudioControls();const oldUp=c.onpointerup;c.onpointerup=e=>{if(oldUp)oldUp.call(c,e);const o=selected();if(o&&autoAttachAssembly(o)){draw();props();scheduleHeavyRefresh();markChanged()}}}installV32();
+function installV32(){q('collapseDock')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('dock-collapsed');q('collapseDock').textContent=document.body.classList.contains('dock-collapsed')?'▶':'◀';setTimeout(resize,80)});q('collapseInspector')?.addEventListener('click',e=>{e.stopPropagation();document.body.classList.toggle('inspector-collapsed');q('collapseInspector').textContent=document.body.classList.contains('inspector-collapsed')?'◀':'▶';setTimeout(resize,80)});qa('.btabs button').forEach(btn=>btn.onclick=()=>activateLibraryTab(btn.dataset.b,'installV32'));q('dockSearch')?.addEventListener('input',()=>activateLibraryTab(libraryCurrentTab||'ledmodels','install-search'));enableStageDrop();installWheelControls();installStageDelete();installTopMenus();installSceneQuickCreate();setRuntimeState("正常","ok");updateSelectionActions();updatePropertySceneInfo();updateFitBadge();syncSceneInputs();updateAudioControls();const oldUp=c.onpointerup;c.onpointerup=e=>{if(oldUp)oldUp.call(c,e);const o=selected();if(o&&autoAttachAssembly(o)){draw();props();scheduleHeavyRefresh();markChanged()}}}installV32();
 
 
 function setHint(text){const el=q("smartHint");if(el)el.innerHTML=`<b>操作建議：</b><span>${text}</span>`}
@@ -2591,10 +2591,10 @@ function workbenchVisibilityAudit(){
 function startupCoreAudit(){const checks=[["Canvas",!!c&&!!x],["Dashboard",!!q("dashboard")],["New project button",!!q("new")],["Create button",!!q("create")],["Workspace stage",!!q("stage")],["Project list",Array.isArray(P)],["Model factory",typeof presetObject==="function"],["Workspace open",typeof open==="function"]];const bad=checks.filter(x=>!x[1]);const txt=q("startupText");if(txt)txt.textContent=bad.length?`核心異常：${bad.map(x=>x[0]).join("、")}`:`核心已就緒｜${checks.length}/${checks.length} PASS｜3D採按需載入`;if(q("startupBanner"))q("startupBanner").style.borderColor=bad.length?"#7b3939":"#34533e";return{checks,bad}}
 function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();installTooltips();
  try{
-  dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();
-  startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);
+  dash();resize();bindLibraryRuntime();activateLibraryTab("ledmodels","bootstrap");summary();renderSceneTabs();renderGuides();projectHealth();
+  startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);setTimeout(libraryFunctionalAudit,380);
   if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./sw.js?v=20.8.4",{updateViaCache:"none"})
+  navigator.serviceWorker.register("./sw.js?v=20.8.4.1.1",{updateViaCache:"none"})
    .then(async reg=>{try{await reg.update()}catch{}})
    .catch(e=>console.warn("SW",e))
 }
@@ -2654,7 +2654,7 @@ q("workbenchCompact").onclick=()=>setWorkbenchHeight(220,"compact");
 q("workbenchRestore").onclick=()=>setWorkbenchHeight(300,"custom");
 q("workbenchMaximize").onclick=()=>setWorkbenchHeight(window.innerHeight*.68,"max");
 q("showWorkbenchPage").onclick=()=>setLeftPanelPage("workbench");
-q("showLibraryPage").onclick=()=>setLeftPanelPage("library");
+q("showLibraryPage").onclick=()=>{setLeftPanelPage("library");activateLibraryTab(libraryCurrentTab||"ledmodels","parent-button")};
 installWorkbenchResize();
 restoreLeftPanelPage();
 window.addEventListener("resize",()=>{restoreWorkbenchLayout();setTimeout(workbenchVisibilityAudit,80)});
@@ -2715,31 +2715,52 @@ if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTime
 
 
 
-function setLeftPanelPage(page="workbench"){
- const wb=q("showWorkbenchPage"), lib=q("showLibraryPage"), wp=q("leftWorkbenchPage"), lp=q("leftLibraryPage");
- if(!wb||!lib||!wp||!lp)return;
- const isWorkbench=page!=="library";
- wb.classList.toggle("active",isWorkbench); lib.classList.toggle("active",!isWorkbench);
- wp.classList.toggle("active",isWorkbench); lp.classList.toggle("active",!isWorkbench);
- try{localStorage.setItem("XLS_LEFT_PANEL_PAGE", isWorkbench?"workbench":"library")}catch{}
- const s=q("workbenchVisibilityState");
- if(s&&isWorkbench)s.textContent="左側目前顯示：心禹工作台｜編輯工作區已調整為 1:1 正方形";
- if(s&&!isWorkbench)s.textContent="左側目前顯示：模型／素材庫｜可用上方母子頁按鈕切回工作台";
- setTimeout(()=>{try{resize();draw();}catch{}},50);
+
+let libraryCurrentTab="ledmodels",libraryLastAudit=null;
+function setLibraryRuntimeState(text,level="ok"){
+ const el=q("libraryRuntimeState");if(!el)return;el.textContent=text;el.className="libraryRuntimeState "+level
+}
+function activateLibraryTab(tab="ledmodels",reason="user"){
+ const allowed=new Set(["ledmodels","lcdmodels","ledbases","assets","scenes","layers","versions"]);
+ if(!allowed.has(tab))tab="ledmodels";libraryCurrentTab=tab;
+ qa("#leftLibraryPage .btabs button[data-b]").forEach(b=>b.classList.toggle("active",b.dataset.b===tab));
+ try{bottom(tab);const cards=q("bc")?.querySelectorAll(".card").length||0;setLibraryRuntimeState(`功能正常｜${tab}｜${cards} 個可操作項目｜${reason}`,"ok");return cards}catch(e){console.error("activateLibraryTab",e);setLibraryRuntimeState("模型／素材庫錯誤："+e.message,"bad");return -1}
+}
+function bindLibraryRuntime(){
+ const root=q("leftLibraryPage");if(!root||root.dataset.runtimeBound)return false;root.dataset.runtimeBound="1";
+ root.addEventListener("click",e=>{const b=e.target.closest?.(".btabs button[data-b]");if(!b)return;e.preventDefault();e.stopPropagation();activateLibraryTab(b.dataset.b,"tab-click")});
+ q("dockSearch")?.addEventListener("input",()=>activateLibraryTab(libraryCurrentTab,"search"));
+ q("libraryUploadAsset")?.addEventListener("click",()=>{setLeftPanelPage("library");activateLibraryTab("assets","upload");q("content")?.click()});
+ q("libraryRefresh")?.addEventListener("click",()=>activateLibraryTab(libraryCurrentTab,"manual-refresh"));
+ return true
+}
+function libraryFunctionalAudit(){
+ const result={switchButtons:!!q("showLibraryPage")&&!!q("showWorkbenchPage"),tabs:qa("#leftLibraryPage .btabs button[data-b]").length,cards:0,cardClickable:false,bc:!!q("bc")};
+ try{const prev=libraryCurrentTab;setLeftPanelPage("library",false);result.cards=activateLibraryTab("ledmodels","audit");const first=q("bc")?.querySelector(".card");result.cardClickable=!!first&&first.tabIndex===0;activateLibraryTab(prev,"audit-restore");libraryLastAudit=result}catch(e){result.error=e.message}
+ const ok=result.switchButtons&&result.tabs===7&&result.cards>0&&result.cardClickable&&result.bc;setLibraryRuntimeState(ok?`模型／素材庫 Runtime PASS｜7/7 分類｜LED卡片 ${result.cards} 個`:`模型／素材庫 Runtime FAIL｜${JSON.stringify(result)}`,ok?"ok":"bad");return{ok,...result}
+}
+
+function setLeftPanelPage(page="workbench",render=true){
+ const wb=q("showWorkbenchPage"),lib=q("showLibraryPage"),wp=q("leftWorkbenchPage"),lp=q("leftLibraryPage");if(!wb||!lib||!wp||!lp)return false;
+ const isWorkbench=page!=="library";wb.classList.toggle("active",isWorkbench);lib.classList.toggle("active",!isWorkbench);wp.classList.toggle("active",isWorkbench);lp.classList.toggle("active",!isWorkbench);
+ try{localStorage.setItem("XLS_LEFT_PANEL_PAGE",isWorkbench?"workbench":"library")}catch{}
+ if(!isWorkbench&&render){bindLibraryRuntime();activateLibraryTab(libraryCurrentTab||"ledmodels","page-open")}
+ const s=q("workbenchVisibilityState");if(s)s.textContent=isWorkbench?"左側目前顯示：心禹工作台｜編輯工作區 1:1":"左側目前顯示：模型／素材庫｜7 大分類可直接操作";
+ setTimeout(()=>{try{resize();draw()}catch{}},50);return true
 }
 function restoreLeftPanelPage(){
  let page="workbench"; try{page=localStorage.getItem("XLS_LEFT_PANEL_PAGE")||"workbench"}catch{}
- setLeftPanelPage(page);
+ bindLibraryRuntime();setLeftPanelPage(page);
 }
 
-/* === V20.8.4 deployment verification === */
-const XINYU_DEPLOY_BUILD="V20.8.4";
+/* === V20.8.4.1 deployment verification === */
+const XINYU_DEPLOY_BUILD="V20.8.4.1";
 function verifyDeployedBuild(){
  try{
    const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
    const badge=q("deployedBuildBadge"), state=q("deployVersionState");
    if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
-   const ok=cssBuild==="20.8.4";
+   const ok=cssBuild==="20.8.4.1";
    if(state){
      state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
      state.style.color=ok?"#7ed29a":"#ef8a8a";

@@ -1,11 +1,6 @@
 {
-  "version": "20.8.4",
-  "display_version": "V20.8.4",
-  "title": "Left Dock Square Workspace Edition",
-  "release_state": "PRIVATE_LOCAL_READY",
-  "ui_updates": [
-    "1:1 正方形編輯工作區",
-    "左側母子頁切換：工作台 / 模型素材庫",
-    "工具軌、工作台、模型素材庫全部靠左"
-  ]
+  "version": "20.8.4.1",
+  "display_version": "V20.8.4.1",
+  "title": "模型／素材庫功能修復版",
+  "release_state": "RUNTIME_LIBRARY_REPAIR_CANDIDATE"
 }
