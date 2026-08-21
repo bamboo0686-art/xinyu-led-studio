@@ -585,3 +585,53 @@ body::after{
  padding:3px 7px;border-radius:5px;background:#080b0fbb;color:#7f8a98;
  border:1px solid #29313b;font-size:8px;pointer-events:none
 }
+
+
+/* === V20.8.4 left dock + square workspace === */
+:root{--xinyu-build:20.8.4;--tool-w:72px;--left-dock-w:330px;--inspector-w:300px;}
+.app{
+  grid-template-columns:var(--tool-w) var(--left-dock-w) minmax(0,1fr) var(--inspector-w)!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  height:calc(100vh - 54px)!important;
+  min-height:0!important;
+}
+.tools{grid-column:1!important;grid-row:1!important;min-height:0!important;max-height:none!important;overflow:auto!important}
+.bottom{
+  grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;
+  min-height:0!important;max-height:none!important;overflow:hidden!important;border-right:1px solid #2b313a!important;
+  border-top:0!important;background:#0e1116!important;
+}
+.stage{grid-column:3!important;grid-row:1!important;min-height:0!important;height:auto!important;border-right:1px solid #242a33!important}
+.right{grid-column:4!important;grid-row:1!important;min-height:0!important;max-height:none!important;overflow:auto!important}
+.workbenchResizeHandle{display:none!important}
+.leftPanelSwitch{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;border-bottom:1px solid #262d36;background:linear-gradient(180deg,#11151b,#0d1015)}
+.leftPanelSwitch button{border:1px solid #35404c;background:#1a2028;color:#c0c8d3;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:700}
+.leftPanelSwitch button.active{background:linear-gradient(180deg,#7e6729,#5f4d20)!important;color:#fff3cc!important;border-color:#b89542!important;box-shadow:0 0 0 1px #8e7233 inset}
+.leftPanelPage{display:none;min-height:0;overflow:hidden;flex:1}
+.leftPanelPage.active{display:flex;flex-direction:column}
+#leftWorkbenchPage .dockHead{flex:1;overflow:auto;padding:12px 10px 16px!important;border-bottom:0!important}
+#leftLibraryPage{padding:0}
+.libraryHead{padding:12px 12px 8px;border-bottom:1px solid #262d36;background:linear-gradient(180deg,#11151b,#0f1115)}
+.libraryTitle{font-size:14px;font-weight:900;color:#f0d894;margin-bottom:4px}
+.librarySub{font-size:10px;line-height:1.5;color:#9ca3ae}
+#leftLibraryPage .btabs{padding:8px 10px 6px!important;border-bottom:1px solid #262d36!important;background:#101319!important;flex-wrap:wrap!important}
+#leftLibraryPage .bcontent{padding:12px!important;display:flex!important;flex-wrap:wrap!important;gap:10px!important;overflow:auto!important;align-content:flex-start!important;flex:1}
+#leftLibraryPage .card{width:132px!important;min-width:132px!important}
+#leftLibraryPage .thumb{height:80px!important}
+#leftLibraryPage #bc::before{content:none!important}
+/* square editing workspace */
+.stage::before{content:'';position:absolute;left:50%;top:52%;width:min(calc(100% - 90px), calc(100vh - 180px));height:min(calc(100% - 90px), calc(100vh - 180px));transform:translate(-50%,-50%);border:1px dashed #6d7685;box-shadow:0 0 0 9999px rgba(0,0,0,.08) inset;pointer-events:none;z-index:0;border-radius:8px}
+.stage::after{content:'1:1 正方形編輯工作區';position:absolute;left:50%;top:34px;transform:translateX(-50%);color:#d8dde7;font-size:11px;letter-spacing:1px;pointer-events:none;z-index:2;background:#0d1015cc;border:1px solid #343944;border-radius:999px;padding:4px 10px}
+.rulerx,.rulery{z-index:3}
+#c,#three{left:26px!important;top:22px!important;right:0!important;bottom:0!important;z-index:1}
+/* empty view less crowded */
+.dockSub{font-size:9px!important}
+.workflowBar{grid-template-columns:1fr 1fr!important}
+.flowStep{min-height:52px}
+.dockWorkspace{padding-bottom:12px}
+/* keep major panels visually cleaner */
+.toolRailName{position:sticky;top:0;background:#101217;padding-top:6px;z-index:3}
+.tools .tool{display:grid;grid-template-columns:1fr;justify-items:center}
+.tools .tool b{margin-bottom:2px}
+@media (max-width:1500px){:root{--left-dock-w:300px;--inspector-w:280px}}
+@media (max-width:1280px){:root{--left-dock-w:280px;--inspector-w:0px} .app{grid-template-columns:var(--tool-w) var(--left-dock-w) minmax(0,1fr)!important} .right{position:fixed!important;right:0;top:54px;bottom:var(--status-h)!important;width:min(320px,92vw)!important;z-index:850!important}}

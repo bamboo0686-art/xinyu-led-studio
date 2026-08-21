@@ -1,6 +1,6 @@
 {
-  "name": "Xinyu LED Studio V20.8.3.1",
-  "short_name": "Xinyu LED V20.8.3.1",
+  "name": "Xinyu LED Studio V20.8.4",
+  "short_name": "Xinyu LED V20.8.4",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0b0e",
@@ -13,5 +13,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "工作區放大、版面重整、部署快取修正版"
+  "description": "左側母子頁工作台／模型素材庫＋1:1 正方形編輯工作區"
 }

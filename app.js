@@ -2594,7 +2594,7 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
   dash();resize();bottom("ledmodels");summary();renderSceneTabs();renderGuides();projectHealth();
   startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);
   if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./sw.js?v=20.8.3.1",{updateViaCache:"none"})
+  navigator.serviceWorker.register("./sw.js?v=20.8.4",{updateViaCache:"none"})
    .then(async reg=>{try{await reg.update()}catch{}})
    .catch(e=>console.warn("SW",e))
 }
@@ -2606,7 +2606,7 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
  }
 }
 
-q("flowScene").onclick=()=>{setFlow("scene");bottom("scene")};q("flowDevice").onclick=()=>{setFlow("device");bottom("ledmodels")};q("flowMedia").onclick=()=>{setFlow("media");bottom("assets")};q("flowAdjust").onclick=()=>{setFlow("adjust");q("tab-prop")?.click()};q("flowOutput").onclick=()=>{setFlow("output");document.querySelector('[data-tab="out"]')?.click()};q("cmdNewLed").onclick=()=>{setFlow("device");createModelSafe("常規屏");updateUXState()};q("cmdDuplicate").onclick=()=>{duplicateSelectedObjects();updateUXState()};q("cmdDelete").onclick=softDeleteSelected;q("cmdUndo").onclick=()=>q("undo").click();q("cmdRedo").onclick=()=>q("redo").click();q("cmdCenter").onclick=centerSelected;q("cmdFit").onclick=()=>q("zfit").click();q("cmd3D").onclick=()=>q("toggle3d").click();q("resetTransform").onclick=resetSelectedTransform;q("restoreDeleted").onclick=restoreLastDeleted;q("resetMediaTransform").onclick=resetSelectedMediaTransform;q("statusUndo").onclick=()=>q("undo").click();q("statusRedo").onclick=()=>q("redo").click();q("showShortcuts").onclick=()=>q("shortcutModal").classList.remove("hidden");q("closeShortcuts").onclick=()=>q("shortcutModal").classList.add("hidden");q("shortcutModal").onclick=e=>{if(e.target===q("shortcutModal"))q("shortcutModal").classList.add("hidden")};q("runButtonAudit").onclick=buttonFunctionAudit;q("refreshActionGuards").onclick=()=>{refreshActionGuards();updateContextRecommendation()};q("clearActionLog").onclick=()=>{ACTION_RUNTIME.log=[];ACTION_RUNTIME.success=0;ACTION_RUNTIME.fail=0;ACTION_RUNTIME.blocked=0;renderActionMonitor()};
+q("flowScene").onclick=()=>{setFlow("scene");setLeftPanelPage("workbench");bottom("scenes")};q("flowDevice").onclick=()=>{setFlow("device");setLeftPanelPage("library");bottom("ledmodels")};q("flowMedia").onclick=()=>{setFlow("media");setLeftPanelPage("library");bottom("assets")};q("flowAdjust").onclick=()=>{setFlow("adjust");setLeftPanelPage("workbench");q("tab-prop")?.click()};q("flowOutput").onclick=()=>{setFlow("output");setLeftPanelPage("workbench");document.querySelector('[data-tab="out"]')?.click()};q("cmdNewLed").onclick=()=>{setFlow("device");createModelSafe("常規屏");updateUXState()};q("cmdDuplicate").onclick=()=>{duplicateSelectedObjects();updateUXState()};q("cmdDelete").onclick=softDeleteSelected;q("cmdUndo").onclick=()=>q("undo").click();q("cmdRedo").onclick=()=>q("redo").click();q("cmdCenter").onclick=centerSelected;q("cmdFit").onclick=()=>q("zfit").click();q("cmd3D").onclick=()=>q("toggle3d").click();q("resetTransform").onclick=resetSelectedTransform;q("restoreDeleted").onclick=restoreLastDeleted;q("resetMediaTransform").onclick=resetSelectedMediaTransform;q("statusUndo").onclick=()=>q("undo").click();q("statusRedo").onclick=()=>q("redo").click();q("showShortcuts").onclick=()=>q("shortcutModal").classList.remove("hidden");q("closeShortcuts").onclick=()=>q("shortcutModal").classList.add("hidden");q("shortcutModal").onclick=e=>{if(e.target===q("shortcutModal"))q("shortcutModal").classList.add("hidden")};q("runButtonAudit").onclick=buttonFunctionAudit;q("refreshActionGuards").onclick=()=>{refreshActionGuards();updateContextRecommendation()};q("clearActionLog").onclick=()=>{ACTION_RUNTIME.log=[];ACTION_RUNTIME.success=0;ACTION_RUNTIME.fail=0;ACTION_RUNTIME.blocked=0;renderActionMonitor()};
 
 q("runRegistryContract").onclick=runRegistryContract;
 q("runSafeE2E").onclick=runSafeRegisteredE2E;
@@ -2653,7 +2653,10 @@ q("exportEngineeringOptimization").onclick=exportEngineeringOptimization;
 q("workbenchCompact").onclick=()=>setWorkbenchHeight(220,"compact");
 q("workbenchRestore").onclick=()=>setWorkbenchHeight(300,"custom");
 q("workbenchMaximize").onclick=()=>setWorkbenchHeight(window.innerHeight*.68,"max");
+q("showWorkbenchPage").onclick=()=>setLeftPanelPage("workbench");
+q("showLibraryPage").onclick=()=>setLeftPanelPage("library");
 installWorkbenchResize();
+restoreLeftPanelPage();
 window.addEventListener("resize",()=>{restoreWorkbenchLayout();setTimeout(workbenchVisibilityAudit,80)});
 
 q("retryStartup").onclick=()=>{q("fatalBoot")?.classList.add("hidden");bootstrapApp()};
@@ -2702,7 +2705,7 @@ function optimizeWorkbenchVisualOrder(){
   document.body.classList.remove("workbench-compact");
   document.documentElement.style.setProperty("--workbench-h","300px");
   const status=q("workbenchVisibilityState");
-  if(status)status.textContent="工作台：下方集中整理｜左側為心禹工作台，右側為 LED 模型／素材庫";
+  if(status)status.textContent="工作台：全部靠左整理｜使用上方母子頁切換「工作台」與「模型／素材庫」";
  }catch(e){console.warn("optimizeWorkbenchVisualOrder failed",e)}
 }
 window.addEventListener("load",()=>setTimeout(()=>{ensureLandscapeEditingScene("load");optimizeWorkbenchVisualOrder();setTimeout(resize,80)},120));
@@ -2711,14 +2714,32 @@ const _oldDash = typeof dash === 'function' ? dash : null;
 if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTimeout(()=>ensureLandscapeEditingScene("dashboard-open"),120); return r; } }
 
 
-/* === V20.8.3.1 deployment verification === */
-const XINYU_DEPLOY_BUILD="V20.8.3.1";
+
+function setLeftPanelPage(page="workbench"){
+ const wb=q("showWorkbenchPage"), lib=q("showLibraryPage"), wp=q("leftWorkbenchPage"), lp=q("leftLibraryPage");
+ if(!wb||!lib||!wp||!lp)return;
+ const isWorkbench=page!=="library";
+ wb.classList.toggle("active",isWorkbench); lib.classList.toggle("active",!isWorkbench);
+ wp.classList.toggle("active",isWorkbench); lp.classList.toggle("active",!isWorkbench);
+ try{localStorage.setItem("XLS_LEFT_PANEL_PAGE", isWorkbench?"workbench":"library")}catch{}
+ const s=q("workbenchVisibilityState");
+ if(s&&isWorkbench)s.textContent="左側目前顯示：心禹工作台｜編輯工作區已調整為 1:1 正方形";
+ if(s&&!isWorkbench)s.textContent="左側目前顯示：模型／素材庫｜可用上方母子頁按鈕切回工作台";
+ setTimeout(()=>{try{resize();draw();}catch{}},50);
+}
+function restoreLeftPanelPage(){
+ let page="workbench"; try{page=localStorage.getItem("XLS_LEFT_PANEL_PAGE")||"workbench"}catch{}
+ setLeftPanelPage(page);
+}
+
+/* === V20.8.4 deployment verification === */
+const XINYU_DEPLOY_BUILD="V20.8.4";
 function verifyDeployedBuild(){
  try{
    const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
    const badge=q("deployedBuildBadge"), state=q("deployVersionState");
    if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
-   const ok=cssBuild==="20.8.3.1";
+   const ok=cssBuild==="20.8.4";
    if(state){
      state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
      state.style.color=ok?"#7ed29a":"#ef8a8a";

@@ -1,29 +1,9 @@
-# Xinyu LED Studio V20.8.1｜Critical Runtime Hotfix
+# V20.8.4｜Left Dock Square Workspace Edition
 
-- Validation: 100%
-- State: **HOTFIX_RUNTIME_SMOKE_PASS**
-
-## Root causes fixed
-1. `deleteSelectedObjects` was referenced but undefined, aborting app.js during top-level button binding.
-2. `sectionLabel` was undefined, breaking workbench/model-library initialization.
-3. `cardPass` was undefined, breaking dock card filtering/rendering.
-4. `multiSel` was used by Action Guard but never initialized.
-
-## Permanent prevention
-- Release validation may no longer stop at `node --check` / DOM ID / handler-string checks.
-- A Runtime Boot Smoke Test must evaluate the complete app and run initialization far enough to detect top-level ReferenceError and bootstrap ReferenceError.
-- Missing compatibility APIs after refactors must fail the Release Gate.
-
-## Checks
-- PASS｜JavaScript syntax
-- PASS｜Duplicate HTML IDs｜381/381
-- PASS｜q() DOM references
-- PASS｜deleteSelectedObjects compatibility API
-- PASS｜sectionLabel restored
-- PASS｜cardPass restored
-- PASS｜multiSel initialized
-- PASS｜Runtime Boot Smoke Test｜EVAL PASS
-
-
-## Remaining limitation
-The runtime smoke test uses an isolated DOM/browser API harness. It proves the JavaScript can evaluate and bootstrap without the discovered ReferenceErrors, but final GitHub Pages + Windows Chrome/Edge interaction still requires deployment verification.
+## 本版重點
+1. 編輯工作區預設改為 **1:1 正方形**（空白場景 1200×1200）。
+2. **心禹工具軌、心禹工作台、模型／素材庫全部靠左**。
+3. 左側新增 **母子頁按鈕**：`工作台`、`模型／素材庫`。
+4. 模型／素材庫從下方搬到左側獨立頁面，降低畫面混亂。
+5. 右側保留屬性／專案／輸出面板。
+6. 版本與快取同步升級為 V20.8.4。
