@@ -1,11 +1,11 @@
 {
   "product": "Xinyu LED Studio",
-  "version": "20.8.1",
-  "edition": "Critical Runtime Hotfix",
+  "version": "20.8.2",
+  "edition": "Workbench Visibility & Adaptive Layout Hotfix",
   "developer": "心禹國際開發科技有限公司",
   "build_date": "2026-08-20",
-  "baseline": "V20.8",
-  "release_state": "HOTFIX_RUNTIME_SMOKE_PASS",
+  "baseline": "V20.8.1",
+  "release_state": "PRODUCTION_CANDIDATE",
   "validation_score": 100,
   "leftmost_sidebar": "心禹工具軌（Xinyu Tool Rail）",
   "second_sidebar": "心禹工作台（Xinyu Workbench）",
@@ -29,5 +29,7 @@
     "engineer"
   ],
   "engineering_optimizer": true,
-  "runtime_boot_smoke_test": "PASS"
+  "runtime_boot_smoke_test": "PASS",
+  "workbench_resizable": true,
+  "workbench_visibility_audit": true
 }
