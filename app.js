@@ -1447,7 +1447,7 @@ function model(n){return createModelSafe(n)}
 
 function updateBgControls(){q("bgRotate").value=bgTransform.rotation||0;q("bgRotateVal").textContent=(bgTransform.rotation||0)+"°";q("bgScale").value=Math.round((bgTransform.scale||1)*100);q("bgScaleVal").textContent=Math.round((bgTransform.scale||1)*100)+"%"}
 q("bgReplace").onclick=()=>q("bgBtn").click();
-q("bgDelete").onclick=async()=>{if(bgObjectURL){try{URL.revokeObjectURL(bgObjectURL)}catch{}bgObjectURL=null}bg=null;bgScene={w:0,h:0};bgTransform={rotation:0,scale:1};const s=currentScene();if(s){if(s.backgroundKey)await dbDeleteBlob(s.backgroundKey);s.backgroundKey=null;s.bgScene={w:0,h:0};s.bgTransform={rotation:0,scale:1}}updateBgControls();draw(true);markChanged();toast("已刪除實景圖")};
+q("bgDelete").onclick=async()=>{if(bgObjectURL){try{URL.revokeObjectURL(bgObjectURL)}catch{}bgObjectURL=null}bg=null;bgScene={w:1600,h:900};bgTransform={rotation:0,scale:1};const s=currentScene();if(s){if(s.backgroundKey)await dbDeleteBlob(s.backgroundKey);s.backgroundKey=null;s.bgScene={w:1600,h:900};s.bgTransform={rotation:0,scale:1}}updateBgControls();syncSceneInputs();fitScene();draw(true);markChanged();toast("已刪除實景圖，工作區已恢復為 16:9 編輯畫布")};
 q("bgRotate").oninput=()=>{bgTransform.rotation=+q("bgRotate").value;q("bgRotateVal").textContent=bgTransform.rotation+"°";const s=currentScene();if(s)s.bgTransform={...bgTransform};draw();markChanged()};
 q("bgScale").oninput=()=>{bgTransform.scale=+q("bgScale").value/100;q("bgScaleVal").textContent=q("bgScale").value+"%";const s=currentScene();if(s)s.bgTransform={...bgTransform};draw();markChanged()};
 
@@ -2646,8 +2646,8 @@ q("compareEngineeringPlan").onclick=compareEngineeringPlan;
 q("exportEngineeringOptimization").onclick=exportEngineeringOptimization;
 
 
-q("workbenchCompact").onclick=()=>setWorkbenchHeight(260,"compact");
-q("workbenchRestore").onclick=()=>setWorkbenchHeight(360,"custom");
+q("workbenchCompact").onclick=()=>setWorkbenchHeight(220,"compact");
+q("workbenchRestore").onclick=()=>setWorkbenchHeight(300,"custom");
 q("workbenchMaximize").onclick=()=>setWorkbenchHeight(window.innerHeight*.68,"max");
 installWorkbenchResize();
 window.addEventListener("resize",()=>{restoreWorkbenchLayout();setTimeout(workbenchVisibilityAudit,80)});
@@ -2673,3 +2673,35 @@ q("gridToggle").onclick=()=>{gridEnabled=!gridEnabled;q("gridToggle").textConten
 document.addEventListener("keydown",e=>{const tag=(e.target?.tagName||"").toLowerCase();if(["input","textarea","select"].includes(tag))return;const mod=e.ctrlKey||e.metaKey;if(mod&&e.key.toLowerCase()==="s"){e.preventDefault();save()}if(mod&&e.key.toLowerCase()==="d"){e.preventDefault();duplicateSelectedObjects();updateUXState()}if(mod&&e.shiftKey&&e.key.toLowerCase()==="z"){e.preventDefault();q("redo").click()}else if(mod&&e.key.toLowerCase()==="z"){e.preventDefault();q("undo").click()}if(e.key==="Delete"||e.key==="Backspace"){e.preventDefault();softDeleteSelected()}if(e.key.toLowerCase()==="f"){e.preventDefault();q("zfit").click()}if(e.key==="Escape"){sel=null;multiSel=[];draw();props();updateUXState()}if(e.code==="Space"){const v=selectedVideo();if(v){e.preventDefault();v.paused?playSelectedMedia():pauseSelectedMedia()}}});
 
 if(new URLSearchParams(location.search).get("button-e2e")==="1"){window.addEventListener("load",()=>setTimeout(async()=>{try{runRegistryContract();await runSafeRegisteredE2E()}catch(e){console.error("button-e2e",e)}},900))}
+
+
+/* === V20.8.3 layout comfort / scene optimizer === */
+function ensureLandscapeEditingScene(reason="startup"){
+ try{
+  const scene=currentScene?.();
+  if(bg)return false;
+  const w=Number(bgScene?.w||0),h=Number(bgScene?.h||0);
+  if(!w||!h||h>w*1.15){
+   bgScene={w:1600,h:900};
+   if(scene)scene.bgScene={w:1600,h:900};
+   syncSceneInputs?.();
+   fitScene?.();
+   if(q("workbenchVisibilityState"))q("workbenchVisibilityState").textContent=`工作台：版面優化完成｜${reason}｜空白畫布已調整為 16:9，編輯工作區更寬更好操作`;
+   return true;
+  }
+ }catch(e){console.warn("ensureLandscapeEditingScene failed",e)}
+ return false;
+}
+function optimizeWorkbenchVisualOrder(){
+ try{
+  document.body.classList.remove("workbench-max");
+  document.body.classList.remove("workbench-compact");
+  document.documentElement.style.setProperty("--workbench-h","300px");
+  const status=q("workbenchVisibilityState");
+  if(status)status.textContent="工作台：下方集中整理｜左側為心禹工作台，右側為 LED 模型／素材庫";
+ }catch(e){console.warn("optimizeWorkbenchVisualOrder failed",e)}
+}
+window.addEventListener("load",()=>setTimeout(()=>{ensureLandscapeEditingScene("load");optimizeWorkbenchVisualOrder();setTimeout(resize,80)},120));
+window.addEventListener("resize",()=>setTimeout(()=>ensureLandscapeEditingScene("resize"),120));
+const _oldDash = typeof dash === 'function' ? dash : null;
+if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTimeout(()=>ensureLandscapeEditingScene("dashboard-open"),120); return r; } }

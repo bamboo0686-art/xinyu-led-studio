@@ -1,4 +1,4 @@
-# Xinyu LED Studio V20.8.2｜Workbench Visibility & Adaptive Layout Hotfix
+# Xinyu LED Studio V20.8.3｜Workbench Visibility & Adaptive Layout Hotfix
 
 本版針對使用者實機影片發現的「心禹工作台功能被擠到螢幕底下」進行版面級修復。
 
