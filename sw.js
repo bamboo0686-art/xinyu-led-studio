@@ -1,5 +1,5 @@
-const C='xinyu-led-studio-v20-8-4-1';
-const CORE=['./','./index.html','./styles.css?v=20.8.4.1','./app.js?v=20.8.4.1','./manifest.json?v=20.8.4.1','./icon.svg?v=20.8.4.1'];
+const C='xinyu-led-studio-v20-8-5';
+const CORE=['./','./index.html','./styles.css?v=20.8.5','./app.js?v=20.8.5','./manifest.json?v=20.8.5','./icon.svg?v=20.8.5'];
 
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{
@@ -41,6 +41,7 @@ self.addEventListener('fetch',event=>{
     })());
     return;
   }
+  if(url.origin!==self.location.origin)return;
   event.respondWith((async()=>{
     const cached=await caches.match(event.request);
     if(cached)return cached;

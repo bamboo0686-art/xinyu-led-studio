@@ -25,7 +25,7 @@ function safeLoadProjects(){
   return []
  }
 }
-let P=safeLoadProjects(),cur=null,O=[],A=[],V=[],sel=null,multiSel=[],tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[]}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:0,h:0},renderPending=false,lastVideoRender=0,videoLoopRunning=false,audioTrack=null,audioContext=null,audioMixDest=null,audioMasterGain=null,audioNodes=new WeakMap(),workspaceRecorder=null,workspaceChunks=[],workspaceRecordStarted=0,workspaceRecordTimer=null,heavyRefreshPending=false,autoRecordStopTimer=null,mediaLoopActive=false,mediaLoopLast=0,ledPatternCache=null,runtimeErrorCount=0,heavyTimer=null,autoAssemblyEnabled=true,naked3DClock=0,naked3DLoop=false,groupMoveMode=false,bgObjectURL=null,mediaDbPromise=null,bgTransform={rotation:0,scale:1},timelineRAF=0,uiScaleMode=100,deletedStack=[],workflowStep="scene",testMode=false,mockE2EReport=null,aiContextCache=null,actionRegistryRuntime={},downloadCapture=[],agentEnabled=false,agentAutonomy="assist",agentTask=null,agentPaused=false,agentCancelled=false,agentLog=[],agentRunId=0,agentSelfHealEnabled=true,agentFallbackEnabled=true,agentSkipNonCriticalEnabled=true,agentRetryEnabled=true,agentRetryMax=2,agentRetryDelay=500,nextBestAction=null,currentRole="manager",engineeringOptimization=null,roleUIOverride=false;
+let P=safeLoadProjects(),cur=null,O=[],A=[],V=[],sel=null,multiSel=[],tool="select",drag=null,z=1,pan={x:0,y:0},bg=null,H=[],F=[],scale=null,scalePts=[],is3=false,tr,ts,tc,cam,oc,root,geomMode="normal",anchorDrag=-1,contentEditMode=false,snapEnabled=true,gridEnabled=true,groups={},groupSeq=1,scenes=[{id:"S1",name:"場景1",objects:[],bgScene:{w:1200,h:1200}}],sceneIndex=0,guideLines=[],autoSaveTimer=null,maskPainting=false,maskLast=null,activeGuide=null,studioMode="proposal",engineeringUnit="mm",engineeringLocked=false,showModuleGrid=false,showCabinetGrid=false,showPortMap=false,showPowerMap=false,aiDetections=[],aiMaskRegions=[],aiRepairRegions=[],show3DGrid=true,show3DStructure=true,threeContentCanvas=null,threeContentTex=null,bgScene={w:1200,h:1200},renderPending=false,lastVideoRender=0,videoLoopRunning=false,audioTrack=null,audioContext=null,audioMixDest=null,audioMasterGain=null,audioNodes=new WeakMap(),workspaceRecorder=null,workspaceChunks=[],workspaceRecordStarted=0,workspaceRecordTimer=null,heavyRefreshPending=false,autoRecordStopTimer=null,mediaLoopActive=false,mediaLoopLast=0,ledPatternCache=null,runtimeErrorCount=0,heavyTimer=null,autoAssemblyEnabled=true,naked3DClock=0,naked3DLoop=false,groupMoveMode=false,bgObjectURL=null,mediaDbPromise=null,bgTransform={rotation:0,scale:1},timelineRAF=0,uiScaleMode=100,deletedStack=[],workflowStep="scene",testMode=false,mockE2EReport=null,aiContextCache=null,actionRegistryRuntime={},downloadCapture=[],agentEnabled=false,agentAutonomy="assist",agentTask=null,agentPaused=false,agentCancelled=false,agentLog=[],agentRunId=0,agentSelfHealEnabled=true,agentFallbackEnabled=true,agentSkipNonCriticalEnabled=true,agentRetryEnabled=true,agentRetryMax=2,agentRetryDelay=500,nextBestAction=null,currentRole="manager",engineeringOptimization=null,roleUIOverride=false,libraryCurrentTab="ledmodels",libraryLastAudit=null;
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5),esc=s=>String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 function toast(t){q("toast").textContent=t;q("toast").classList.add("show");setTimeout(()=>q("toast").classList.remove("show"),1800)}
 function setRuntimeState(text,level="ok"){
@@ -267,7 +267,7 @@ function groupTransform(kind,val){
 
 function setAIProgress(v,msg){
  const bar=q("aiProgressBar");if(bar)bar.style.width=Math.max(0,Math.min(100,v))+"%";
- if(msg&&q("aiResult"))q("aiResult").innerHTML=msg
+ if(msg&&q("aiResult"))q("aiResult").textContent=String(msg).replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g,"")
 }
 function sourceImageCanvas(){
  if(!bg)return null;
@@ -298,9 +298,11 @@ function renderAIDetections(){
 }
 async function callRemoteAI(action,payload={}){
  const ep=q("aiEndpoint")?.value?.trim();if(!ep)throw new Error("尚未設定AI模型服務URL");
+ const url=new URL(ep,location.href),local=["localhost","127.0.0.1","::1"].includes(url.hostname);
+ if(url.protocol!=="https:"&&!(local&&url.protocol==="http:"))throw new Error("AI服務必須使用 HTTPS；本機 localhost 可使用 HTTP");
  const src=sourceImageCanvas();const image=src?src.toDataURL("image/jpeg",.82):null;
- const res=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,image,project:{name:cur?.name},...payload})});
- if(!res.ok)throw new Error("AI服務回應失敗 "+res.status);return await res.json()
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
+ try{const res=await fetch(url.href,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,image,project:{name:cur?.name},...payload}),signal:controller.signal,credentials:"omit",referrerPolicy:"no-referrer"});if(!res.ok)throw new Error("AI服務回應失敗 "+res.status);const text=await res.text();if(text.length>2_000_000)throw new Error("AI服務回應過大");return JSON.parse(text)}finally{clearTimeout(timer)}
 }
 async function aiAnalyze(){
  setAIProgress(15,"正在分析場景...");
@@ -660,9 +662,9 @@ function exportBOMCSV(){
 }
 window.addEventListener("error",e=>toast("錯誤："+(e.message||"未知錯誤")));
 function saveList(){localStorage.setItem("XLS_PROJECTS",JSON.stringify(P))}
-function dash(){q("projects").innerHTML="";if(!P.length){q("projects").innerHTML='<div class="meta">尚無專案，請建立第一個Xinyu LED Studio專案。</div>';return}P.slice().reverse().forEach(p=>{let e=document.createElement("div");e.className="proj";e.innerHTML=`<div class="cover">▣</div><div class="pbody"><h3>${esc(p.name)}</h3><div class="meta">客戶：${esc(p.client||"-")}<br>編號：${p.id}<br>修改：${new Date(p.m).toLocaleString()}</div><span class="status">${p.status||"草稿"}</span><div class="row" style="margin-top:7px"><button class="btn op">開啟</button><button class="btn cp">複製</button><button class="btn red rm">刪除</button></div></div>`;e.querySelector(".op").onclick=()=>open(p.id);e.querySelector(".cp").onclick=()=>{let d=structuredClone(p);d.id="P"+Date.now();d.name+="－複製";d.m=Date.now();P.push(d);saveList();dash()};e.querySelector(".rm").onclick=()=>{P=P.filter(a=>a.id!==p.id);saveList();dash()};q("projects").append(e)})}
+function dash(){q("projects").innerHTML="";if(!P.length){q("projects").innerHTML='<div class="meta">尚無專案，請建立第一個Xinyu LED Studio專案。</div>';return}P.slice().reverse().forEach(p=>{let e=document.createElement("div");e.className="proj";e.innerHTML=`<div class="cover">▣</div><div class="pbody"><h3>${esc(p.name)}</h3><div class="meta">客戶：${esc(p.client||"-")}<br>編號：${esc(p.id)}<br>修改：${new Date(p.m).toLocaleString()}</div><span class="status">${esc(p.status||"草稿")}</span><div class="row" style="margin-top:7px"><button class="btn op">開啟</button><button class="btn cp">複製</button><button class="btn red rm">刪除</button></div></div>`;e.querySelector(".op").onclick=()=>open(p.id);e.querySelector(".cp").onclick=()=>{let d=structuredClone(p);d.id="P"+Date.now();d.name+="－複製";d.m=Date.now();P.push(d);saveList();dash()};e.querySelector(".rm").onclick=()=>{P=P.filter(a=>a.id!==p.id);saveList();dash()};q("projects").append(e)})}
 q("new").onclick=()=>q("modal").classList.add("show");q("cancel").onclick=()=>q("modal").classList.remove("show");q("create").onclick=async()=>{
- const p={id:"P"+Date.now(),name:q("nn").value||"新LED專案",client:q("nc").value,address:q("na").value,sales:q("ns").value,eng:q("ne").value,type:q("nt").value,note:q("nno").value,status:"草稿",m:Date.now(),data:{o:[],scenes:[{id:"S1",name:"場景1",objects:[],bgScene:{w:0,h:0},bgTransform:{rotation:0,scale:1}}],a:[],v:[],groups:{}}};
+ const p={id:"P"+Date.now(),name:q("nn").value||"新LED專案",client:q("nc").value,address:q("na").value,sales:q("ns").value,eng:q("ne").value,type:q("nt").value,note:q("nno").value,status:"草稿",m:Date.now(),data:{o:[],scenes:[{id:"S1",name:"場景1",objects:[],bgScene:{w:1200,h:1200},bgTransform:{rotation:0,scale:1}}],a:[],v:[],groups:{}}};
  P.push(p);saveList();q("modal").classList.remove("show");await open(p.id)
 };
 async function open(id){
@@ -670,8 +672,9 @@ async function open(id){
  if(!cur){toast("找不到專案");return false}
  q("dashboard").classList.add("hidden");
  try{
-  scenes=cloneProjectScenes(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[],bgScene:{w:0,h:0}}]);
-  if(!Array.isArray(scenes)||!scenes.length)scenes=[{id:"S1",name:"場景1",objects:[],bgScene:{w:0,h:0}}];
+  scenes=cloneProjectScenes(cur.data?.scenes||[{id:"S1",name:"場景1",objects:cur.data?.o||[],bgScene:{w:1200,h:1200}}]);
+  if(!Array.isArray(scenes)||!scenes.length)scenes=[{id:"S1",name:"場景1",objects:[],bgScene:{w:1200,h:1200}}];
+  scenes.forEach(scene=>{if(!scene.bgScene?.w||!scene.bgScene?.h)scene.bgScene={w:1200,h:1200}});
   sceneIndex=0;O=restoreObjectsFromPlain(scenes[0]?.objects||[]);
   A=Array.isArray(cur.data?.a)?cur.data.a:[];V=Array.isArray(cur.data?.v)?cur.data.v:[];
   guideLines=structuredClone(cur.data?.guideLines||[]);aiDetections=structuredClone(cur.data?.aiDetections||[]);
@@ -727,7 +730,7 @@ q("home").onclick=()=>{q("dashboard").classList.remove("hidden");dash()};
 
 
 function sceneImageSize(){
- if(!bg)return bgScene?.w&&bgScene?.h?bgScene:{w:0,h:0};
+ if(!bg)return bgScene?.w&&bgScene?.h?bgScene:{w:1200,h:1200};
  if(bgScene.w>0&&bgScene.h>0)return bgScene;
  const nw=bg.naturalWidth||bg.width||1600,nh=bg.naturalHeight||bg.height||900,maxDim=1800,ratio=Math.min(1,maxDim/Math.max(nw,nh));
  bgScene={w:Math.max(1,nw*ratio),h:Math.max(1,nh*ratio)};
@@ -749,10 +752,10 @@ function updateFitBadge(){
 }
 
 function syncSceneInputs(){
- const s=sceneImageSize();if(q("sceneW"))q("sceneW").value=Math.round(s.w||1600);if(q("sceneH"))q("sceneH").value=Math.round(s.h||900)
+ const s=sceneImageSize();if(q("sceneW"))q("sceneW").value=Math.round(s.w||1200);if(q("sceneH"))q("sceneH").value=Math.round(s.h||1200)
 }
 function applySceneSize(){
- let w=Math.max(100,Math.min(12000,+q("sceneW").value||1600)),h=Math.max(100,Math.min(12000,+q("sceneH").value||900));
+ let w=Math.max(100,Math.min(12000,+q("sceneW").value||1200)),h=Math.max(100,Math.min(12000,+q("sceneH").value||1200));
  if(q("sceneLockRatio")?.checked&&bg){
   const nat=(bg.naturalWidth||bg.width)/(bg.naturalHeight||bg.height);
   if(document.activeElement===q("sceneW"))h=w/nat;else w=h*nat;
@@ -1151,7 +1154,7 @@ function geom(m){geomMode=m;q("geomNormal").classList.toggle("active",m==="norma
 q("bright").oninput=()=>{let o=selected();if(o){o.bright=q("bright").value/100;q("bv").textContent=q("bright").value+"%";draw();markChanged()}};q("opacity").oninput=()=>{let o=selected();if(o){o.opacity=q("opacity").value/100;q("ov").textContent=q("opacity").value+"%";draw();markChanged()}};
 q("del").onclick=deleteSelectedObjects;q("dup").onclick=duplicateSelectedObjects;
 function layers(){
- let b=q('bc');if(!q('[data-b="layers"]').classList.contains('active'))return;b.innerHTML='';
+ let b=q('bc'),tab=document.querySelector('.btabs [data-b="layers"]');if(!b||!tab?.classList.contains('active'))return;b.innerHTML='';
  const tools=document.createElement('div');tools.className='layerTools';tools.innerHTML='<button id="lyUp">上移</button><button id="lyDown">下移</button><button id="lyTop">置頂</button><button id="lyBottom">置底</button><button id="lyGroup">群組</button><button id="lyUngroup">解除群組</button><button id="lyFrontMask">前景遮罩</button><button id="lyBackMask">背景遮罩</button>';b.append(tools);
  normalizeOrders();
  [...O].reverse().forEach(o=>{
@@ -1375,7 +1378,7 @@ if(q("distH"))q("distH").onclick=()=>distribute("h");if(q("distV"))q("distV").on
 if(q("captureA"))q("captureA").onclick=()=>captureCompare("A");if(q("captureB"))q("captureB").onclick=()=>captureCompare("B");
 
 
-if(q("addScene"))q("addScene").onclick=()=>{syncSceneFromObjects();scenes.push({id:"S"+Date.now(),name:"場景"+(scenes.length+1),objects:[],bgScene:{w:0,h:0},backgroundKey:null});sceneIndex=scenes.length-1;O=[];renderSceneTabs();draw();layers();updatePropertySceneInfo();markChanged()};
+if(q("addScene"))q("addScene").onclick=()=>{syncSceneFromObjects();scenes.push({id:"S"+Date.now(),name:"場景"+(scenes.length+1),objects:[],bgScene:{w:1200,h:1200},backgroundKey:null});sceneIndex=scenes.length-1;O=[];bg=null;bgScene={w:1200,h:1200};renderSceneTabs();fitScene();draw();layers();updatePropertySceneInfo();markChanged()};
 if(q("dupScene"))q("dupScene").onclick=()=>{syncSceneFromObjects();const s=structuredClone(currentScene());s.id="S"+Date.now();s.name+=" 複製";scenes.push(s);sceneIndex=scenes.length-1;O=structuredClone(s.objects||[]);renderSceneTabs();draw();layers();updatePropertySceneInfo();markChanged()};
 if(q("renameScene"))q("renameScene").onclick=()=>{const s=currentScene();if(!s)return;const n=prompt("場景名稱",s.name);if(n){s.name=n;renderSceneTabs();markChanged()}};
 if(q("delScene"))q("delScene").onclick=()=>{if(scenes.length<=1){toast("至少保留一個場景");return}pauseObjectMedia(O);scenes.splice(sceneIndex,1);sceneIndex=Math.max(0,sceneIndex-1);O=structuredClone(currentScene().objects||[]);renderSceneTabs();draw();layers();updatePropertySceneInfo();markChanged()};
@@ -1447,7 +1450,7 @@ function model(n){return createModelSafe(n)}
 
 function updateBgControls(){q("bgRotate").value=bgTransform.rotation||0;q("bgRotateVal").textContent=(bgTransform.rotation||0)+"°";q("bgScale").value=Math.round((bgTransform.scale||1)*100);q("bgScaleVal").textContent=Math.round((bgTransform.scale||1)*100)+"%"}
 q("bgReplace").onclick=()=>q("bgBtn").click();
-q("bgDelete").onclick=async()=>{if(bgObjectURL){try{URL.revokeObjectURL(bgObjectURL)}catch{}bgObjectURL=null}bg=null;bgScene={w:1600,h:900};bgTransform={rotation:0,scale:1};const s=currentScene();if(s){if(s.backgroundKey)await dbDeleteBlob(s.backgroundKey);s.backgroundKey=null;s.bgScene={w:1600,h:900};s.bgTransform={rotation:0,scale:1}}updateBgControls();syncSceneInputs();fitScene();draw(true);markChanged();toast("已刪除實景圖，工作區已恢復為 16:9 編輯畫布")};
+q("bgDelete").onclick=async()=>{if(bgObjectURL){try{URL.revokeObjectURL(bgObjectURL)}catch{}bgObjectURL=null}bg=null;bgScene={w:1200,h:1200};bgTransform={rotation:0,scale:1};const s=currentScene();if(s){if(s.backgroundKey)await dbDeleteBlob(s.backgroundKey);s.backgroundKey=null;s.bgScene={w:1200,h:1200};s.bgTransform={rotation:0,scale:1}}updateBgControls();syncSceneInputs();fitScene();draw(true);markChanged();toast("已刪除實景圖，工作區已恢復為 1:1 編輯畫布")};
 q("bgRotate").oninput=()=>{bgTransform.rotation=+q("bgRotate").value;q("bgRotateVal").textContent=bgTransform.rotation+"°";const s=currentScene();if(s)s.bgTransform={...bgTransform};draw();markChanged()};
 q("bgScale").oninput=()=>{bgTransform.scale=+q("bgScale").value/100;q("bgScaleVal").textContent=q("bgScale").value+"%";const s=currentScene();if(s)s.bgTransform={...bgTransform};draw();markChanged()};
 
@@ -2146,7 +2149,7 @@ function exportMockE2E(){
 
 const AGENT_ACTIONS={
  "optimize-engineering":{risk:"low",requires:()=>!!selected()&&classifyDevice(selected())==="LED",run:async()=>{const r=optimizeSelectedEngineering();return !!r}},
- "ensure-project":{risk:"low",requires:()=>true,run:async()=>{if(cur)return true;const p={id:"AG-"+Date.now(),name:"AI Agent 專案",client:"",address:"",sales:"",eng:"",type:"LED",note:"",status:"草稿",m:Date.now(),data:{o:[],scenes:[{id:"S1",name:"場景1",objects:[],bgScene:{w:0,h:0},bgTransform:{rotation:0,scale:1}}],a:[],v:[],groups:{}}};P.push(p);saveList();return await open(p.id)}},
+"ensure-project":{risk:"low",requires:()=>true,run:async()=>{if(cur)return true;const p={id:"AG-"+Date.now(),name:"AI Agent 專案",client:"",address:"",sales:"",eng:"",type:"LED",note:"",status:"草稿",m:Date.now(),data:{o:[],scenes:[{id:"S1",name:"場景1",objects:[],bgScene:{w:1200,h:1200},bgTransform:{rotation:0,scale:1}}],a:[],v:[],groups:{}}};P.push(p);saveList();return await open(p.id)}},
  "create-led":{risk:"low",requires:()=>!!cur,run:async args=>{const o=createModelSafe(args?.name||"常規屏");if(!o)throw new Error("建立LED失敗");if(args?.w)o.rw=args.w;if(args?.h)o.rh=args.h;if(args?.pitch)o.pitch=args.pitch;props();draw();markChanged();return o}},
  "center-selected":{risk:"low",requires:()=>!!selected(),run:async()=>{centerSelected();return true}},
  "apply-first-asset":{risk:"medium",requires:()=>!!selected()&&A.length>0,run:async()=>{const asset=A[0];await attachRuntimeAssetToObject(asset,selected());return !!selected()?.media}},
@@ -2594,7 +2597,7 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
   dash();resize();bindLibraryRuntime();activateLibraryTab("ledmodels","bootstrap");summary();renderSceneTabs();renderGuides();projectHealth();
   startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);setTimeout(libraryFunctionalAudit,380);
   if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./sw.js?v=20.8.4.1.1",{updateViaCache:"none"})
+  navigator.serviceWorker.register("./sw.js?v=20.8.5",{updateViaCache:"none"})
    .then(async reg=>{try{await reg.update()}catch{}})
    .catch(e=>console.warn("SW",e))
 }
@@ -2683,20 +2686,20 @@ if(new URLSearchParams(location.search).get("button-e2e")==="1"){window.addEvent
 
 
 /* === V20.8.3 layout comfort / scene optimizer === */
-function ensureLandscapeEditingScene(reason="startup"){
+function ensureSquareEditingScene(reason="startup"){
  try{
   const scene=currentScene?.();
   if(bg)return false;
   const w=Number(bgScene?.w||0),h=Number(bgScene?.h||0);
-  if(!w||!h||h>w*1.15){
-   bgScene={w:1600,h:900};
-   if(scene)scene.bgScene={w:1600,h:900};
+  if(!w||!h){
+   bgScene={w:1200,h:1200};
+   if(scene)scene.bgScene={w:1200,h:1200};
    syncSceneInputs?.();
    fitScene?.();
-   if(q("workbenchVisibilityState"))q("workbenchVisibilityState").textContent=`工作台：版面優化完成｜${reason}｜空白畫布已調整為 16:9，編輯工作區更寬更好操作`;
+   if(q("workbenchVisibilityState"))q("workbenchVisibilityState").textContent=`工作台：版面優化完成｜${reason}｜空白畫布為 1:1 正方形`;
    return true;
   }
- }catch(e){console.warn("ensureLandscapeEditingScene failed",e)}
+ }catch(e){console.warn("ensureSquareEditingScene failed",e)}
  return false;
 }
 function optimizeWorkbenchVisualOrder(){
@@ -2708,15 +2711,15 @@ function optimizeWorkbenchVisualOrder(){
   if(status)status.textContent="工作台：全部靠左整理｜使用上方母子頁切換「工作台」與「模型／素材庫」";
  }catch(e){console.warn("optimizeWorkbenchVisualOrder failed",e)}
 }
-window.addEventListener("load",()=>setTimeout(()=>{ensureLandscapeEditingScene("load");optimizeWorkbenchVisualOrder();setTimeout(resize,80)},120));
-window.addEventListener("resize",()=>setTimeout(()=>ensureLandscapeEditingScene("resize"),120));
+window.addEventListener("load",()=>setTimeout(()=>{ensureSquareEditingScene("load");optimizeWorkbenchVisualOrder();setTimeout(resize,80)},120));
+window.addEventListener("resize",()=>setTimeout(()=>ensureSquareEditingScene("resize"),120));
 const _oldDash = typeof dash === 'function' ? dash : null;
-if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTimeout(()=>ensureLandscapeEditingScene("dashboard-open"),120); return r; } }
+if(_oldDash){ dash = function(){ const r=_oldDash.apply(this,arguments); setTimeout(()=>ensureSquareEditingScene("dashboard-open"),120); return r; } }
 
 
 
 
-let libraryCurrentTab="ledmodels",libraryLastAudit=null;
+libraryCurrentTab="ledmodels";libraryLastAudit=null;
 function setLibraryRuntimeState(text,level="ok"){
  const el=q("libraryRuntimeState");if(!el)return;el.textContent=text;el.className="libraryRuntimeState "+level
 }
@@ -2753,14 +2756,14 @@ function restoreLeftPanelPage(){
  bindLibraryRuntime();setLeftPanelPage(page);
 }
 
-/* === V20.8.4.1 deployment verification === */
-const XINYU_DEPLOY_BUILD="V20.8.4.1";
+/* === V20.8.5 deployment verification === */
+const XINYU_DEPLOY_BUILD="V20.8.5";
 function verifyDeployedBuild(){
  try{
    const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
    const badge=q("deployedBuildBadge"), state=q("deployVersionState");
    if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
-   const ok=cssBuild==="20.8.4.1";
+   const ok=cssBuild==="20.8.5";
    if(state){
      state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
      state.style.color=ok?"#7ed29a":"#ef8a8a";

@@ -1,6 +1,6 @@
 {
-  "name": "Xinyu LED Studio V20.8.4.1",
-  "short_name": "Xinyu LED V20.8.4.1",
+  "name": "Xinyu LED Studio V20.8.5",
+  "short_name": "Xinyu LED V20.8.5",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0b0e",
@@ -13,5 +13,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "模型／素材庫功能修復版"
+  "description": "啟動核心、安全性與 1:1 工作區強化版"
 }
