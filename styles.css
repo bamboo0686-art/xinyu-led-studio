@@ -580,7 +580,7 @@ body.workbench-max .app{grid-template-rows:minmax(150px,1fr) minmax(360px,var(--
 }
 .deployVersionState{margin-left:6px;color:#8fb8e8;font-size:9px}
 body::after{
- content:"V20.9.0";
+ content:"V21.0.0";
  position:fixed;right:8px;bottom:32px;z-index:998;
  padding:3px 7px;border-radius:5px;background:#080b0fbb;color:#7f8a98;
  border:1px solid #29313b;font-size:8px;pointer-events:none
@@ -588,7 +588,7 @@ body::after{
 
 
 /* === V20.8.4 left dock + square workspace === */
-:root{--xinyu-build:20.9.0;--tool-w:72px;--left-dock-w:330px;--inspector-w:300px;}
+:root{--xinyu-build:21.0.0;--tool-w:72px;--left-dock-w:330px;--inspector-w:300px;}
 .app{
   grid-template-columns:var(--tool-w) var(--left-dock-w) minmax(0,1fr) var(--inspector-w)!important;
   grid-template-rows:minmax(0,1fr)!important;
@@ -649,14 +649,14 @@ body::after{
 body.dock-collapsed #leftLibraryPage .btabs,body.dock-collapsed #leftLibraryPage .bcontent{display:flex!important}
 body.dock-collapsed #leftLibraryPage .libraryHead{display:block!important}
 
-/* V20.9.0 interaction and responsive layering hardening */
+/* V21.0.0 interaction and responsive layering hardening */
 .top{height:54px!important;min-height:54px!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:thin}
 .top .brand{flex:0 0 auto}.top button,.top span{flex:0 0 auto}
 .dashboard{inset:54px 0 0!important;z-index:1200!important;background:linear-gradient(180deg,#0d1015 0%,#090b0f 100%)!important}
 .modal{z-index:1300!important}
 @media(max-width:1280px){.top .brand small{display:none}.dashboard{padding:16px!important}.dashhead{gap:12px}.dashhead .a{display:flex;gap:8px}}
 
-/* V20.9 multi-device workflow */
+/* V21.0 multi-device workflow */
 .fleetPanel{border-color:#3b5874!important;background:linear-gradient(145deg,#121a24,#0d1219)!important;box-shadow:inset 0 1px 0 #ffffff0b,0 8px 24px #0004}
 .fleetTitle{display:flex;align-items:center;justify-content:space-between;gap:8px}.fleetTitle h3{margin:0}.fleetTitle span{padding:3px 7px;border-radius:999px;background:#c99a3a;color:#111;font-weight:800;font-size:9px}
 .fleetState{margin:8px 0;padding:8px 10px;border:1px solid #34526d;border-radius:8px;background:#0b1118;color:#a9c9e8;font-size:10px}
@@ -667,3 +667,18 @@ body.dock-collapsed #leftLibraryPage .libraryHead{display:block!important}
 .fleetHint{margin-top:7px;color:#8396a8;font-size:9px;line-height:1.45}
 body.fleet-playing #runtimeState{box-shadow:0 0 0 1px #40ad72,0 0 16px #2fbd6b44;color:#9ce4b6}
 @media(max-width:1100px){.fleetCreate{grid-template-columns:1fr 60px 1fr}.fleetCreate #fleetCreate{grid-column:1/-1}.fleetAdjust{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V21.0 professional device workspace */
+:root{--xinyu-build:21.0.0;--gold:#d6aa4d;--blue:#5fa8ff;--panel:#111820;--panel2:#0c1219;--line:#2c3a49;--muted:#91a0af;--text:#edf3f9}
+body{background:#080c11;color:var(--text);font-family:Inter,"Noto Sans TC","Segoe UI",sans-serif}
+.top{background:linear-gradient(180deg,#151c25 0%,#0b1118 100%)!important;border-bottom:1px solid #324252!important;box-shadow:0 8px 24px #0008;gap:5px!important;padding:0 10px!important}
+.top .brand{color:#fff!important;font-weight:800;letter-spacing:.2px}.top .brand::before{content:"X";display:inline-grid;place-items:center;width:25px;height:25px;margin-right:8px;border-radius:7px;background:linear-gradient(135deg,#e2bb67,#8f6420);color:#111;box-shadow:0 0 0 1px #f5d88a55}.top .brand small{color:#8293a4!important;font-weight:500!important}
+.top button{border-color:#31404f!important;background:#121a23!important;color:#cdd8e3!important;border-radius:7px!important}.top button:hover{border-color:#67829d!important;background:#1a2835!important;color:#fff!important}.top .save,.top button.active{background:linear-gradient(180deg,#d8ae55,#a97824)!important;color:#15100a!important;border-color:#e8c87c!important}
+.tools{background:linear-gradient(180deg,#111821,#0a0f15)!important;border-right:1px solid #2d3c4a!important;padding:0 6px 8px!important}.toolRailName{margin:0 -6px 7px!important;padding:10px 3px 8px!important;border-bottom:1px solid #334352;background:#131c26!important}.toolRailName b{font-size:12px!important;color:#f4d991!important}.toolRailName small{font-size:7px!important;letter-spacing:1.2px;color:#71869a!important}.tools .tool{border:1px solid transparent!important;border-radius:9px!important;margin:2px 0!important;min-height:47px;color:#9daebe!important}.tools .tool:hover{background:#18232e!important;border-color:#34495d!important}.tools .tool.active{background:linear-gradient(145deg,#29435b,#172b3d)!important;border-color:#5f91bb!important;color:#fff!important;box-shadow:inset 3px 0 0 var(--gold)}.tools .tool b{font-size:17px!important}
+.right,.bottom{background:#0b1016!important}.right .tabs{position:sticky;top:0;z-index:20;background:#101821eF!important;backdrop-filter:blur(12px);border-bottom:1px solid #304150!important}.right .tabs button{border-radius:7px 7px 0 0!important}.right .tabs button.active{color:#f4d991!important;border-bottom-color:var(--gold)!important;background:#17212c!important}
+.panel{background:linear-gradient(145deg,#131b24,#0c1219)!important;border:1px solid #293846!important;border-radius:11px!important;box-shadow:inset 0 1px 0 #ffffff08,0 6px 18px #0003!important;margin:8px!important;padding:11px!important}.panel .panel{margin:8px 0!important;background:#0c131b!important}.panel h3{color:#e8eef5!important;font-size:11px!important;letter-spacing:.2px}.panelTitle{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.panelTitle h3{margin:0}.panelTitle span{font-size:8px;color:#e8c979;background:#3a2c14;padding:3px 7px;border-radius:999px}
+.field label,.field>span{color:#91a1b1!important}.field input,.field select,.field textarea,.panel input,.panel select,.panel textarea{background:#091018!important;border:1px solid #334455!important;color:#ecf2f8!important;border-radius:7px!important;outline:none}.field input:focus,.field select:focus,.panel textarea:focus{border-color:#5f9bd0!important;box-shadow:0 0 0 2px #4b8fc52b!important}.btn,.panel button{border-radius:7px!important}.btn.primary{border-color:#477ba4!important;background:#183754!important;color:#dcedff!important}.btn.wide{width:100%;margin-top:7px}.compactActions{margin-top:6px}.sectionDivider{display:flex;align-items:center;gap:8px;margin:10px 0 7px;color:#b8c7d5;font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}.sectionDivider::after{content:"";height:1px;flex:1;background:#2b3b4a}.switchField{display:flex!important;align-items:center;gap:7px;min-height:32px;padding:6px 8px;background:#0a1118;border:1px solid #2b3b49;border-radius:7px;color:#bdc9d4!important}.switchField input{width:auto!important}
+.modelEditor{border-color:#3a5770!important}.contentScopeHint{margin:7px 0;padding:7px 8px;border:1px solid #345570;border-radius:7px;background:#0d1a25;color:#a9cbe8;font-size:9px;line-height:1.45}.contentRuntime{margin-top:9px;padding:9px;border:1px solid #2f4558;border-radius:9px;background:#0b131b}.nakedPresets,.aiQuickCommands{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:7px 0}.nakedPresets button,.aiQuickCommands button{font-size:8px;padding:7px 4px;border:1px solid #3a536a;background:#122234;color:#c9dff2}.aiOpsPanel{border-color:#496986!important;background:radial-gradient(circle at top right,#18334c 0,#111922 42%,#0c1219 100%)!important}.aiOpsPanel textarea{min-height:76px;font-size:11px!important;line-height:1.6!important}.aiCommandHistory{display:grid;gap:3px;margin:8px 0;padding:8px;border-left:3px solid var(--gold);background:#0b1219;border-radius:0 7px 7px 0;font-size:9px}.aiCommandHistory b{color:#f0d68d}.aiCommandHistory span{color:#dce6ef}.aiCommandHistory small{color:#8192a3}
+.removedFeature{display:none!important}.engineeringLegacy{display:none!important}.aiPanel{display:none!important}
+.stage{background:radial-gradient(circle at center,#1b2733 0,#101720 55%,#090e14 100%)!important}.stage::before{border-color:#52677a!important;box-shadow:0 0 0 9999px rgba(1,5,10,.16) inset,0 18px 50px #0009!important}.stage::after{content:'PROFESSIONAL DEVICE CANVAS'!important;color:#b9c9d8!important;background:#0c131ce8!important;border-color:#38516a!important;letter-spacing:1.4px!important}.fleetPanel{border-color:#476a87!important}.fleetState{background:#09131d!important;border-color:#3c5c77!important}.runtimeState,.deployedBuildBadge{border-radius:999px!important}
+@media(max-width:1500px){.panel{margin:6px!important;padding:9px!important}.top{gap:3px!important}.top button{padding-left:7px!important;padding-right:7px!important}}

@@ -55,7 +55,7 @@ function markChanged(){scheduleAutoSave()}
 function scheduleHeavyRefresh(delay=180){
  clearTimeout(heavyTimer);heavyTimer=setTimeout(()=>{
   heavyTimer=null;
-  const run=()=>guarded(()=>{layers();summary();updateEngCalc?.();},"背景工程計算");
+  const run=()=>guarded(()=>{layers();summary();},"背景介面更新");
   if("requestIdleCallback"in window)requestIdleCallback(run,{timeout:450});else setTimeout(run,0)
  },delay)
 }
@@ -126,7 +126,7 @@ function addSameTypeModel(){
 function ensureNaked3DLoop(){
  if(naked3DLoop)return;naked3DLoop=true;
  const tick=t=>{
-  const active=O.some(o=>o.naked3D&&o.vis!==false);
+  const active=O.some(o=>o.naked3D&&!o.naked3DPaused&&o.vis!==false);
   if(!active){naked3DLoop=false;return}
   naked3DClock=t;draw();requestAnimationFrame(tick)
  };
@@ -870,7 +870,7 @@ function ensureVideoLoop(){
 }
 function bindVideoObject(o,v){
  o.media=v;o.ready=0;o.mediaType="video";
- v.loop=true;v.muted=false;v.defaultMuted=false;v.volume=1;v.playsInline=true;v.preload="auto";
+ v.loop=o.mediaLoop??true;v.muted=o.mediaMuted??false;v.defaultMuted=false;v.volume=Math.max(0,Math.min(1,o.mediaVolume??1));v.playbackRate=Math.max(.25,Math.min(4,o.mediaPlaybackRate??1));v.playsInline=true;v.preload="auto";
  v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");
  const ready=()=>{o.ready=1;draw();setPlayStatus(`影片已就緒：${o.assetName||"影片"}，按播放開始`)};
  v.addEventListener("loadedmetadata",ready);
@@ -948,17 +948,17 @@ function mediaDraw(o,b){
  const sx=mw*cxp,sy=mh*cyp,sw=Math.max(1,Math.min(mw-sx,mw*cwp)),sh=Math.max(1,Math.min(mh-sy,mh*chp));
  const s=(o.contentScale||100)/100,dx=(o.contentX||0)/100*b.w,dy=(o.contentY||0)/100*b.h,rot=(o.contentRotate||0)*Math.PI/180,cw=(o.contentWidth??100)/100,ch=(o.contentHeight??100)/100;
  let nakedScale=1,nx=0,ny=0;
- if(o.naked3D){
-  const dep=(o.naked3DDepth??35)/100,t=naked3DClock/1000,mode=o.naked3DMotion||"parallax";
+  if(o.naked3D&&!o.naked3DPaused){
+   const dep=(o.naked3DDepth??35)/100,t=naked3DClock/1000*Math.max(.1,o.naked3DSpeed??1)*(o.naked3DDirection??1),mode=o.naked3DMotion||"parallax";
   if(mode==="parallax"){nx=Math.sin(t*1.25)*b.w*.025*dep;ny=Math.cos(t*.9)*b.h*.012*dep;nakedScale=1+.045*dep}
   if(mode==="float"){ny=Math.sin(t*1.4)*b.h*.035*dep;nakedScale=1+.08*dep}
   if(mode==="depth"){nakedScale=1+(Math.sin(t*1.1)*.04+.055)*dep}
  }
  x.save();x.translate(b.x+b.w/2+dx+nx,b.y+b.h/2+dy+ny);x.rotate(rot);
  const dw=b.w*s*cw*nakedScale,dh=b.h*s*ch*nakedScale;
- if(o.naked3D){x.shadowColor="rgba(80,140,255,.65)";x.shadowBlur=18*(o.naked3DDepth??35)/35}
+  if(o.naked3D&&!o.naked3DPaused){x.shadowColor="rgba(80,140,255,.65)";x.shadowBlur=18*(o.naked3DDepth??35)/35}
  x.drawImage(m,sx,sy,sw,sh,-dw/2,-dh/2,dw,dh);
- if(o.naked3D){x.globalAlpha=.16;x.translate(-nx*.8,-ny*.8);x.drawImage(m,sx,sy,sw,sh,-dw*.515,-dh*.515,dw*1.03,dh*1.03)}
+  if(o.naked3D&&!o.naked3DPaused){x.globalAlpha=.16;x.translate(-nx*.8,-ny*.8);x.drawImage(m,sx,sy,sw,sh,-dw*.515,-dh*.515,dw*1.03,dh*1.03)}
  x.restore();return true
 }
 
@@ -1017,7 +1017,7 @@ x.globalAlpha=o.opacity??1;const gammaAdj=1+(1-(o.gamma||1))*.22,glowPx=(o.glow|
     x.fillStyle=g;x.fillRect(b.x,b.y,b.w,b.h);
     x.fillStyle=ledPattern();x.fillRect(b.x,b.y,b.w,b.h)
    }
-   x.restore();x.strokeStyle=o.id===sel?"#f2d98c":"#8b8e96";x.lineWidth=o.id===sel?2:1;x.stroke();
+    x.restore();x.save();x.filter="none";x.globalAlpha=Math.max(.05,Math.min(1,o.borderOpacity??1));x.strokeStyle=o.borderEnabled?(o.borderColor||"#d6b45f"):(o.id===sel?"#f2d98c":"#8b8e96");x.lineWidth=(o.borderEnabled?Math.max(.5,o.borderWidth||4):(o.id===sel?2:1))/Math.max(.2,z);x.setLineDash(o.borderEnabled&&o.borderStyle==="dashed"?[10/z,6/z]:o.borderEnabled&&o.borderStyle==="dotted"?[2/z,5/z]:[]);x.stroke();x.restore();
    if(o.type==="u"){const b=objectBounds(o),side=Math.min(b.w*.22,b.h*.44);x.save();x.strokeStyle="#d6b45f99";x.lineWidth=1.2;x.beginPath();x.moveTo(b.x+side,b.y);x.lineTo(b.x+side,b.y+b.h);x.moveTo(b.x+b.w-side,b.y);x.lineTo(b.x+b.w-side,b.y+b.h);x.stroke();x.restore()}
   }
   if(o.id===sel&&(geomMode==="perspective"||geomMode==="anchor")){
@@ -1469,14 +1469,13 @@ q("z100").onclick=centerSceneAt100;
 q("zfit").onclick=fitScene;
 q("fs").onclick=()=>document.fullscreenElement?document.exitFullscreen():q("stage").requestFullscreen?.();document.addEventListener("fullscreenchange",()=>setTimeout(()=>{resize();if(bg)fitScene()},80));
 q("content").onchange=()=>{
- const f=q("content").files[0],o=selected();if(!f)return;
+ const f=q("content").files[0],targets=selectedObjects().length?selectedObjects():(selected()?[selected()]:[]);if(!f)return;
  const rid="A"+Date.now()+Math.random().toString(36).slice(2,5),url=URL.createObjectURL(f),asset={name:f.name,type:f.type,runtimeId:rid};
  A.push(asset);assetRuntime.set(rid,{url,type:f.type,name:f.name});
- if(o){
-  stopAndDisposeMedia(o);o.assetName=f.name;o.mediaObjectURL=url;o.fit=o.fit||"填滿";o.contentScale=o.contentScale||100;o.contentRotate=o.contentRotate||0;o.contentX=o.contentX||0;o.contentY=o.contentY||0;
-  if(f.type.startsWith("video/")){const v=document.createElement("video");v.src=url;bindVideoObject(o,v)}
-  else{const im=new Image();im.onload=()=>{o.media=im;o.mediaType="image";o.ready=1;draw();setPlayStatus("圖片已套用："+f.name)};im.onerror=()=>setPlayStatus("圖片載入失敗","error");im.src=url}
- }
+ targets.forEach(o=>{const objectUrl=URL.createObjectURL(f);stopAndDisposeMedia(o);o.assetName=f.name;o.assetType=f.type;o.mediaObjectURL=objectUrl;o.fit=o.fit||"填滿";o.contentScale=o.contentScale||100;o.contentRotate=o.contentRotate||0;o.contentX=o.contentX||0;o.contentY=o.contentY||0;
+  if(f.type.startsWith("video/")){const v=document.createElement("video");v.src=objectUrl;bindVideoObject(o,v)}
+  else{const im=new Image();im.onload=()=>{o.media=im;o.mediaType="image";o.ready=1;draw();setPlayStatus(`圖片已套用到 ${targets.length} 台設備：${f.name}`)};im.onerror=()=>setPlayStatus("圖片載入失敗","error");im.src=objectUrl}
+ });if(targets.length>1)toast(`內容已獨立套用到 ${targets.length} 台設備`);
  bottom("assets");scheduleHeavyRefresh();markChanged()
 }
 
@@ -2604,7 +2603,7 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
   dash();resize();bindLibraryRuntime();activateLibraryTab("ledmodels","bootstrap");summary();renderSceneTabs();renderGuides();projectHealth();
   startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);setTimeout(libraryFunctionalAudit,380);
   if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./sw.js?v=20.9.0",{updateViaCache:"none"})
+  navigator.serviceWorker.register("./sw.js?v=21.0.0",{updateViaCache:"none"})
    .then(async reg=>{try{await reg.update()}catch{}})
    .catch(e=>console.warn("SW",e))
 }
@@ -2763,7 +2762,7 @@ function restoreLeftPanelPage(){
  bindLibraryRuntime();setLeftPanelPage(page);
 }
 
-/* === V20.9 multi-device orchestration === */
+/* === V21.0 multi-device orchestration === */
 function cloneRuntimeMedia(source,target){
  const media=source?.media;if(!media||!target)return null;
  try{
@@ -2838,14 +2837,14 @@ const _fleetAIExecute=executeAICommandText;executeAICommandText=async function(t
 window.xinyuFleet={state:renderFleetState,create:createFleet,selectAll:()=>setFleetSelection(fleetObjects().map(o=>o.id)),arrange:mode=>arrangeFleet(selectedObjects(),mode),transform:applyFleetTransform,play:playFleet,pause:pauseFleet,seek:seekFleet,copyMedia:copyFleetMedia};
 installFleetControls();window.addEventListener("load",()=>setTimeout(()=>{installFleetControls();renderFleetState()},220));
 
-/* === V20.9.0 deployment verification === */
-const XINYU_DEPLOY_BUILD="V20.9.0";
+/* === V21.0.0 deployment verification === */
+const XINYU_DEPLOY_BUILD="V21.0.0";
 function verifyDeployedBuild(){
  try{
    const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
    const badge=q("deployedBuildBadge"), state=q("deployVersionState");
    if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
-   const ok=cssBuild==="20.9.0";
+   const ok=cssBuild==="21.0.0";
    if(state){
      state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
      state.style.color=ok?"#7ed29a":"#ef8a8a";
@@ -2855,3 +2854,52 @@ function verifyDeployedBuild(){
  }catch(e){console.warn("verifyDeployedBuild",e);return false}
 }
 window.addEventListener("load",()=>setTimeout(verifyDeployedBuild,180));
+
+/* === V21.0 professional device editing workspace === */
+function editableTargets(){const a=selectedObjects();return a.length?a:(selected()?[selected()]:[])}
+function convertDeviceShape(type){
+ const arr=editableTargets();if(!arr.length){toast("請先選取設備");return 0}snap();
+ arr.forEach(o=>{const b=objectBounds(o),x0=b.x,y0=b.y,w=Math.max(20,b.w),h=Math.max(20,b.h);o.x=x0;o.y=y0;o.w=w;o.h=h;delete o.corners;delete o.pts;o.type=type;
+  if(type==="poly")o.pts=[{x:x0,y:y0},{x:x0+w,y:y0},{x:x0+w,y:y0+h*.62},{x:x0+w*.62,y:y0+h*.62},{x:x0+w*.62,y:y0+h},{x:x0,y:y0+h}];
+  if(type==="l")o.pts=[{x:x0,y:y0},{x:x0+w*.38,y:y0},{x:x0+w*.38,y:y0+h*.62},{x:x0+w,y:y0+h*.62},{x:x0+w,y:y0+h},{x:x0,y:y0+h}];
+  if(type==="curve")o.curvePower=Math.max(35,o.curvePower||0)
+ });draw();props();layers();markChanged();toast(`已轉換 ${arr.length} 個設備形狀`);return arr.length
+}
+function changeShapeNode(delta){
+ const o=selected();if(!o){toast("請先選取設備");return false}if(!o.pts)o.pts=polyPts(o).map(p=>({...p}));
+ if(delta>0){const a=o.pts,b=objectBounds(o),i=Math.max(0,a.length-1),p=a[i],n=a[0];a.push({x:(p.x+n.x)/2,y:(p.y+n.y)/2});o.type="poly"}
+ else if(o.pts.length>3)o.pts.pop();else{toast("自由形狀至少需要 3 個節點");return false}
+ draw();props();markChanged();return true
+}
+function applyBorderFromUI(){
+ const arr=editableTargets();if(!arr.length){toast("請先選取設備");return 0}snap();arr.forEach(o=>{o.borderEnabled=!!q("borderEnabled").checked;o.borderWidth=Math.max(.5,+q("borderWidth").value||4);o.borderColor=q("borderColor").value||"#d6b45f";o.borderStyle=q("borderStyle").value;o.borderOpacity=Math.max(.05,Math.min(1,(+q("borderOpacity").value||100)/100))});draw();markChanged();toast(`邊框已套用到 ${arr.length} 個設備`);return arr.length
+}
+function applyMediaSettingsFromUI(){
+ const arr=editableTargets();if(!arr.length){toast("請先選取設備");return 0}arr.forEach(o=>{o.mediaPlaybackRate=+q("mediaPlaybackRate").value||1;o.mediaVolume=Math.max(0,Math.min(1,(+q("mediaVolume").value||0)/100));o.mediaOffset=+q("mediaOffset").value||0;o.mediaLoop=q("mediaLoop").checked;o.mediaMuted=q("mediaMuted").checked;if(o.media?.tagName==="VIDEO"){o.media.playbackRate=o.mediaPlaybackRate;o.media.volume=o.mediaVolume;o.media.loop=o.mediaLoop;o.media.muted=o.mediaMuted}});markChanged();renderFleetState(`已更新 ${arr.length} 個設備的獨立播放設定`);return arr.length
+}
+function clearSelectedDeviceMedia(){const arr=editableTargets().filter(o=>o.media);if(!arr.length){toast("選取設備沒有內容");return 0}arr.forEach(o=>{try{o.media?.pause?.()}catch{}o.media=null;o.ready=0;o.mediaType=null;o.assetName=null;o.assetType=null});draw();props();markChanged();toast(`已移除 ${arr.length} 個設備的內容`);return arr.length}
+function applyNakedPreset(name){const p={subtle:{depth:22,speed:.65,motion:"depth"},showcase:{depth:52,speed:1.15,motion:"parallax"},dramatic:{depth:82,speed:1.8,motion:"float"}}[name]||{};q("naked3DDepth").value=p.depth||35;q("naked3DDepthVal").textContent=(p.depth||35)+"%";q("naked3DMotion").value=p.motion||"parallax";q("naked3DSpeed").value=Math.round((p.speed||1)*100);q("naked3DEnabled").checked=true;applyNakedToSelected()}
+function applyNakedToSelected(){const arr=editableTargets();if(!arr.length){toast("請先選取設備");return 0}arr.forEach(o=>{o.naked3D=q("naked3DEnabled").checked;o.naked3DDepth=+q("naked3DDepth").value||35;o.naked3DMotion=q("naked3DMotion").value;o.naked3DSpeed=(+q("naked3DSpeed").value||100)/100;o.naked3DDirection=+q("naked3DDirection").value||1;o.naked3DPaused=false});ensureNaked3DLoop();draw();markChanged();toast(`裸眼 3D 已套用到 ${arr.length} 個設備`);return arr.length}
+function fleetVideoObjects(scope="selected"){return(scope==="all"?O:editableTargets()).filter(o=>o.media?.tagName==="VIDEO")}
+playFleet=async function(scope="selected",restart=false){const os=fleetVideoObjects(scope);if(!os.length){toast("作用範圍內沒有影片");return false}const master=os[0].media,base=restart?0:(Number.isFinite(master.currentTime)?master.currentTime:0);ensureAudioContext()?.resume?.();os.forEach(o=>{const v=o.media,t=Math.max(0,base+(o.mediaOffset||0));try{v.currentTime=Math.min(t,Number.isFinite(v.duration)?v.duration:t);v.loop=o.mediaLoop??q("fleetLoop")?.checked??true;v.playbackRate=o.mediaPlaybackRate||1;v.volume=o.mediaVolume??1;v.muted=o.mediaMuted??!q("videoAudioEnabled")?.checked}catch{}});const rs=await Promise.allSettled(os.map(o=>o.media.play()));const ok=rs.filter(r=>r.status==="fulfilled").length;if(ok)ensureVideoLoop();renderFleetState(`${scope==="all"?"全部同步":"選取設備"}播放 ${ok}/${os.length}`);return ok===os.length};
+seekFleet=function(seconds=0,scope="all"){const os=fleetVideoObjects(scope),base=Math.max(0,+seconds||0);os.forEach(o=>{try{const t=Math.max(0,base+(o.mediaOffset||0));o.media.currentTime=Math.min(t,Number.isFinite(o.media.duration)?o.media.duration:t)}catch{}});draw();updateTimeline();renderFleetState(`已同步跳轉 ${os.length} 台設備`);return os.length};
+function installProfessionalDeviceUI(){
+ if(q("modelShape"))return;
+ const pf=q("pf");if(pf)pf.insertAdjacentHTML("beforeend",`<section class="panel modelEditor"><div class="panelTitle"><h3>設備結構編輯器</h3><span>建立後可持續修改</span></div><div class="field"><label>模型形狀</label><select id="modelShape"><option value="rect">矩形 LED</option><option value="curve">曲面 LED</option><option value="l">L 型 LED</option><option value="u">ㄇ 型 LED</option><option value="poly">自由異形</option></select></div><div class="g2"><button id="convertShape" class="btn gold">轉換選取形狀</button><button id="resetShape" class="btn">重設幾何</button></div><div class="g2 compactActions"><button id="addShapeNode" class="btn">＋ 節點</button><button id="removeShapeNode" class="btn">－ 節點</button></div><div class="sectionDivider">設備邊框</div><label class="switchField"><input id="borderEnabled" type="checkbox"> 啟用設備邊框</label><div class="g2"><div class="field"><label>寬度 px</label><input id="borderWidth" type="number" min="0.5" max="80" step="0.5" value="4"></div><div class="field"><label>顏色</label><input id="borderColor" type="color" value="#d6b45f"></div></div><div class="g2"><div class="field"><label>樣式</label><select id="borderStyle"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select></div><div class="field"><label>透明度 %</label><input id="borderOpacity" type="number" min="5" max="100" value="100"></div></div><button id="applyBorderSelected" class="btn primary wide">套用到所有選取設備</button></section>`);
+ const modelManager=[...pf?.querySelectorAll(".panel")||[]].find(el=>el.querySelector(":scope > h3")?.textContent.includes("模型管理"));if(modelManager)modelManager.insertAdjacentElement("afterend",q("modelShape").closest(".modelEditor"));
+ const timeline=q("videoTimeline")?.closest(".timelinePanel"),contentPanel=q("content")?.closest("section.panel");if(contentPanel&&!q("contentScopeHint"))contentPanel.querySelector("h3")?.insertAdjacentHTML("afterend",`<div id="contentScopeHint" class="contentScopeHint">上傳內容會獨立套用到目前選取的設備；單選時只更換該台。</div>`);if(timeline)timeline.insertAdjacentHTML("afterend",`<section class="contentRuntime"><div class="sectionDivider">每台設備獨立播放設定</div><div class="g3"><div class="field"><label>速度</label><select id="mediaPlaybackRate"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div><div class="field"><label>音量 %</label><input id="mediaVolume" type="number" min="0" max="100" value="100"></div><div class="field"><label>同步偏移 秒</label><input id="mediaOffset" type="number" step="0.1" value="0"></div></div><div class="g2"><label class="switchField"><input id="mediaLoop" type="checkbox" checked> 循環</label><label class="switchField"><input id="mediaMuted" type="checkbox"> 靜音</label></div><div class="g2"><button id="applyMediaSettings" class="btn primary">套用到選取設備</button><button id="clearSelectedMedia" class="btn red">移除選取內容</button></div></section>`);
+ const n3=q("naked3DMotion")?.closest(".panel");if(n3)n3.insertAdjacentHTML("beforeend",`<div class="g2"><div class="field"><label>動態速度</label><input id="naked3DSpeed" type="range" min="10" max="300" value="100"></div><div class="field"><label>方向</label><select id="naked3DDirection"><option value="1">正向</option><option value="-1">反向</option></select></div></div><div class="nakedPresets"><button data-naked-preset="subtle">自然景深</button><button data-naked-preset="showcase">展演破框</button><button data-naked-preset="dramatic">強烈動態</button></div><div class="g2"><button id="nakedApplySelected" class="btn gold">套用到選取設備</button><button id="nakedPause" class="btn">暫停／繼續</button></div>`);
+ const ai=q("aiCommandInput")?.closest(".aiOpsPanel");if(ai){const project=q("tab-project"),fleet=q("fleetState")?.closest(".fleetPanel");project?.prepend(ai);if(fleet)ai.insertAdjacentElement("afterend",fleet);ai.querySelector("h3").textContent="AI 視覺指揮中心";q("aiCommandInput").placeholder="例如：建立 6 台橫式屏並智慧排列；全選設備並設定金色 6px 邊框；同步播放全部影片";q("aiNextActions").insertAdjacentHTML("beforebegin",`<div class="aiQuickCommands"><button data-ai-command="建立 4 台 LED 並智慧排列">建立設備</button><button data-ai-command="全選設備並設定金色 6px 邊框">統一邊框</button><button data-ai-command="同步播放全部影片">同步播放</button><button data-ai-command="套用展演裸眼3D">3D 展演</button></div><div id="aiCommandHistory" class="aiCommandHistory">等待指令</div>`)}
+ q("convertShape").onclick=()=>convertDeviceShape(q("modelShape").value);q("resetShape").onclick=()=>convertDeviceShape("rect");q("addShapeNode").onclick=()=>changeShapeNode(1);q("removeShapeNode").onclick=()=>changeShapeNode(-1);q("applyBorderSelected").onclick=applyBorderFromUI;q("applyMediaSettings").onclick=applyMediaSettingsFromUI;q("clearSelectedMedia").onclick=clearSelectedDeviceMedia;q("nakedApplySelected").onclick=applyNakedToSelected;q("nakedPause").onclick=()=>{editableTargets().forEach(o=>o.naked3DPaused=!o.naked3DPaused);ensureNaked3DLoop();draw()};qa("[data-naked-preset]").forEach(b=>b.onclick=()=>applyNakedPreset(b.dataset.nakedPreset));qa("[data-ai-command]").forEach(b=>b.onclick=()=>{q("aiCommandInput").value=b.dataset.aiCommand;q("aiExecuteCommand").click()});
+ q("aiCommand").onclick=()=>{const t=q("aiPrompt").value.trim();if(!t){toast("請輸入 AI 指令");return}q("aiCommandInput").value=t;executeAICommandText(t)}
+}
+const _v21Props=props;props=function(){const r=_v21Props.apply(this,arguments),o=selected();if(q("contentScopeHint"))q("contentScopeHint").textContent=`目前作用範圍：${editableTargets().length||0} 台設備｜上傳後各台可獨立更換與播放`;if(o&&q("modelShape")){q("modelShape").value=["curve","l","u","poly"].includes(o.type)?o.type:"rect";q("borderEnabled").checked=!!o.borderEnabled;q("borderWidth").value=o.borderWidth||4;q("borderColor").value=o.borderColor||"#d6b45f";q("borderStyle").value=o.borderStyle||"solid";q("borderOpacity").value=Math.round((o.borderOpacity??1)*100);q("mediaPlaybackRate").value=String(o.mediaPlaybackRate||1);q("mediaVolume").value=Math.round((o.mediaVolume??1)*100);q("mediaOffset").value=o.mediaOffset||0;q("mediaLoop").checked=o.mediaLoop??true;q("mediaMuted").checked=!!o.mediaMuted;q("naked3DSpeed").value=Math.round((o.naked3DSpeed||1)*100);q("naked3DDirection").value=String(o.naked3DDirection||1)}return r};
+const _v21AI=executeAICommandText;executeAICommandText=async function(text){const t=String(text||"").trim();if(!t){toast("請輸入 AI 指令");return false}const state=q("aiOpsState"),history=q("aiCommandHistory");if(state)state.textContent="AI 狀態：正在分析設備、選取範圍與操作順序…";let result;
+ if(/(?:邊框|框線)/.test(t)){if(/全選|全部/.test(t))setFleetSelection(fleetObjects().map(o=>o.id));const color=/金/.test(t)?"#d6b45f":/白/.test(t)?"#ffffff":/紅/.test(t)?"#e85d68":"#5da9ff",width=+(t.match(/(\d+(?:\.\d+)?)\s*(?:px|像素)/i)?.[1]||4);q("borderEnabled").checked=!/取消|移除|關閉/.test(t);q("borderColor").value=color;q("borderWidth").value=width;result=applyBorderFromUI()}
+ else if(/(?:轉換|改成|變成).*(?:曲面|L型|L 型|ㄇ型|ㄇ 型|異形|矩形)/i.test(t)){result=convertDeviceShape(/曲面/.test(t)?"curve":/L型|L 型/i.test(t)?"l":/ㄇ/.test(t)?"u":/異形/.test(t)?"poly":"rect")}
+ else if(/(?:裸眼|3D).*(?:展演|強烈|自然|套用)/i.test(t)){result=applyNakedPreset(/強烈/.test(t)?"dramatic":/自然/.test(t)?"subtle":"showcase")}
+ else if(/(?:播放速度|倍速)/.test(t)){const rate=+(t.match(/(\d+(?:\.\d+)?)\s*(?:倍|x|×)/i)?.[1]||1);q("mediaPlaybackRate").value=String(Math.max(.5,Math.min(2,rate)));result=applyMediaSettingsFromUI()}
+ else result=await _v21AI(t);
+ if(state)state.textContent=`AI 狀態：已執行「${t}」`;if(history)history.innerHTML=`<b>最近執行</b><span>${esc(t)}</span><small>已依目前選取設備與場景狀態完成</small>`;return result};
+window.xinyuDeviceStudio={convertShape:convertDeviceShape,applyBorder:applyBorderFromUI,applyMediaSettings:applyMediaSettingsFromUI,applyNakedPreset,clearMedia:clearSelectedDeviceMedia};
+window.addEventListener("load",()=>setTimeout(()=>{installProfessionalDeviceUI();props();renderFleetState("設備工作流已就緒")},260));

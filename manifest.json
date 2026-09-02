@@ -1,6 +1,6 @@
 {
-  "name": "Xinyu LED Studio V20.9.0",
-  "short_name": "Xinyu LED V20.9.0",
+  "name": "Xinyu LED Studio V21.0.0",
+  "short_name": "Xinyu LED V21.0.0",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0a0b0e",
@@ -13,5 +13,5 @@
       "purpose": "any maskable"
     }
   ],
-  "description": "多設備批次建立、調整、刪除還原、素材同步與同步播放工作流"
+  "description": "專業設備箱、建立後結構編修、設備邊框、獨立與同步播放、裸眼3D及AI視覺指揮工作流"
 }

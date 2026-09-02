@@ -1,6 +1,6 @@
 {
-  "version": "20.9.0",
-  "display_version": "V20.9.0",
-  "title": "多設備智慧編排與同步播放版",
-  "release_state": "MULTI_DEVICE_RUNTIME_CANDIDATE"
+  "version": "21.0.0",
+  "display_version": "V21.0.0",
+  "title": "專業設備編修與 AI 視覺指揮版",
+  "release_state": "PROFESSIONAL_DEVICE_STUDIO_CANDIDATE"
 }
