@@ -1,5 +1,5 @@
-const C='xinyu-led-studio-v20-8-5';
-const CORE=['./','./index.html','./styles.css?v=20.8.5','./app.js?v=20.8.5','./manifest.json?v=20.8.5','./icon.svg?v=20.8.5'];
+const C='xinyu-led-studio-v20-9-0';
+const CORE=['./','./index.html','./styles.css?v=20.9.0','./app.js?v=20.9.0','./manifest.json?v=20.9.0','./icon.svg?v=20.9.0'];
 
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{

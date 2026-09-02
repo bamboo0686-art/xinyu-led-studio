@@ -68,10 +68,10 @@ function softDeleteSelected(){
  const ids=multiSel?.length?multiSel.slice():(sel?[sel]:[]);
  if(!ids.length){toast("請先選取要刪除的模型");return}
  const doomed=O.filter(o=>ids.includes(o.id));
- const removed=doomed.map(cloneSerializableObject);
- if(!confirm(`確定刪除 ${removed.length} 個物件嗎？可使用「還原最後刪除」。`))return;
- disposeObjects(doomed);snap();O=O.filter(o=>!ids.includes(o.id));
- deletedStack.push(removed);if(deletedStack.length>10)deletedStack.shift();
+ const removed=doomed.slice();
+ if(!testMode&&!confirm(`確定刪除 ${removed.length} 個物件嗎？可使用「還原最後刪除」。`))return;
+ pauseObjectMedia(doomed);snap();O=O.filter(o=>!ids.includes(o.id));
+ deletedStack.push(removed);if(deletedStack.length>10)disposeObjects(deletedStack.shift());
  sel=null;multiSel=[];draw();props();updatePropertySceneInfo();scheduleHeavyRefresh();markChanged();updateUXState();
  setPlayStatus("已刪除模型與其媒體播放來源");toast("已刪除，可還原")
 }
@@ -82,10 +82,10 @@ function duplicateSelectedObjects(){
  const ids=multiSel?.length?multiSel.slice():(sel?[sel]:[]);
  if(!ids.length){toast("請先選取模型");return}
  snap();const added=[];
- ids.forEach(id=>{const o=O.find(x=>x.id===id);if(!o)return;const d={...o,id:uid(),name:(o.name||"物件")+" 複製",order:O.length+added.length};
+ ids.forEach(id=>{const o=O.find(x=>x.id===id);if(!o)return;const d={...o,id:uid(),name:(o.name||"物件")+" 複製",order:O.length+added.length,media:null};
    if(o.pts)d.pts=o.pts.map(p=>({x:p.x+24,y:p.y+24}));else{d.x=(o.x||0)+24;d.y=(o.y||0)+24}
-   if(o.corners)d.corners=o.corners.map(p=>({x:p.x+24,y:p.y+24}));added.push(d)
- });O.push(...added);sel=added.at(-1)?.id||sel;multiSel=added.map(o=>o.id);draw();props();updateSelectionActions();scheduleHeavyRefresh();markChanged()
+   if(o.corners)d.corners=o.corners.map(p=>({x:p.x+24,y:p.y+24}));cloneRuntimeMedia(o,d);added.push(d)
+ });O.push(...added);sel=added.at(-1)?.id||sel;multiSel=added.map(o=>o.id);O.forEach(o=>o._layerSelected=multiSel.includes(o.id));draw();props();updateSelectionActions();scheduleHeavyRefresh();markChanged();toast(`已複製 ${added.length} 個設備`)
 }
 
 
@@ -1854,9 +1854,9 @@ function updateUXState(){const o=selected(),has=!!o,hasMedia=!!o?.media;if(q("st
 function centerSelected(){const o=selected();if(!o)return;const cc=safeSceneCenter(),b=objectBounds(o);snap();moveObj(o,cc.x-(b.x+b.w/2),cc.y-(b.y+b.h/2));draw();props();markChanged();toast("已置中選取物件")}
 function resetSelectedTransform(){const o=selected();if(!o)return;snap();o.rotation=0;centerSelected();props();draw();markChanged()}
 
-function restoreLastDeleted(){const pack=deletedStack.pop();if(!pack?.length)return Promise.resolve();const restored=pack.map(o=>({...o,id:uid()}));O.push(...restored);sel=restored[0]?.id||null;multiSel=restored.map(o=>o.id);return restoreMediaForObjects(restored).then(()=>{draw();layers();props();summary();updateUXState();markChanged();toast("已還原最後刪除")})}
+function restoreLastDeleted(){const pack=deletedStack.pop();if(!pack?.length){toast("目前沒有可還原的設備");return Promise.resolve([])}const restored=pack.map(o=>{if(O.some(x=>x.id===o.id))o.id=uid();return o});O.push(...restored);sel=restored.at(-1)?.id||null;multiSel=restored.map(o=>o.id);O.forEach(o=>o._layerSelected=multiSel.includes(o.id));return restoreMediaForObjects(restored).then(()=>{draw();layers();props();summary();updateUXState();updateSelectionActions();markChanged();toast(`已還原 ${restored.length} 個設備`);return restored})}
 function resetSelectedMediaTransform(){const o=selected();if(!o?.media)return;o.contentScale=100;o.contentRotate=0;o.contentWidth=100;o.contentHeight=100;o.contentX=0;o.contentY=0;o.cropX=0;o.cropY=0;o.cropW=100;o.cropH=100;props();draw();markChanged();toast("素材位置與尺寸已重設")}
-function buttonFunctionAudit(){const buttons=[...document.querySelectorAll("button[id]")],missing=[];buttons.forEach(b=>{const inline=typeof b.onclick==="function",dynamic=b.dataset.tool||b.closest(".btabs,.tabs,.workflowBar");b.classList.remove("actionMissing","actionReady");if(inline||dynamic)b.classList.add("actionReady");else{missing.push(b.id);b.classList.add("actionMissing")}});const box=q("buttonAuditResult");if(box){box.className="health "+(missing.length?"bad":"ok");box.innerHTML=missing.length?`發現 ${missing.length} 個未驗證按鈕：${missing.join("、")}`:`按鈕功能檢查 PASS｜${buttons.length}/${buttons.length}`};refreshActionGuards();return{total:buttons.length,missing,policies:Object.keys(ACTION_POLICIES).length}}
+function buttonFunctionAudit(){const buttons=[...document.querySelectorAll("button[id]")],missing=[];buttons.forEach(b=>{const inline=typeof b.onclick==="function",dynamic=b.dataset.actionBound==="1"||b.dataset.tool||b.closest(".btabs,.tabs,.workflowBar");b.classList.remove("actionMissing","actionReady");if(inline||dynamic)b.classList.add("actionReady");else{missing.push(b.id);b.classList.add("actionMissing")}});const box=q("buttonAuditResult");if(box){box.className="health "+(missing.length?"bad":"ok");box.innerHTML=missing.length?`發現 ${missing.length} 個未驗證按鈕：${missing.join("、")}`:`按鈕功能檢查 PASS｜${buttons.length}/${buttons.length}`};refreshActionGuards();return{total:buttons.length,missing,policies:Object.keys(ACTION_POLICIES).length}}
 function installTooltips(){const tips={new:"建立新的 LED 視覺設計專案",save:"儲存目前專案",bgBtn:"上傳現場實景照片",bgDelete:"刪除目前實景",quickCreateLED:"建立一面常規 LED",play:"播放目前選取設備的影片",pause:"暫停目前影片",removeMedia:"移除目前設備上的圖片或影片",toggle3d:"切換 2D／3D 預覽",recordWorkspace:"錄製工作區影音",exportBOM:"輸出工程 BOM",exportMapping:"輸出 LED Mapping"};Object.entries(tips).forEach(([id,t])=>{const el=q(id);if(el){el.title=t;el.setAttribute("aria-label",t)}})}
 
 const ACTION_RUNTIME={log:[],success:0,fail:0,blocked:0,maxLog:80,busy:new Set()};
@@ -1980,9 +1980,10 @@ function mockMediaRecorder(stream,opts={}){
 function mockThreeReady(){
  if(!testMode)return false;
  if(THREE)return true;
+ const MockVec3=class{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z;return this}};
  THREE={
-  Group:class{constructor(){this.children=[];this.position={x:0,y:0,z:0};this.rotation={x:0,y:0,z:0}}add(o){this.children.push(o)}remove(o){this.children=this.children.filter(x=>x!==o)}},
-  Mesh:class{constructor(g,m){this.geometry=g;this.material=m;this.position={x:0,y:0,z:0};this.rotation={x:0,y:0,z:0}}},
+  Group:class{constructor(){this.children=[];this.position=new MockVec3();this.rotation=new MockVec3()}add(o){this.children.push(o)}remove(o){this.children=this.children.filter(x=>x!==o)}},
+  Mesh:class{constructor(g,m){this.geometry=g;this.material=m;this.position=new MockVec3();this.rotation=new MockVec3()}},
   MeshBasicMaterial:class{constructor(o){Object.assign(this,o)}},
   MeshStandardMaterial:class{constructor(o){Object.assign(this,o)}},
   PlaneGeometry:class{constructor(w,h){this.w=w;this.h=h}},
@@ -1992,10 +1993,11 @@ function mockThreeReady(){
   VideoTexture:class{constructor(v){this.image=v;this.needsUpdate=true}},
   Texture:class{constructor(i){this.image=i;this.needsUpdate=true}},
   DoubleSide:2,
-  Scene:class{constructor(){this.children=[]}add(o){this.children.push(o)}},
+  Color:class{constructor(value){this.value=value}},
+  Scene:class{constructor(){this.children=[];this.background=null}add(o){this.children.push(o)}},
   PerspectiveCamera:class{constructor(){this.position={set(){}};this.aspect=1}updateProjectionMatrix(){}},
   WebGLRenderer:class{constructor(){this.domElement=document.createElement("canvas")}setPixelRatio(){}setSize(){}render(){}},
-  AmbientLight:class{},DirectionalLight:class{constructor(){this.position={set(){}}}},
+  AmbientLight:class{},HemisphereLight:class{},DirectionalLight:class{constructor(){this.position=new MockVec3()}},
  };
  OrbitControls=class{constructor(){this.target={set(){}}}update(){}};
  return true
@@ -2048,7 +2050,7 @@ function renderAIRecommendations(){
  if(!box)return;
  box.innerHTML=`<div><b>目前判斷：</b>專案${ctx.project?"✓":"×"}｜實景${ctx.hasBackground?"✓":"×"}｜設備 ${ctx.objectCount}｜素材 ${ctx.assetCount}｜${ctx.selected?"已選取 "+esc(ctx.selectedName):"未選取"}</div><div style="margin-top:6px">${rec.map((r,i)=>`<button data-ai-rec="${i}">${esc(r.label)}</button>`).join("")}</div>`;
  [...box.querySelectorAll("[data-ai-rec]")].forEach((b,i)=>b.onclick=()=>executeAIRecommendation(rec[i]));
- q("aiOpsState").textContent="AI 狀態：已完成工作區情境分析";
+ if(!/已|失敗|執行中|無法/.test(q("aiOpsState").textContent||""))q("aiOpsState").textContent="AI 狀態：已完成工作區情境分析";
  return {ctx,rec}
 }
 function executeAIRecommendation(r){
@@ -2120,6 +2122,11 @@ async function runMockE2E(){
   const fv=makeFixtureVideoElement(20);bindVideoObject(o,fv);o.assetName="fixture.mp4";o.assetType="video/mp4";add("Fixture 影片掛載",selectedVideo()===fv);
   await fv.play();seekVideo(8.5);add("Timeline Seek",Math.abs(fv.currentTime-8.5)<.01);
   fv.pause();add("影片暫停",fv.paused===true);
+  const peer=createModelSafe("常規屏"),peerVideo=makeFixtureVideoElement(20);bindVideoObject(peer,peerVideo);setFleetSelection([o.id,peer.id]);
+  const syncPlay=await playFleet("selected");add("多設備同步播放",syncPlay===true&&!fv.paused&&!peerVideo.paused);
+  seekFleet(6.25,"selected");add("多設備同步跳轉",Math.abs(fv.currentTime-6.25)<.01&&Math.abs(peerVideo.currentTime-6.25)<.01);
+  pauseFleet("selected");add("多設備全部暫停",fv.paused&&peerVideo.paused);
+  disposeObjects([peer]);O=O.filter(x=>x!==peer);sel=o.id;multiSel=[o.id];O.forEach(x=>x._layerSelected=x.id===o.id);renderFleetState();
   const beforeRot=o.rotation||0;o.rotation=35;draw();add("模型旋轉",o.rotation===35&&beforeRot!==35);
   const calc=calcEngineering(o);add("工程計算",!!calc&&calc.pixels>0&&calc.receivers>0);
   const bom=buildBOM();add("BOM 建立",Array.isArray(bom)&&bom.length>0);
@@ -2597,7 +2604,7 @@ function bootstrapApp(){restoreWorkbenchLayout();installWorkbenchResize();instal
   dash();resize();bindLibraryRuntime();activateLibraryTab("ledmodels","bootstrap");summary();renderSceneTabs();renderGuides();projectHealth();
   startupCoreAudit();setFlow("scene");installActionGuard();installBusyFeedback();updateUXState();refreshActionGuards();updateContextRecommendation();setRuntimeState("2D核心已就緒","ok");setTimeout(workbenchVisibilityAudit,180);setTimeout(buttonFunctionAudit,300);setTimeout(libraryFunctionalAudit,380);
   if("serviceWorker"in navigator&&location.protocol.startsWith("http")){
-  navigator.serviceWorker.register("./sw.js?v=20.8.5",{updateViaCache:"none"})
+  navigator.serviceWorker.register("./sw.js?v=20.9.0",{updateViaCache:"none"})
    .then(async reg=>{try{await reg.update()}catch{}})
    .catch(e=>console.warn("SW",e))
 }
@@ -2756,14 +2763,89 @@ function restoreLeftPanelPage(){
  bindLibraryRuntime();setLeftPanelPage(page);
 }
 
-/* === V20.8.5 deployment verification === */
-const XINYU_DEPLOY_BUILD="V20.8.5";
+/* === V20.9 multi-device orchestration === */
+function cloneRuntimeMedia(source,target){
+ const media=source?.media;if(!media||!target)return null;
+ try{
+  if(media.tagName==="VIDEO"){
+   const v=document.createElement("video");v.src=media.currentSrc||media.src||"";v.crossOrigin=media.crossOrigin||"anonymous";v.playsInline=true;v.preload="auto";v.loop=media.loop;v.muted=media.muted;v.volume=media.volume;
+   target.assetName=source.assetName;target.assetType=source.assetType;target.mediaObjectURL=source.mediaObjectURL;bindVideoObject(target,v);
+   const seek=()=>{try{v.currentTime=Number.isFinite(media.currentTime)?media.currentTime:0}catch{}};v.addEventListener("loadedmetadata",seek,{once:true});return v
+  }
+  const img=new Image();img.crossOrigin=media.crossOrigin||"anonymous";img.onload=()=>{target.ready=1;draw()};img.src=media.currentSrc||media.src||"";target.media=img;target.ready=media.complete?1:0;target.mediaType="image";target.assetName=source.assetName;target.assetType=source.assetType;target.mediaObjectURL=source.mediaObjectURL;return img
+ }catch(e){console.warn("cloneRuntimeMedia",e);target.media=null;target.ready=0;return null}
+}
+function setFleetSelection(ids=[]){
+ const valid=new Set(ids.filter(id=>O.some(o=>o.id===id)));multiSel=[...valid];sel=multiSel.at(-1)||null;O.forEach(o=>o._layerSelected=valid.has(o.id));draw();props();layers();updateSelectionActions();renderFleetState();return multiSel.length
+}
+function fleetObjects(mediaOnly=false){return O.filter(o=>o.vis!==false&&!o.lock&&(!mediaOnly||o.media?.tagName==="VIDEO"))}
+function scaleFleetObject(o,factor){
+ if(!o||!Number.isFinite(factor)||factor<=0)return;const b=objectBounds(o),cx=b.x+b.w/2,cy=b.y+b.h/2;
+ if(o.pts)o.pts=o.pts.map(p=>({x:cx+(p.x-cx)*factor,y:cy+(p.y-cy)*factor}));
+ else{o.x=cx+(o.x-cx)*factor;o.y=cy+(o.y-cy)*factor;o.w=Math.max(8,(o.w||8)*factor);o.h=Math.max(8,(o.h||8)*factor)}
+ if(o.corners)o.corners=o.corners.map(p=>({x:cx+(p.x-cx)*factor,y:cy+(p.y-cy)*factor}))
+}
+function arrangeFleet(arr=selectedObjects(),mode="grid"){
+ arr=(arr||[]).filter(o=>!o.lock&&o.vis!==false);if(!arr.length){toast("請先選取要排列的設備");return false}snap();
+ const sb=getSceneBounds(),n=arr.length,cols=mode==="column"?1:mode==="row"?n:Math.ceil(Math.sqrt(n)),rows=Math.ceil(n/cols),gap=Math.max(12,Math.min(28,sb.w*.025)),cellW=(sb.w-gap*(cols+1))/cols,cellH=(sb.h-gap*(rows+1))/rows;
+ arr.forEach((o,i)=>{const b=objectBounds(o),fit=Math.min(1,Math.max(.08,Math.min(cellW/Math.max(1,b.w),cellH/Math.max(1,b.h))*.82));if(fit<.999)scaleFleetObject(o,fit);const nb=objectBounds(o),col=i%cols,row=Math.floor(i/cols),cx=sb.x+gap+cellW*(col+.5)+gap*col,cy=sb.y+gap+cellH*(row+.5)+gap*row;moveObj(o,cx-(nb.x+nb.w/2),cy-(nb.y+nb.h/2));clampModelToScene(o)});
+ draw();props();layers();scheduleHeavyRefresh();markChanged();renderFleetState(`已完成 ${arr.length} 個設備的${mode==="row"?"水平":mode==="column"?"垂直":"智慧網格"}排列`);return true
+}
+function createFleet(){
+ if(!cur){toast("請先建立或開啟專案");return []}const count=Math.max(1,Math.min(24,Math.round(+q("fleetCount").value||1))),raw=q("fleetModel").value,name=raw==="LCD拼接屏"?"拼接屏":raw,created=[];
+ for(let i=0;i<count;i++){const o=createModelSafe(name);if(o){o.name=`${raw} ${O.filter(x=>x!==o&&x.name?.startsWith(raw)).length+1}`;created.push(o)}}
+ setFleetSelection(created.map(o=>o.id));arrangeFleet(created,q("fleetLayout").value);toast(`已建立並排列 ${created.length} 個設備`);return created
+}
+function applyFleetTransform(){
+ const arr=selectedObjects().filter(o=>!o.lock);if(!arr.length){toast("請先選取設備");return false}const dx=+q("fleetDX").value||0,dy=+q("fleetDY").value||0,factor=Math.max(.1,Math.min(5,(+q("fleetScale").value||100)/100)),rot=+q("fleetRotate").value||0;snap();
+ arr.forEach(o=>{moveObj(o,dx,dy);if(factor!==1)scaleFleetObject(o,factor);o.rotation=(o.rotation||0)+rot;clampModelToScene(o)});draw();props();layers();scheduleHeavyRefresh();markChanged();renderFleetState(`已批次調整 ${arr.length} 個設備`);return true
+}
+function fleetVideoTargets(scope="selected"){
+ const source=scope==="all"?O:selectedObjects();return [...new Set(source.map(o=>o.media).filter(v=>v?.tagName==="VIDEO"))]
+}
+async function playFleet(scope="selected",restart=false){
+ const videos=fleetVideoTargets(scope);if(!videos.length){toast(scope==="all"?"場景內沒有影片設備":"選取設備沒有影片");renderFleetState("找不到可播放影片");return false}
+ const master=videos[0],time=restart?0:(Number.isFinite(master.currentTime)?master.currentTime:0),loop=!!q("fleetLoop")?.checked;ensureAudioContext()?.resume?.();
+ videos.forEach(v=>{try{v.currentTime=Math.min(time,Number.isFinite(v.duration)?v.duration:time);v.loop=loop;v.muted=!q("videoAudioEnabled")?.checked}catch{}});
+ const results=await Promise.allSettled(videos.map(v=>v.play()));const ok=results.filter(r=>r.status==="fulfilled").length;if(ok){ensureVideoLoop();document.body.classList.add("fleet-playing");setRuntimeState(`同步播放 ${ok}/${videos.length}`,ok===videos.length?"ok":"warn")}renderFleetState(`同步播放：${ok}/${videos.length}`);return ok===videos.length
+}
+function pauseFleet(scope="all",reset=false){const videos=fleetVideoTargets(scope);videos.forEach(v=>{try{v.pause();if(reset)v.currentTime=0}catch{}});if(!anyPlayingVideo())document.body.classList.remove("fleet-playing");draw();renderFleetState(`${reset?"已重設":"已暫停"} ${videos.length} 部影片`);return videos.length}
+function seekFleet(seconds=0,scope="all"){const videos=fleetVideoTargets(scope),t=Math.max(0,+seconds||0);videos.forEach(v=>{try{v.currentTime=Math.min(t,Number.isFinite(v.duration)?v.duration:t)}catch{}});draw();updateTimeline();renderFleetState(`已同步跳至 ${t.toFixed(1)} 秒｜${videos.length} 部影片`);return videos.length}
+function copyFleetMedia(){
+ const arr=selectedObjects(),source=arr.find(o=>o.media);if(!source){toast("請先選取一個已有素材的來源設備");return 0}let count=0;arr.forEach(o=>{if(o===source)return;stopAndDisposeMedia(o);if(cloneRuntimeMedia(source,o))count++});draw();markChanged();renderFleetState(`已同步素材到 ${count} 個設備`);toast(`素材已同步到 ${count} 個設備`);return count
+}
+function renderFleetState(message=""){
+ const videos=O.filter(o=>o.media?.tagName==="VIDEO"),playing=videos.filter(o=>!o.media.paused&&!o.media.ended),selectedCount=selectedObjects().length,el=q("fleetState"),hint=q("fleetHint");if(el)el.textContent=`場景設備 ${O.length}｜已選取 ${selectedCount}｜影片 ${videos.length}｜播放中 ${playing.length}`;if(hint&&message)hint.textContent=message;
+ if(q("fleetSelectAll"))q("fleetSelectAll").disabled=!O.length;if(q("fleetSelectMedia"))q("fleetSelectMedia").disabled=!videos.length;if(q("fleetDuplicate"))q("fleetDuplicate").disabled=!selectedCount;if(q("fleetDelete"))q("fleetDelete").disabled=!selectedCount;if(q("fleetRestore"))q("fleetRestore").disabled=!deletedStack.length;if(q("fleetApplyTransform"))q("fleetApplyTransform").disabled=!selectedCount;if(q("fleetSmartArrange"))q("fleetSmartArrange").disabled=!selectedCount;if(q("fleetCopyMedia"))q("fleetCopyMedia").disabled=selectedObjects().filter(o=>o.media).length<1||selectedCount<2;if(q("fleetPlaySelected"))q("fleetPlaySelected").disabled=!selectedObjects().some(o=>o.media?.tagName==="VIDEO");if(q("fleetPlayAll"))q("fleetPlayAll").disabled=!videos.length;if(q("fleetPauseAll"))q("fleetPauseAll").disabled=!videos.length;if(q("fleetRestartAll"))q("fleetRestartAll").disabled=!videos.length;if(q("fleetSeek"))q("fleetSeek").disabled=!videos.length;return{objects:O.length,selected:selectedCount,videos:videos.length,playing:playing.length}
+}
+function installFleetControls(){
+ if(!q("fleetCreate")||q("fleetCreate").dataset.bound)return;q("fleetCreate").dataset.bound="1";
+ ["collapseDock","collapseInspector","libraryUploadAsset","libraryRefresh"].forEach(id=>{if(q(id))q(id).dataset.actionBound="1"});
+ q("fleetCreate").onclick=createFleet;q("fleetSelectAll").onclick=()=>setFleetSelection(fleetObjects().map(o=>o.id));q("fleetSelectMedia").onclick=()=>setFleetSelection(fleetObjects(true).map(o=>o.id));q("fleetDuplicate").onclick=()=>{duplicateSelectedObjects();arrangeFleet(selectedObjects(),q("fleetLayout").value)};q("fleetDelete").onclick=softDeleteSelected;q("fleetRestore").onclick=restoreLastDeleted;q("fleetCopyMedia").onclick=copyFleetMedia;q("fleetApplyTransform").onclick=applyFleetTransform;q("fleetSmartArrange").onclick=()=>arrangeFleet(selectedObjects(),q("fleetLayout").value);
+ q("fleetPlaySelected").onclick=()=>playFleet("selected");q("fleetPlayAll").onclick=()=>playFleet("all");q("fleetPauseAll").onclick=()=>pauseFleet("all");q("fleetRestartAll").onclick=()=>playFleet("all",true);q("fleetSeek").onclick=()=>seekFleet(q("fleetSeekTime").value,"all");q("fleetLoop").onchange=()=>fleetVideoTargets("all").forEach(v=>v.loop=q("fleetLoop").checked);renderFleetState()
+}
+const _fleetUpdateSelection=updateSelectionActions;updateSelectionActions=function(){const r=_fleetUpdateSelection?.apply(this,arguments);renderFleetState();return r};
+const _fleetProps=props;props=function(){const r=_fleetProps.apply(this,arguments);renderFleetState();return r};
+const _fleetAIExecute=executeAICommandText;executeAICommandText=async function(text){
+ const t=String(text||"").trim(),count=Math.max(1,Math.min(24,+(t.match(/(\d+)\s*(?:個|台|組)/)?.[1]||1)));
+ if(/(?:建立|新增)/.test(t)&&count>1&&/(?:LED|螢幕|屏|設備)/.test(t)){q("fleetCount").value=count;q("fleetModel").value=/弧/.test(t)?"弧形屏":/直立/.test(t)?"直立屏":/橫式/.test(t)?"橫式屏":"常規屏";q("fleetLayout").value=/水平/.test(t)?"row":/垂直/.test(t)?"column":"grid";const made=createFleet();q("aiOpsState").textContent=`AI 狀態：已建立並排列 ${made.length} 個設備`;return made}
+ if(/(?:智慧|自動).*(?:排列|排版)|(?:排列|排版).*(?:設備|螢幕|屏)/.test(t)){const ok=arrangeFleet(selectedObjects().length?selectedObjects():fleetObjects(),/水平/.test(t)?"row":/垂直/.test(t)?"column":"grid");q("aiOpsState").textContent=`AI 狀態：${ok?"已完成智慧排列":"排列條件不足"}`;return ok}
+ if(/(?:播放全部|全部播放|同步播放)/.test(t)){const ok=await playFleet("all");q("aiOpsState").textContent=`AI 狀態：${ok?"全部設備同步播放":"沒有可播放影片"}`;return ok}
+ if(/(?:暫停全部|全部暫停)/.test(t)){const n=pauseFleet("all");q("aiOpsState").textContent=`AI 狀態：已暫停 ${n} 部影片`;return n}
+ if(/(?:全選設備|選取全部)/.test(t)){const n=setFleetSelection(fleetObjects().map(o=>o.id));q("aiOpsState").textContent=`AI 狀態：已選取 ${n} 個設備`;return n}
+ return _fleetAIExecute(text)
+};
+window.xinyuFleet={state:renderFleetState,create:createFleet,selectAll:()=>setFleetSelection(fleetObjects().map(o=>o.id)),arrange:mode=>arrangeFleet(selectedObjects(),mode),transform:applyFleetTransform,play:playFleet,pause:pauseFleet,seek:seekFleet,copyMedia:copyFleetMedia};
+installFleetControls();window.addEventListener("load",()=>setTimeout(()=>{installFleetControls();renderFleetState()},220));
+
+/* === V20.9.0 deployment verification === */
+const XINYU_DEPLOY_BUILD="V20.9.0";
 function verifyDeployedBuild(){
  try{
    const cssBuild=getComputedStyle(document.documentElement).getPropertyValue("--xinyu-build").trim();
    const badge=q("deployedBuildBadge"), state=q("deployVersionState");
    if(badge)badge.textContent="BUILD "+XINYU_DEPLOY_BUILD;
-   const ok=cssBuild==="20.8.5";
+   const ok=cssBuild==="20.9.0";
    if(state){
      state.textContent=ok?`部署版本 ${XINYU_DEPLOY_BUILD}｜CSS/JS 新版已載入`:`版本警告｜JS ${XINYU_DEPLOY_BUILD}／CSS ${cssBuild||"舊版或未載入"}`;
      state.style.color=ok?"#7ed29a":"#ef8a8a";

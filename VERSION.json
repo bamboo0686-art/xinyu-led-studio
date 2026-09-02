@@ -1,6 +1,6 @@
 {
-  "version": "20.8.5",
-  "display_version": "V20.8.5",
-  "title": "啟動核心、安全性與 1:1 工作區強化版",
-  "release_state": "RUNTIME_VERIFIED_CANDIDATE"
+  "version": "20.9.0",
+  "display_version": "V20.9.0",
+  "title": "多設備智慧編排與同步播放版",
+  "release_state": "MULTI_DEVICE_RUNTIME_CANDIDATE"
 }
